@@ -40,12 +40,17 @@ func New() *App {
 }
 
 func (a *App) Init() tea.Cmd {
+	// This initiates the polling cycle for window size updates
+	// but shouldn't be necessary on non-Windows computers.
+	// TODO: Return nil on non-Windows operating systems
 	return pollForSizeChange
 }
 
 func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmd := tea.Cmd(nil)
 	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		cmd = a.handleSizeMsg(msg)
 	case tea.KeyMsg:
 		cmd = a.handleKeyMsg(msg)
 	case checkSizeMsg:
@@ -61,28 +66,28 @@ func (a *App) View() string {
 	return a.vp.View()
 }
 
+func (a *App) handleSizeMsg(msg tea.WindowSizeMsg) tea.Cmd {
+	w, h := msg.Width, msg.Height
+	a.w, a.h = w, h
+	a.vp.Width, a.vp.Height = w, h
+	a.vp.Style = a.vp.Style.Copy().Width(w).Height(h)
+	tea.ClearScreen()
+	return nil
+}
+
 func (a *App) handleCheckSizeMsg() tea.Cmd {
 	w, h, _ := term.GetSize(int(os.Stdout.Fd()))
 	if w == a.w && h == a.h {
 		return pollForSizeChange
 	}
-	a.updateSize(w, h)
 	updateSizeCmd := func() tea.Msg {
 		return tea.WindowSizeMsg{Width: w, Height: h}
 	}
 	return tea.Batch(pollForSizeChange, updateSizeCmd)
 }
 
-func (a *App) updateSize(w, h int) {
-	a.w, a.h = w, h
-	a.vp.Width, a.vp.Height = w, h
-	a.vp.Style = a.vp.Style.Copy().Width(w).Height(h)
-	tea.ClearScreen()
-}
-
-// There is (currently) no support on Windows for detecting resize events,
-// so we instead poll at regular intervals to check if the terminal size
-// has changed.
+// There is (currently) no support on Windows for detecting resize events, so
+// we instead poll at regular intervals to check if the terminal size changed.
 func pollForSizeChange() tea.Msg {
 	time.Sleep(ResizeCheckDuration)
 	return checkSizeMsg(1)
