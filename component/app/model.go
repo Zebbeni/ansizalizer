@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/Zebbeni/ansizalizer/component"
+	"github.com/charmbracelet/bubbles/key"
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -23,31 +25,33 @@ const (
 // window resizes.
 type App struct {
 	w, h int
-	km   KeyMap
+	km   *component.KeyMap
 
 	controls *controls.Controls
 	viewer   *viewer.Model
-	help     help.Model
+	help     *help.Model
 
 	viewport viewport.Model
 }
 
 func New() *App {
-	c := controls.New(1, 1, style.ControlsBorder)
-	v := viewer.New(1, 1, style.ViewerBorder)
+	keymap := component.InitKeymap()
+
+	c := controls.New(1, 1, style.ControlsBorder, keymap)
+	v := viewer.New(style.ViewerBorder)
 
 	h := help.New()
-	h.ShowAll = true
+	h.ShowAll = false
 
 	vp := viewport.New(1, 1)
 	vp.Style = style.ViewportBorder
 
 	return &App{
 		w: 1, h: 1,
-		km:       initKeymap(),
+		km:       keymap,
 		controls: c,
 		viewer:   v,
-		help:     h,
+		help:     &h,
 		viewport: vp,
 	}
 }
@@ -87,17 +91,35 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // Controls takes up a variable amount of width depending on what is displayed
 // and may expand as selected menu options add submenus to the width
 func (a *App) View() string {
-	ctrl := a.controls.View()
-	view := a.viewer.View()
+	height := a.h - helpHeight
 
-	helpText := a.help.View(a.km)
-	helper := style.Help.Render(helpText)
+	controlsContent := a.controls.View()
+	controlsWidth := lipgloss.Width(controlsContent) + 4
+	controlsContent = style.ControlsBorder.Copy().Width(controlsWidth).Height(height).Render(controlsContent)
 
-	content := lipgloss.JoinHorizontal(lipgloss.Top, ctrl, view)
-	content = lipgloss.JoinVertical(lipgloss.Top, content, helper)
+	viewerContent := a.viewer.View()
+	viewerWidth := a.w - lipgloss.Width(controlsContent) - 2
+	viewerContent = style.ViewerBorder.Copy().Width(viewerWidth).Height(height).Render(viewerContent)
+
+	helpContent := a.help.View(a.km)
+	helpContent = lipgloss.NewStyle().Padding(0, 0, 0, 1).Render(helpContent)
+
+	content := lipgloss.JoinHorizontal(lipgloss.Top, controlsContent, viewerContent)
+	content = lipgloss.JoinVertical(lipgloss.Top, content, helpContent)
 
 	contentStyle := lipgloss.NewStyle().Width(a.w).Height(a.h)
 
 	a.viewport.SetContent(contentStyle.Render(content))
 	return a.viewport.View()
+}
+
+func (a *App) handleKeyMsg(msg tea.KeyMsg) tea.Cmd {
+	switch {
+	case key.Matches(msg, a.km.Quit):
+		return tea.Quit
+	}
+	// check with child components here until one returns a non-nil
+	// command or all handlers have been hit. Need to figure out
+	// how to handle events that affect the app state.
+	return nil
 }

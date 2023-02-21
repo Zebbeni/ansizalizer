@@ -23,9 +23,6 @@ func (a *App) handleSizeMsg(msg tea.WindowSizeMsg) tea.Cmd {
 
 	a.controls.Resize(a.w, a.h-helpHeight)
 
-	viewerW := a.w - a.controls.Width - 4
-	a.viewer.Resize(viewerW, a.h-helpHeight)
-
 	tea.ClearScreen()
 	return nil
 }

@@ -1,18 +1,20 @@
 package viewer
 
 import (
-	"fmt"
+	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
+// The Viewer returns a
+
 type Model struct {
-	Width, Height int
-	style         lipgloss.Style
+	style  lipgloss.Style
+	keymap *help.KeyMap
 }
 
-func New(w, h int, s lipgloss.Style) *Model {
-	return &Model{Width: w, Height: h, style: s}
+func New(s lipgloss.Style) *Model {
+	return &Model{style: s}
 }
 
 func (v *Model) Init() tea.Cmd {
@@ -24,6 +26,5 @@ func (v *Model) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (v *Model) View() string {
-	style := v.style.Copy().Width(v.Width).Height(v.Height)
-	return style.Render(fmt.Sprintf("Controls %dx%d", v.Width, v.Height))
+	return "Viewer"
 }

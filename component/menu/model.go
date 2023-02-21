@@ -1,19 +1,21 @@
 package menu
 
 import (
-	"github.com/Zebbeni/ansizalizer/component/button"
+	"github.com/Zebbeni/ansizalizer/component/item"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
-	activeIdx int
-	buttons   []button.Button
+	activeItem int
+	items      []item.Model
 }
 
-func New(b []button.Button) *Model {
-	return &Model{
-		activeIdx: 0,
-		buttons:   b,
+func New(b []item.Model) Model {
+	b[0].SetActive(true)
+	return Model{
+		activeItem: 0,
+		items:      b,
 	}
 }
 
@@ -26,5 +28,10 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m *Model) View() string {
-	return ""
+	items := make([]string, len(m.items))
+	for i, item := range m.items {
+		items[i] = item.View()
+	}
+	content := lipgloss.JoinVertical(lipgloss.Top, items...)
+	return content
 }

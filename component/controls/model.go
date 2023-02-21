@@ -1,8 +1,9 @@
 package controls
 
 import (
-	"fmt"
+	"github.com/Zebbeni/ansizalizer/component/item"
 	"github.com/Zebbeni/ansizalizer/component/menu"
+	"github.com/charmbracelet/bubbles/help"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,8 +21,13 @@ type Controls struct {
 	menu          menu.Model
 }
 
-func New(w, h int, s lipgloss.Style) *Controls {
-	return &Controls{Width: w, Height: h, style: s}
+func New(w, h int, s lipgloss.Style, keyMap help.KeyMap) *Controls {
+	menu := menu.New([]item.Model{
+		item.New("Open", func() {}),
+		item.New("Settings", func() {}),
+		item.New("Process", func() {}),
+	})
+	return &Controls{Width: w, Height: h, style: s, menu: menu}
 }
 
 func (c *Controls) Init() tea.Cmd {
@@ -33,6 +39,5 @@ func (c *Controls) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (c *Controls) View() string {
-	controlStyle := c.style.Copy().Width(c.Width).Height(c.Height)
-	return controlStyle.Render(fmt.Sprintf("Controls %dx%d", c.Width, c.Height))
+	return c.menu.View()
 }
