@@ -26,7 +26,7 @@ type App struct {
 	km   KeyMap
 
 	controls *controls.Controls
-	viewer   *viewer.Viewer
+	viewer   *viewer.Model
 	help     help.Model
 
 	viewport viewport.Model
@@ -74,12 +74,12 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return a, cmd
 }
 
-// View draws three main components: Controls, Viewer, and Help.
+// View draws three main components: Controls, Model, and Help.
 // Everything is rendered inside a viewport that fills the whole terminal which
 // allows us to truncate the content if the terminal windows is too small.
 // ┎──────────┰─────────────┒
 // ┃          ┃             ┃
-// ┃ Controls ┃    Viewer   ┃
+// ┃ Controls ┃    Model   ┃
 // ┃          ┃             ┃
 // └──────────┸─────────────┚
 // ┃         Help           ┃

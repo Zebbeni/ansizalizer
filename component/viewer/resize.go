@@ -1,6 +1,6 @@
 package viewer
 
-func (v *Viewer) Resize(w, h int) {
+func (v *Model) Resize(w, h int) {
 	v.Width = w
 	v.Height = h
 }
