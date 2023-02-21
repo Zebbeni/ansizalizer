@@ -1,4 +1,4 @@
-//go:env linux
+//go:build linux
 
 package env
 

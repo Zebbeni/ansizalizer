@@ -1,4 +1,4 @@
-//go:env windows
+//go:build windows
 
 package env
 

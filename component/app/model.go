@@ -1,8 +1,10 @@
 package app
 
 import (
-	"fmt"
+	"github.com/Zebbeni/ansizalizer/component/controls"
+	"github.com/Zebbeni/ansizalizer/component/viewer"
 	"github.com/Zebbeni/ansizalizer/env"
+	"github.com/charmbracelet/lipgloss"
 	"time"
 
 	"github.com/charmbracelet/bubbles/viewport"
@@ -21,14 +23,25 @@ const (
 type App struct {
 	w, h int
 	km   KeyMap
-	vp   viewport.Model
+
+	controls *controls.Controls
+	viewer   *viewer.Viewer
+	viewport viewport.Model
 }
 
 func New() *App {
-	view := viewport.New(1, 1)
-	view.Style = style.Border
-	m := &App{w: 1, h: 1, km: initKeymap(), vp: view}
-	return m
+	c := controls.New()
+	v := viewer.New()
+	vp := viewport.New(1, 1)
+	vp.Style = style.Border
+
+	return &App{
+		w: 1, h: 1,
+		km:       initKeymap(),
+		controls: c,
+		viewer:   v,
+		viewport: vp,
+	}
 }
 
 func (a *App) Init() tea.Cmd {
@@ -53,19 +66,25 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return a, cmd
 }
 
-// View draws three main components: Controls, Preview, and Help.
-// Everything is rendered inside a viewport that fills the whole terminal,
-// which allows us to truncate the content if the terminal windows is too small
-// ┎──────────┰─────────┒
-// ┃ Controls ┃ Preview ┃
-// └──────────┸─────────┚
-// ┃        Help        ┃
-// └────────────────────┚
+// View draws three main components: Controls, Viewer, and Help.
+// Everything is rendered inside a viewport that fills the whole terminal which
+// allows us to truncate the content if the terminal windows is too small.
+// ┎──────────┰─────────────┒
+// ┃          ┃             ┃
+// ┃ Controls ┃    Viewer   ┃
+// ┃          ┃             ┃
+// └──────────┸─────────────┚
+// ┃         Help           ┃
+// └────────────────────────┚
 // Controls takes up a variable amount of width depending on what is displayed
 // and may expand as selected menu options add submenus to the width
 func (a *App) View() string {
-	text := fmt.Sprintf("%d x %d", a.w, a.h)
-	textStyle := style.Text.Copy().Width(a.w).Height(a.h)
-	a.vp.SetContent(textStyle.Render(text))
-	return a.vp.View()
+	ctrl := a.controls.View()
+	view := a.viewer.View()
+	content := lipgloss.JoinHorizontal(lipgloss.Top, ctrl, " | ", view)
+
+	contentStyle := lipgloss.NewStyle().Width(a.w).Height(a.h)
+
+	a.viewport.SetContent(contentStyle.Render(content))
+	return a.viewport.View()
 }
