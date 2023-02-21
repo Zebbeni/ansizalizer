@@ -18,6 +18,14 @@ func initKeymap() KeyMap {
 	}
 }
 
+func (k KeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{k.Quit}
+}
+
+func (k KeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{{k.Quit}}
+}
+
 func (a *App) handleKeyMsg(msg tea.KeyMsg) tea.Cmd {
 	switch {
 	case key.Matches(msg, a.km.Quit):

@@ -1,16 +1,17 @@
 package app
 
 import (
-	"github.com/Zebbeni/ansizalizer/component/controls"
-	"github.com/Zebbeni/ansizalizer/component/viewer"
-	"github.com/Zebbeni/ansizalizer/env"
-	"github.com/charmbracelet/lipgloss"
 	"time"
 
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
+	"github.com/Zebbeni/ansizalizer/component/controls"
 	"github.com/Zebbeni/ansizalizer/component/style"
+	"github.com/Zebbeni/ansizalizer/component/viewer"
+	"github.com/Zebbeni/ansizalizer/env"
 )
 
 const (
@@ -26,20 +27,27 @@ type App struct {
 
 	controls *controls.Controls
 	viewer   *viewer.Viewer
+	help     help.Model
+
 	viewport viewport.Model
 }
 
 func New() *App {
-	c := controls.New()
-	v := viewer.New()
+	c := controls.New(1, 1, style.ControlsBorder)
+	v := viewer.New(1, 1, style.ViewerBorder)
+
+	h := help.New()
+	h.ShowAll = true
+
 	vp := viewport.New(1, 1)
-	vp.Style = style.Border
+	vp.Style = style.ViewportBorder
 
 	return &App{
 		w: 1, h: 1,
 		km:       initKeymap(),
 		controls: c,
 		viewer:   v,
+		help:     h,
 		viewport: vp,
 	}
 }
@@ -81,7 +89,12 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (a *App) View() string {
 	ctrl := a.controls.View()
 	view := a.viewer.View()
-	content := lipgloss.JoinHorizontal(lipgloss.Top, ctrl, " | ", view)
+
+	helpText := a.help.View(a.km)
+	helper := style.Help.Render(helpText)
+
+	content := lipgloss.JoinHorizontal(lipgloss.Top, ctrl, view)
+	content = lipgloss.JoinVertical(lipgloss.Top, content, helper)
 
 	contentStyle := lipgloss.NewStyle().Width(a.w).Height(a.h)
 
