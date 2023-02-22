@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/Zebbeni/ansizalizer/component"
+	"github.com/Zebbeni/ansizalizer/state"
 	"github.com/charmbracelet/bubbles/key"
 	"time"
 
@@ -11,6 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/component/controls"
+	"github.com/Zebbeni/ansizalizer/component/keyboard"
 	"github.com/Zebbeni/ansizalizer/component/style"
 	"github.com/Zebbeni/ansizalizer/component/viewer"
 	"github.com/Zebbeni/ansizalizer/env"
@@ -24,18 +25,24 @@ const (
 // contains all other components. It fills the terminal window and responds to
 // window resizes.
 type App struct {
+	state *state.Model
+
 	w, h int
-	km   *component.KeyMap
+	km   *keyboard.Map
 
 	controls *controls.Controls
 	viewer   *viewer.Model
 	help     *help.Model
 
+	keyHandlers []keyboard.Handler
+
 	viewport viewport.Model
 }
 
 func New() *App {
-	keymap := component.InitKeymap()
+	s := state.New()
+
+	keymap := keyboard.InitMap()
 
 	c := controls.New(1, 1, style.ControlsBorder, keymap)
 	v := viewer.New(style.ViewerBorder)
@@ -47,12 +54,15 @@ func New() *App {
 	vp.Style = style.ViewportBorder
 
 	return &App{
-		w: 1, h: 1,
-		km:       keymap,
-		controls: c,
-		viewer:   v,
-		help:     &h,
-		viewport: vp,
+		state:       s,
+		w:           1,
+		h:           1,
+		km:          keymap,
+		controls:    c,
+		viewer:      v,
+		help:        &h,
+		keyHandlers: []keyboard.Handler{c, v},
+		viewport:    vp,
 	}
 }
 
@@ -71,7 +81,7 @@ func (a *App) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		cmd = a.handleSizeMsg(msg)
 	case tea.KeyMsg:
-		cmd = a.handleKeyMsg(msg)
+		cmd = a.HandleKeyMsg(msg)
 	case checkSizeMsg:
 		cmd = a.handleCheckSizeMsg()
 	}
@@ -113,13 +123,20 @@ func (a *App) View() string {
 	return a.viewport.View()
 }
 
-func (a *App) handleKeyMsg(msg tea.KeyMsg) tea.Cmd {
+func (a *App) HandleKeyMsg(msg tea.KeyMsg) tea.Cmd {
 	switch {
 	case key.Matches(msg, a.km.Quit):
 		return tea.Quit
 	}
+
 	// check with child components here until one returns a non-nil
-	// command or all handlers have been hit. Need to figure out
+	// command or all keyHandlers have been hit. Need to figure out
 	// how to handle events that affect the app state.
+	for _, handler := range a.keyHandlers {
+		if isHandled := handler.HandleKeyMsg(msg); isHandled {
+			break
+		}
+	}
+
 	return nil
 }

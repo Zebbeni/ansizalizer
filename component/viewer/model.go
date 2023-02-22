@@ -28,3 +28,7 @@ func (v *Model) Update(msg tea.Msg) tea.Cmd {
 func (v *Model) View() string {
 	return "Viewer"
 }
+
+func (v *Model) HandleKeyMsg(msg tea.KeyMsg) bool {
+	return false
+}

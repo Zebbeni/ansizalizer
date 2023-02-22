@@ -1,43 +1,41 @@
 package controls
 
 import (
-	"github.com/Zebbeni/ansizalizer/component/item"
-	"github.com/Zebbeni/ansizalizer/component/menu"
-	"github.com/charmbracelet/bubbles/help"
+	"github.com/Zebbeni/ansizalizer/component/keyboard"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-// Controls renders the left-hand side of the interface, initially a vertical
-// menu. Each menu item, when selected, displays a new item to the right of the
-// previous menu, cause the Controls area to expand rightward.
-//
-// In some cases this is a submenu. (e.g. ) In other cases it is a panel of controls
-// related to the menu item. (e.g. 'Open' displays a panel to render and select
-// file names)
+// Controls renders the left-hand side of the interface, initially populated
+// with a main menu. User actions may cause this menu to be swapped with a new
+// model. Controls generally deals with managing whatever Content it currently
+// holds, forwarding key and mouse messages to it, etc.
 type Controls struct {
 	Width, Height int
+	keymap        *keyboard.Map
 	style         lipgloss.Style
-	menu          menu.Model
+	content       Content
+
+	// probably need to app state here too
 }
 
-func New(w, h int, s lipgloss.Style, keyMap help.KeyMap) *Controls {
-	menu := menu.New([]item.Model{
-		item.New("Open", func() {}),
-		item.New("Settings", func() {}),
-		item.New("Process", func() {}),
-	})
-	return &Controls{Width: w, Height: h, style: s, menu: menu}
+func New(w, h int, s lipgloss.Style, k *keyboard.Map) *Controls {
+	m := NewMainMenu(k)
+	return &Controls{Width: w, Height: h, keymap: k, style: s, content: m}
 }
 
 func (c *Controls) Init() tea.Cmd {
 	return nil
 }
 
-func (c *Controls) Update(msg tea.Msg) tea.Cmd {
-	return nil
+func (c *Controls) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	return c, nil
 }
 
 func (c *Controls) View() string {
-	return c.menu.View()
+	return c.content.View()
+}
+
+func (c *Controls) HandleKeyMsg(msg tea.KeyMsg) bool {
+	return c.content.HandleKeyMsg(msg)
 }
