@@ -2,8 +2,8 @@ package controls
 
 import (
 	"github.com/Zebbeni/ansizalizer/component/keyboard"
+	"github.com/Zebbeni/ansizalizer/state"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 // Controls renders the left-hand side of the interface, initially populated
@@ -11,17 +11,21 @@ import (
 // model. Controls generally deals with managing whatever Content it currently
 // holds, forwarding key and mouse messages to it, etc.
 type Controls struct {
-	Width, Height int
-	keymap        *keyboard.Map
-	style         lipgloss.Style
-	content       Content
+	state  *state.Model
+	keymap *keyboard.Map
 
-	// probably need to app state here too
+	// content is a chronological list of Content objects displayed in the
+	// Controls panel. The last item listed is the one to display.
+	//
+	// When new content is added, (e.g. When 'Open' adds a file browser)
+	// we append the new Content to the content stack. When the user presses
+	// 'esc' to go back, we remove the browser from the Content stack.
+	content []Content
 }
 
-func New(w, h int, s lipgloss.Style, k *keyboard.Map) *Controls {
+func New(state *state.Model, k *keyboard.Map) *Controls {
 	m := NewMainMenu(k)
-	return &Controls{Width: w, Height: h, keymap: k, style: s, content: m}
+	return &Controls{state: state, keymap: k, content: []Content{m}}
 }
 
 func (c *Controls) Init() tea.Cmd {
@@ -33,9 +37,19 @@ func (c *Controls) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (c *Controls) View() string {
-	return c.content.View()
+	return c.content[len(c.content)-1].View()
 }
 
 func (c *Controls) HandleKeyMsg(msg tea.KeyMsg) bool {
-	return c.content.HandleKeyMsg(msg)
+	return c.content[len(c.content)-1].HandleKeyMsg(msg)
+}
+
+func (c *Controls) addContent(content Content) {
+	c.content = append(c.content, content)
+}
+
+func (c *Controls) removeContent() {
+	if len(c.content) > 1 {
+		c.content = c.content[:len(c.content)-1]
+	}
 }

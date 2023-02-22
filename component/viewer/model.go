@@ -1,20 +1,16 @@
 package viewer
 
 import (
-	"github.com/charmbracelet/bubbles/help"
+	"github.com/Zebbeni/ansizalizer/state"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
-// The Viewer returns a
-
 type Model struct {
-	style  lipgloss.Style
-	keymap *help.KeyMap
+	state *state.Model
 }
 
-func New(s lipgloss.Style) *Model {
-	return &Model{style: s}
+func New(state *state.Model) *Model {
+	return &Model{state: state}
 }
 
 func (v *Model) Init() tea.Cmd {
@@ -27,8 +23,4 @@ func (v *Model) Update(msg tea.Msg) tea.Cmd {
 
 func (v *Model) View() string {
 	return "Viewer"
-}
-
-func (v *Model) HandleKeyMsg(msg tea.KeyMsg) bool {
-	return false
 }

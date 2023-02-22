@@ -19,3 +19,7 @@ func NewMainMenu(k *keyboard.Map) Content {
 		item.New("Process", func() {}),
 	}, k)
 }
+
+func NewFileBrowser(k *keyboard.Map) {
+
+}

@@ -40,12 +40,11 @@ type App struct {
 }
 
 func New() *App {
+	k := keyboard.InitMap()
 	s := state.New()
 
-	keymap := keyboard.InitMap()
-
-	c := controls.New(1, 1, style.ControlsBorder, keymap)
-	v := viewer.New(style.ViewerBorder)
+	c := controls.New(s, k)
+	v := viewer.New(s)
 
 	h := help.New()
 	h.ShowAll = false
@@ -57,11 +56,11 @@ func New() *App {
 		state:       s,
 		w:           1,
 		h:           1,
-		km:          keymap,
+		km:          k,
 		controls:    c,
 		viewer:      v,
 		help:        &h,
-		keyHandlers: []keyboard.Handler{c, v},
+		keyHandlers: []keyboard.Handler{c},
 		viewport:    vp,
 	}
 }
