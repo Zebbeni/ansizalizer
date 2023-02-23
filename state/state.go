@@ -7,10 +7,7 @@ import (
 
 // Model contains all info used to render the full app
 type Model struct {
-	// 'File Browser' state
-	// current directory
-	directory string
-	// current filename (changing this should trigger a new preview)
+	Browser *Browser
 
 	// 'Settings' state
 	// sampling method (changing any of these should trigger a new preview)
@@ -25,21 +22,29 @@ type Model struct {
 
 	// 'Process' state
 	// target file
-	// target directory
+	// target Directory
 	// included filetypes
-	// export directory
+	// export Directory
 	// filename extension
 	// save video frames to subdirectory (bool)
+}
+
+type Browser struct {
+	Directory string
+	Filename  string
 }
 
 func New() *Model {
 	dir, err := os.Getwd()
 	if err != nil {
-		fmt.Println("Failed to get current directory:", err)
+		fmt.Println("Failed to get current Directory:", err)
 		os.Exit(1)
 	}
 
 	return &Model{
-		directory: dir,
+		Browser: &Browser{
+			Directory: dir,
+			Filename:  "",
+		},
 	}
 }

@@ -8,6 +8,7 @@ type Map struct {
 	Quit  key.Binding
 	Nav   key.Binding
 	Enter key.Binding
+	Back  key.Binding
 }
 
 func InitMap() *Map {
@@ -24,13 +25,17 @@ func InitMap() *Map {
 			key.WithKeys("return", "enter"),
 			key.WithHelp("↲", "select"),
 		),
+		Back: key.NewBinding(
+			key.WithKeys("esc"),
+			key.WithHelp("esc", "back"),
+		),
 	}
 }
 
 func (k Map) ShortHelp() []key.Binding {
-	return []key.Binding{k.Quit, k.Nav, k.Enter}
+	return []key.Binding{k.Quit, k.Nav, k.Enter, k.Back}
 }
 
 func (k Map) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.Quit, k.Nav, k.Enter}}
+	return [][]key.Binding{{k.Quit, k.Nav, k.Enter, k.Back}}
 }

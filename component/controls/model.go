@@ -3,6 +3,7 @@ package controls
 import (
 	"github.com/Zebbeni/ansizalizer/component/keyboard"
 	"github.com/Zebbeni/ansizalizer/state"
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -23,9 +24,11 @@ type Controls struct {
 	content []Content
 }
 
-func New(state *state.Model, k *keyboard.Map) *Controls {
-	m := NewMainMenu(k)
-	return &Controls{state: state, keymap: k, content: []Content{m}}
+func New(s *state.Model, k *keyboard.Map) *Controls {
+	c := &Controls{state: s, keymap: k}
+	c.content = []Content{NewMainMenu(s, k, c.addContent)}
+
+	return c
 }
 
 func (c *Controls) Init() tea.Cmd {
@@ -41,6 +44,11 @@ func (c *Controls) View() string {
 }
 
 func (c *Controls) HandleKeyMsg(msg tea.KeyMsg) bool {
+	switch {
+	case key.Matches(msg, c.keymap.Back):
+		c.removeContent()
+		return true
+	}
 	return c.content[len(c.content)-1].HandleKeyMsg(msg)
 }
 
