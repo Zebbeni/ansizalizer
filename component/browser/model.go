@@ -2,17 +2,19 @@ package browser
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
+	tea "github.com/charmbracelet/bubbletea"
+
 	"github.com/Zebbeni/ansizalizer/component/item"
 	"github.com/Zebbeni/ansizalizer/component/keyboard"
 	"github.com/Zebbeni/ansizalizer/component/menu"
 	"github.com/Zebbeni/ansizalizer/state"
-	tea "github.com/charmbracelet/bubbletea"
-	"os"
-	"path/filepath"
 )
 
 var (
-	acceptedFileExts = []string{".jpg", ".mod"}
+	acceptedFileExts = []string{".jpg", ".png"}
 )
 
 type Model struct {
@@ -53,6 +55,10 @@ func (m *Model) View() string {
 
 func (m *Model) HandleKeyMsg(msg tea.KeyMsg) bool {
 	return m.menu.HandleKeyMsg(msg)
+}
+
+func (m *Model) GetActivePosition() (float64, float64) {
+	return m.menu.GetActivePosition()
 }
 
 func (m *Model) updateDirectory(b *state.Browser, dir string) {

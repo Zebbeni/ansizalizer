@@ -61,6 +61,13 @@ func (m *Model) HandleKeyMsg(msg tea.KeyMsg) bool {
 	return false
 }
 
+func (m *Model) GetActivePosition() (float64, float64) {
+	if len(m.Items) == 0 {
+		return 0, 0
+	}
+	return 0, float64(m.activeItem) / float64(len(m.Items))
+}
+
 func min(a, b int) int {
 	if a < b {
 		return a

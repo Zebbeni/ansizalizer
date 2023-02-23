@@ -40,7 +40,18 @@ func (c *Controls) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (c *Controls) View() string {
+	// For tomorrow: We're trying to figure out a good way to prevent overflow of the menu contents
+	// (we could enforce a MaxHeight on one of the parent renderers) but also maintain the active
+	// item in view. Also, looking to see if we can set a scroll offset on render to accomplish that.
+	// Later: ah, it looks like something's built into viewport that can do this, but not sure it's
+	// appropriate for us (we prob. don't want to scroll down the list every time the user hits down,
+	// since that would appear to keep our active highlight in the same spot)
+
 	return c.content[len(c.content)-1].View()
+}
+
+func (c *Controls) GetActivePosition() (float64, float64) {
+	return c.content[len(c.content)-1].GetActivePosition()
 }
 
 func (c *Controls) HandleKeyMsg(msg tea.KeyMsg) bool {

@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/Zebbeni/ansizalizer/state"
 	"github.com/charmbracelet/bubbles/key"
+	"math"
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -103,12 +104,37 @@ func (a *App) View() string {
 	height := a.h - helpHeight
 
 	controlsContent := a.controls.View()
-	controlsWidth := lipgloss.Width(controlsContent) + 4
-	controlsContent = style.ControlsBorder.Copy().Width(controlsWidth).Height(height).Render(controlsContent)
 
-	viewerContent := a.viewer.View()
-	viewerWidth := a.w - lipgloss.Width(controlsContent) - 2
-	viewerContent = style.ViewerBorder.Copy().Width(viewerWidth).Height(height).Render(viewerContent)
+	controlsContentHeight := lipgloss.Height(controlsContent)
+	_, yPosition := a.controls.GetActivePosition()
+
+	activeLine := int(math.Ceil(yPosition * float64(controlsContentHeight)))
+	// get the offset needed to center the active line in the viewport.
+	// (subtract 2 from the height to compensate for the viewport border)
+	yOffset := activeLine - ((height) / 2) + 2
+	yOffset = max(0, yOffset)
+
+	controlsViewport := viewport.New(16, height)
+	controlsViewport.SetContent(controlsContent)
+	controlsViewport.SetYOffset(yOffset)
+
+	controlsWidth := 20
+	controlsViewport.Style = style.ControlsBorder.Copy().Width(controlsWidth).Height(height)
+	controlsViewport.Style = lipgloss.NewStyle().Margin(1).Width(controlsWidth).Height(height)
+	controlsContent = controlsViewport.View()
+
+	viewerWidth := a.w - lipgloss.Width(controlsContent)
+	viewerContent := lipgloss.NewStyle().Width(viewerWidth).Height(height).Render(a.viewer.View())
+
+	// The problem is that viewport doesn't account for its own padding when
+	// determining its maximum YOffset. Maybe try a borderless-viewport inside
+	// something else that provides the border? Also, theres' a scrollpercent
+	// option you could try
+
+	viewerViewport := viewport.New(viewerWidth, height)
+	viewerViewport.SetContent(viewerContent)
+	viewerViewport.Style = style.ControlsBorder.Copy().Width(viewerWidth).Height(height)
+	viewerContent = viewerViewport.View()
 
 	helpContent := a.help.View(a.km)
 	helpContent = lipgloss.NewStyle().Padding(0, 0, 0, 1).Render(helpContent)
@@ -138,4 +164,18 @@ func (a *App) HandleKeyMsg(msg tea.KeyMsg) tea.Cmd {
 	}
 
 	return nil
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func max(a, b int) int {
+	if a > b {
+		return b
+	}
+	return b
 }

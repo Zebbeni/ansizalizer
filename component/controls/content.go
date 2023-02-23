@@ -15,6 +15,15 @@ type updateBrowser func(browser *state.Browser)
 type Content interface {
 	tea.Model
 	keyboard.Handler
+
+	// GetActivePosition returns the position of the active or focused content
+	// as a percentage of the content's total width and height.
+	// This allows a viewport to adjust its Offsets to ensure the active area
+	// is still shown if the full rendered string is larger than its max width
+	// or height
+	// For example, a menu with 100 items and an active item index of 5 might
+	// return (0, .05).
+	GetActivePosition() (float64, float64)
 }
 
 func NewMainMenu(s *state.Model, k *keyboard.Map, update updateContent) Content {

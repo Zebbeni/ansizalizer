@@ -13,7 +13,7 @@ import (
 // dimensions to bubbletea, and handle it in the App message handler
 type checkSizeMsg int
 
-const helpHeight = 4
+const helpHeight = 2
 
 func (a *App) handleSizeMsg(msg tea.WindowSizeMsg) tea.Cmd {
 	w, h := msg.Width, msg.Height
