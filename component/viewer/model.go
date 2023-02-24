@@ -22,5 +22,5 @@ func (v *Model) Update(msg tea.Msg) tea.Cmd {
 }
 
 func (v *Model) View() string {
-	return "Viewer"
+	return v.state.Browser.Filename
 }
