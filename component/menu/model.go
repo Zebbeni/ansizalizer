@@ -41,6 +41,10 @@ func (m *Model) View() string {
 		}
 	}
 	content := lipgloss.JoinVertical(lipgloss.Top, items...)
+	// TODO: We're padding the bottom to prevent viewport truncation due to
+	// https://github.com/charmbracelet/bubbles/issues/336. Remove when fixed.
+	content = lipgloss.NewStyle().PaddingBottom(2).Render(content)
+
 	return content
 }
 
@@ -59,6 +63,10 @@ func (m *Model) HandleKeyMsg(msg tea.KeyMsg) bool {
 	}
 
 	return false
+}
+
+func (m *Model) ResetActive() {
+	m.activeItem = 0
 }
 
 func (m *Model) GetActivePosition() (float64, float64) {

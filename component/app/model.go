@@ -20,6 +20,7 @@ import (
 
 const (
 	ResizeCheckDuration = time.Second / 4
+	ControlsWidth       = 25
 )
 
 // App is the highest level component in our program. It renders a viewport that
@@ -111,25 +112,20 @@ func (a *App) View() string {
 	activeLine := int(math.Ceil(yPosition * float64(controlsContentHeight)))
 	// get the offset needed to center the active line in the viewport.
 	// (subtract 2 from the height to compensate for the viewport border)
-	yOffset := activeLine - ((height) / 2) + 2
+	yOffset := activeLine - ((height) / 2)
 	yOffset = max(0, yOffset)
 
-	controlsViewport := viewport.New(16, height)
+	controlsViewport := viewport.New(ControlsWidth, height)
 	controlsViewport.SetContent(controlsContent)
 	controlsViewport.SetYOffset(yOffset)
 
-	controlsWidth := 20
-	controlsViewport.Style = style.ControlsBorder.Copy().Width(controlsWidth).Height(height)
-	controlsViewport.Style = lipgloss.NewStyle().Margin(1).Width(controlsWidth).Height(height)
+	controlsViewport.Style = style.ControlsBorder.Copy().Width(ControlsWidth).Height(height)
+	controlsViewport.Style.GetVerticalBorderSize()
+
 	controlsContent = controlsViewport.View()
 
 	viewerWidth := a.w - lipgloss.Width(controlsContent)
 	viewerContent := lipgloss.NewStyle().Width(viewerWidth).Height(height).Render(a.viewer.View())
-
-	// The problem is that viewport doesn't account for its own padding when
-	// determining its maximum YOffset. Maybe try a borderless-viewport inside
-	// something else that provides the border? Also, theres' a scrollpercent
-	// option you could try
 
 	viewerViewport := viewport.New(viewerWidth, height)
 	viewerViewport.SetContent(viewerContent)

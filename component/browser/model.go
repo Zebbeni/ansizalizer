@@ -105,4 +105,5 @@ func (m *Model) updateItems() {
 	}
 
 	m.menu.Items = append(dirItems, fileItems...)
+	m.menu.ResetActive()
 }
