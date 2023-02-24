@@ -1,12 +1,11 @@
 package app
 
 import (
-	"github.com/Zebbeni/ansizalizer/state"
-	"github.com/charmbracelet/bubbles/key"
 	"math"
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,6 +15,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/component/style"
 	"github.com/Zebbeni/ansizalizer/component/viewer"
 	"github.com/Zebbeni/ansizalizer/env"
+	"github.com/Zebbeni/ansizalizer/state"
 )
 
 const (

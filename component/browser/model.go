@@ -66,8 +66,13 @@ func (m *Model) updateDirectory(b *state.Browser, dir string) {
 	m.updateItems()
 }
 
-func (m *Model) updateFile(b *state.Browser, file string) {
+func (m *Model) updateImageFile(b *state.Browser, file string) {
+	if b.Filename == file {
+		return
+	}
+
 	b.Filename = file
+
 }
 
 func (m *Model) updateItems() {
@@ -97,7 +102,7 @@ func (m *Model) updateItems() {
 		for _, ext := range acceptedFileExts {
 			if filepath.Ext(entry.Name()) == ext {
 				fileItems = append(fileItems, item.New(entry.Name(), func() {
-					m.updateFile(m.state, fullPath)
+					m.updateImageFile(m.state, fullPath)
 				}))
 				continue
 			}
