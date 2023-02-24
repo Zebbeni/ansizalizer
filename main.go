@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/Zebbeni/ansizalizer/component/app"
 	tea "github.com/charmbracelet/bubbletea"
-	"os"
 )
 
 func main() {
