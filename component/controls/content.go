@@ -3,18 +3,14 @@ package controls
 import (
 	"github.com/Zebbeni/ansizalizer/component/browser"
 	"github.com/Zebbeni/ansizalizer/component/item"
-	"github.com/Zebbeni/ansizalizer/component/keyboard"
 	"github.com/Zebbeni/ansizalizer/component/menu"
-	"github.com/Zebbeni/ansizalizer/state"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type updateContent func(Content)
-type updateBrowser func(browser *state.Browser)
+type addContent func(Content)
 
 type Content interface {
 	tea.Model
-	keyboard.Handler
 
 	// GetActivePosition returns the position of the active or focused content
 	// as a percentage of the content's total width and height.
@@ -26,13 +22,26 @@ type Content interface {
 	GetActivePosition() (float64, float64)
 }
 
-func NewMainMenu(s *state.Model, k *keyboard.Map, update updateContent) Content {
+func (m Model) addContent(content Content) {
+	m.content = append(m.content, content)
+}
+
+func (m Model) removeContent() {
+	if len(m.content) > 1 {
+		m.content = m.content[:len(m.content)-1]
+	}
+}
+
+func (m Model) BuildMainMenu() Content {
+	updateDir := func(dir string) { m.navState.DirPath = dir }
+	updateFile := func(file string) { m.navState.Filepath = file }
+
 	return menu.New([]item.Model{
 		item.New("Open", func() {
-			f := browser.New(s.Browser, k)
-			update(f)
+			f := browser.New(updateDir, updateFile)
+			m.addContent(f)
 		}),
 		item.New("Settings", func() {}),
 		item.New("Process", func() {}),
-	}, k)
+	})
 }

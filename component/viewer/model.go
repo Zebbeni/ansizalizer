@@ -1,26 +1,41 @@
 package viewer
 
 import (
-	"github.com/Zebbeni/ansizalizer/state"
+	"github.com/Zebbeni/ansizalizer/component/style"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type Model struct {
-	state *state.Model
+	// rendering
+	w, h int
 }
 
-func New(state *state.Model) *Model {
-	return &Model{state: state}
+func New() Model {
+	return Model{}
 }
 
-func (v *Model) Init() tea.Cmd {
+func (m Model) Init() tea.Cmd {
 	return nil
 }
 
-func (v *Model) Update(msg tea.Msg) tea.Cmd {
+func (m Model) Update(msg tea.Msg) tea.Cmd {
 	return nil
 }
 
-func (v *Model) View() string {
-	return v.state.Browser.Filename
+func (m Model) View() string {
+	imageString := "Viewer" // eventually we'll display ansi stuff here
+
+	content := lipgloss.NewStyle().Width(m.w).Height(m.h).Render(imageString)
+
+	vp := viewport.New(m.w, m.h)
+	vp.SetContent(content)
+	vp.Style = style.ViewerBorder.Copy().Width(m.w).Height(m.h)
+
+	return vp.View()
+}
+
+func (m Model) Resize(w, h int) {
+	m.w, m.h = w, h
 }

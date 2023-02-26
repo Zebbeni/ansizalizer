@@ -10,24 +10,30 @@ import (
 // There is (currently) no support on Windows for detecting resize events, so
 // we instead poll at regular intervals to check if the terminal size changed.
 // If a resize is detected in this way, we send a WindowSizeMsg with the new
-// dimensions to bubbletea, and handle it in the App message handler
+// dimensions to bubbletea, and handle it in the Model message handler
 type checkSizeMsg int
 
-const helpHeight = 2
+const (
+	resizeCheckDuration = time.Second / 4
 
-func (a *App) handleSizeMsg(msg tea.WindowSizeMsg) tea.Cmd {
+	helpHeight    = 2
+	controlsWidth = 25
+)
+
+func (m Model) handleSizeMsg(msg tea.WindowSizeMsg) tea.Cmd {
 	w, h := msg.Width, msg.Height
-	a.w, a.h = w, h
-	a.viewport.Width, a.viewport.Height = w, h
-	a.viewport.Style = a.viewport.Style.Copy().Width(w).Height(h)
+	m.w, m.h = w, h
+
+	m.controls.Resize(controlsWidth, h-helpHeight)
+	m.viewer.Resize(w-controlsWidth, h-helpHeight)
 
 	tea.ClearScreen()
 	return nil
 }
 
-func (a *App) handleCheckSizeMsg() tea.Cmd {
+func (m *Model) handleCheckSizeMsg() tea.Cmd {
 	w, h, _ := term.GetSize(int(os.Stdout.Fd()))
-	if w == a.w && h == a.h {
+	if w == m.w && h == m.h {
 		return pollForSizeChange
 	}
 	updateSizeCmd := func() tea.Msg {
@@ -37,6 +43,6 @@ func (a *App) handleCheckSizeMsg() tea.Cmd {
 }
 
 func pollForSizeChange() tea.Msg {
-	time.Sleep(ResizeCheckDuration)
+	time.Sleep(resizeCheckDuration)
 	return checkSizeMsg(1)
 }

@@ -1,4 +1,4 @@
-package keyboard
+package io
 
 import (
 	"github.com/charmbracelet/bubbles/key"
@@ -11,8 +11,10 @@ type Map struct {
 	Back  key.Binding
 }
 
-func InitMap() *Map {
-	return &Map{
+var KeyMap Map
+
+func InitKeyMap() {
+	KeyMap = Map{
 		Quit: key.NewBinding(
 			key.WithKeys("ctrl+c"),
 			key.WithHelp("ctrl+c", "quit"),
