@@ -2,19 +2,23 @@ package main
 
 import (
 	"fmt"
-	"github.com/Zebbeni/ansizalizer/io"
 	"os"
 
-	"github.com/Zebbeni/ansizalizer/component/app"
 	tea "github.com/charmbracelet/bubbletea"
+
+	"github.com/Zebbeni/ansizalizer/app"
+	"github.com/Zebbeni/ansizalizer/io"
 )
 
-func main() {
+func init() {
 	io.InitKeyMap()
-	a := app.New()
-	p := tea.NewProgram(a)
+}
+
+func main() {
+	m := app.New()
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
-		fmt.Println("Run error:", err)
+		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
 }
