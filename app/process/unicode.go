@@ -35,7 +35,7 @@ func (m Renderer) processUnicode(input image.Image) string {
 	resizeFunc := m.Settings.Sampling.Function
 	refImg := resize.Resize(uint(width)*2, uint(height)*2, input, resizeFunc)
 
-	_, palette := m.Settings.Colors.Palette.GetCurrent()
+	palette := m.Settings.Colors.GetCurrentPalette()
 
 	if m.Settings.Colors.IsDithered() {
 		ditherer := dither.NewDitherer(palette)
@@ -124,7 +124,7 @@ func (m Renderer) avgCol(colors ...colorful.Color) (colorful.Color, float64) {
 	avg := colorful.Color{R: rSum / count, G: gSum / count, B: bSum / count}
 
 	if m.Settings.Colors.IsLimited() {
-		_, palette := m.Settings.Colors.Palette.GetCurrent()
+		palette := m.Settings.Colors.GetCurrentPalette()
 
 		paletteAvg := palette.Convert(avg)
 		avg, _ = colorful.MakeColor(paletteAvg)

@@ -36,7 +36,7 @@ func (m Renderer) processAscii(input image.Image) string {
 	resizeFunc := m.Settings.Sampling.Function
 	refImg := resize.Resize(uint(width)*2, uint(height)*2, input, resizeFunc)
 
-	_, palette := m.Settings.Colors.Palette.GetCurrent()
+	palette := m.Settings.Colors.GetCurrentPalette()
 
 	if m.Settings.Colors.IsDithered() {
 		ditherer := dither.NewDitherer(palette)

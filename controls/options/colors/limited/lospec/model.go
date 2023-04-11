@@ -49,6 +49,6 @@ func (m Model) View() string {
 	return m.menu.View()
 }
 
-func (m Model) GetCurrent() (string, color.Palette) {
-	return m.name, m.palette
+func (m Model) GetCurrent() color.Palette {
+	return m.palette
 }

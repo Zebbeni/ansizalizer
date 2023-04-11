@@ -13,12 +13,14 @@ const (
 	Left Direction = iota
 	Right
 	Down
+	Up
 )
 
 var navMap = map[Direction]map[State]State{
 	Right: {TrueColor: Adaptive, Adaptive: Paletted},
 	Left:  {Paletted: Adaptive, Adaptive: TrueColor},
 	Down:  {Adaptive: AdaptiveControls, Paletted: PalettedControls},
+	Up:    {AdaptiveControls: Adaptive},
 }
 
 func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -40,8 +42,14 @@ func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Adaptive, cmd = m.Adaptive.Update(msg)
 	if m.Adaptive.ShouldUnfocus {
+		m.Adaptive.IsActive = false
 		m.Adaptive.ShouldUnfocus = false
 		m.focus = Adaptive
+		return m, cmd
+	} else if m.Adaptive.ShouldClose {
+		m.Adaptive.IsActive = false
+		m.Adaptive.ShouldClose = false
+		m.ShouldClose = true
 		return m, cmd
 	}
 	return m, cmd
@@ -83,6 +91,10 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
+	case key.Matches(msg, io.KeyMap.Up):
+		if next, hasNext := navMap[Up][m.focus]; hasNext {
+			return m.setFocus(next)
+		}
 	}
 
 	return m, cmd
@@ -97,6 +109,8 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 		m.controls = Paletted
 	case TrueColor:
 		m.controls = TrueColor
+	case AdaptiveControls:
+		m.Adaptive.IsActive = true
 	}
 	return m, nil
 }

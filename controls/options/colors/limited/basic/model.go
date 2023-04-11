@@ -17,7 +17,7 @@ type Model struct {
 	name    string
 	palette color.Palette
 
-	ShouldClose bool
+	ShouldFocus bool
 }
 
 func New() Model {
@@ -32,7 +32,7 @@ func New() Model {
 		menu:        newMenu,
 		name:        items[0].(item).name,
 		palette:     items[0].(item).palette,
-		ShouldClose: false,
+		ShouldFocus: false,
 	}
 }
 
@@ -59,6 +59,6 @@ func (m Model) View() string {
 	return m.menu.View()
 }
 
-func (m Model) GetCurrent() (string, color.Palette) {
-	return m.name, m.palette
+func (m Model) GetCurrent() color.Palette {
+	return m.palette
 }
