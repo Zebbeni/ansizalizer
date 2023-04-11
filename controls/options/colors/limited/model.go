@@ -1,13 +1,13 @@
-package palette
+package limited
 
 import (
 	"image/color"
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/palette/basic"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/palette/file"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/palette/lospec"
+	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited/basic"
+	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited/file"
+	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited/lospec"
 )
 
 type State int
@@ -69,11 +69,11 @@ func (m Model) SetState(s State) Model {
 		return m
 	}
 	m.state = s
-	// This should also update the current palette
+	// This should also update the current limited
 	return m
 }
 
-func (m Model) GetCurrent() (string, color.Palette) {
+func (m Model) GetCurrent() color.Palette {
 	switch m.state {
 	case Basic:
 		return m.basic.GetCurrent()
@@ -82,5 +82,5 @@ func (m Model) GetCurrent() (string, color.Palette) {
 	case Lospec:
 		return m.lospec.GetCurrent()
 	}
-	return "", nil
+	return nil
 }

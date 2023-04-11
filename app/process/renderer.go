@@ -64,6 +64,7 @@ func (m Renderer) createShadeLightFuncs() map[rune]blockFunc {
 		'░': m.calcLight,
 	}
 }
+
 func (m Renderer) createShadeMedFuncs() map[rune]blockFunc {
 	return map[rune]blockFunc{
 		'▒': m.calcMed,
@@ -84,7 +85,7 @@ func (m Renderer) createShadeAllFuncs() map[rune]blockFunc {
 }
 
 func (m Renderer) getLightDarkPaletted(light, dark colorful.Color) (colorful.Color, colorful.Color) {
-	_, colorPalette := m.Settings.Colors.Palette.GetCurrent()
+	colorPalette := m.Settings.Colors.GetCurrentPalette()
 
 	index := colorPalette.Index(dark)
 	paletteDark := colorPalette.Convert(dark)

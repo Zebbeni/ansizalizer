@@ -57,6 +57,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleStartRenderMsg()
 	case io.FinishRenderMsg:
 		return m.handleFinishRenderMsg(msg)
+	case io.StartAdaptingMsg:
+		return m.handleStartAdaptingMsg()
+	case io.FinishAdaptingMsg:
+		return m.handleFinishAdaptingMsg(msg)
 	}
 	return m.handleControlsUpdate(msg)
 }

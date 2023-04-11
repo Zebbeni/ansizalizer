@@ -1,12 +1,14 @@
 package colors
 
 import (
+	"image/color"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/makeworld-the-better-one/dither/v2"
 
 	"github.com/Zebbeni/ansizalizer/controls/options/colors/adaptive"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/palette"
+	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited"
 )
 
 type State int
@@ -37,7 +39,7 @@ type Model struct {
 	controls State
 
 	Adaptive adaptive.Model
-	Palette  palette.Model
+	Palette  limited.Model
 
 	ShouldClose      bool
 	ShouldDeactivate bool
@@ -51,7 +53,7 @@ func New() Model {
 		focus:            TrueColor,
 		controls:         TrueColor,
 		Adaptive:         adaptive.New(),
-		Palette:          palette.New(),
+		Palette:          limited.New(),
 		ShouldClose:      false,
 		ShouldDeactivate: false,
 		IsActive:         false,
@@ -107,4 +109,11 @@ func (m Model) IsSerpentine() bool {
 
 func (m Model) Matrix() dither.ErrorDiffusionMatrix {
 	return dither.FloydSteinberg
+}
+
+func (m Model) GetCurrentPalette() color.Palette {
+	if m.selected == Paletted {
+		return m.Palette.GetCurrent()
+	}
+	return m.Adaptive.Palette
 }
