@@ -73,6 +73,10 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.selected = m.focus
+	// Kick off a new palette generation before rendering if not done yet.
+	if m.IsAdaptive() && len(m.Adaptive.Palette) == 0 {
+		return m, io.StartAdaptingCmd
+	}
 	return m, io.StartRenderCmd
 }
 

@@ -111,6 +111,14 @@ func (m Model) Matrix() dither.ErrorDiffusionMatrix {
 	return dither.FloydSteinberg
 }
 
+func (m Model) IsAdaptive() bool {
+	return m.selected == Adaptive
+}
+
+func (m Model) IsPaletted() bool {
+	return m.selected == Paletted
+}
+
 func (m Model) GetCurrentPalette() color.Palette {
 	if m.selected == Paletted {
 		return m.Palette.GetCurrent()
