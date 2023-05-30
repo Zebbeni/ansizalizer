@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/controls"
+	"github.com/Zebbeni/ansizalizer/display"
 	"github.com/Zebbeni/ansizalizer/env"
 	"github.com/Zebbeni/ansizalizer/io"
 	"github.com/Zebbeni/ansizalizer/viewer"
@@ -25,6 +26,7 @@ type Model struct {
 	state State
 
 	controls controls.Model
+	display  display.Model
 	viewer   viewer.Model
 
 	w, h int
@@ -34,6 +36,7 @@ func New() Model {
 	return Model{
 		state:    Main,
 		controls: controls.New(),
+		display:  display.New(),
 		viewer:   viewer.New(),
 		w:        100,
 		h:        100,
@@ -63,6 +66,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleStartAdaptingMsg()
 	case io.FinishAdaptingMsg:
 		return m.handleFinishAdaptingMsg(msg)
+	case io.DisplayMsg:
+		return m.handleDisplayMsg(msg)
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, io.KeyMap.Copy):
@@ -77,9 +82,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 //	(Left Panel)                (Right Panel)
 //
 // ┌────────────────┬────────────────────────────────────────┐
-// │   Controls     │               Viewer                   │
-// │                │                                        │
-// │                │                                        │
+// │   Controls     │               Display                  │
+// │                ├────────────────────────────────────────┤
+// │                │               Viewer                   │
 // │                │                                        │
 // │                │                                        │
 // ├────────────────┴────────────────────────────────────────┤
@@ -97,12 +102,14 @@ func (m Model) View() string {
 	leftPanel := lViewport.View()
 
 	viewer := m.viewer.View()
-	rViewport := viewport.New(m.rPanelWidth(), m.rPanelHeight())
+
+	renderViewport := viewport.New(m.rPanelWidth(), m.rPanelHeight()-displayHeight)
 
 	vpRightStyle := lipgloss.NewStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
 	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth()).Height(m.rPanelHeight()).Render(viewer)
-	rViewport.SetContent(rightContent)
-	rightPanel := rViewport.View()
+	renderViewport.SetContent(rightContent)
+
+	rightPanel := lipgloss.JoinVertical(lipgloss.Top, m.display.View(), renderViewport.View())
 
 	content := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
 

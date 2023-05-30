@@ -50,15 +50,21 @@ func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) handleDisplayMsg(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.display, cmd = m.display.Update(msg)
+	return m, cmd
+}
+
 func (m Model) handleCopy() (Model, tea.Cmd) {
 	if err := clipboard.WriteAll(m.viewer.View()); err != nil {
-		return m, buildDisplayCmd("Error copying to clipboard")
+		return m, setDisplay("Error copying to clipboard")
 		// we should have a place in the UI where we display errors or processing messages,
 		// and package our desired message to the user in a specific command
 	}
-	return m, buildDisplayCmd("Copied ANSI output to clipboard")
+	return m, setDisplay("Copied text to clipboard")
 }
 
-func buildDisplayCmd(msg string) tea.Cmd {
+func setDisplay(msg string) tea.Cmd {
 	return func() tea.Msg { return io.DisplayMsg(msg) }
 }

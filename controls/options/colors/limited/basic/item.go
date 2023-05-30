@@ -3,7 +3,6 @@ package basic
 import (
 	"image/color"
 	"image/color/palette"
-	"math"
 
 	"github.com/charmbracelet/bubbles/list"
 
@@ -24,8 +23,9 @@ func (i item) Title() string {
 }
 
 func (i item) Description() string {
-	height := int(math.Ceil(float64(len(i.palette)) / float64(2*maxWidth)))
-	height = int(math.Min(float64(maxSelectedHeight), float64(height)))
+	//height := int(math.Ceil(float64(len(i.palette)) / float64(2*maxWidth)))
+	//height = int(math.Min(float64(maxSelectedHeight), float64(height)))
+	height := 1
 	return description.Palette(i.palette, maxWidth, height)
 }
 

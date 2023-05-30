@@ -25,7 +25,7 @@ func InitKeyMap() {
 		),
 		Nav: key.NewBinding(
 			key.WithKeys("up", "down", "right", "left"),
-			key.WithHelp("↕", "nav"),
+			key.WithHelp("↕/↔", "navigate"),
 		),
 		Right: key.NewBinding(
 			key.WithKeys("right"),
@@ -41,7 +41,7 @@ func InitKeyMap() {
 		),
 		Copy: key.NewBinding(
 			key.WithKeys("c"),
-			key.WithHelp("c", "copy")),
+			key.WithHelp("c", "copy to clipboard")),
 		Esc: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "back"),
