@@ -1,6 +1,8 @@
 package app
 
 import (
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -61,15 +63,37 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleStartAdaptingMsg()
 	case io.FinishAdaptingMsg:
 		return m.handleFinishAdaptingMsg(msg)
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, io.KeyMap.Copy):
+			return m.handleCopy()
+		}
 	}
 	return m.handleControlsUpdate(msg)
 }
 
+// View puts the whole TUI together, laid out like this:
+//
+//	(Left Panel)                (Right Panel)
+//
+// ┌────────────────┬────────────────────────────────────────┐
+// │   Controls     │               Viewer                   │
+// │                │                                        │
+// │                │                                        │
+// │                │                                        │
+// │                │                                        │
+// ├────────────────┴────────────────────────────────────────┤
+// │               Help                                      │
+// └─────────────────────────────────────────────────────────┘
 func (m Model) View() string {
 	lViewport := viewport.New(m.leftPanelWidth(), m.leftPanelHeight())
 
 	leftContent := m.controls.View()
-	lViewport.SetContent(lipgloss.NewStyle().Width(m.leftPanelWidth()).Height(m.leftPanelHeight()).Render(leftContent))
+
+	lViewport.SetContent(lipgloss.NewStyle().
+		Width(m.leftPanelWidth()).
+		Height(m.leftPanelHeight()).
+		Render(leftContent))
 	leftPanel := lViewport.View()
 
 	viewer := m.viewer.View()
@@ -81,6 +105,10 @@ func (m Model) View() string {
 	rightPanel := rViewport.View()
 
 	content := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
+
+	helpBar := help.New()
+	helpContent := helpBar.View(io.KeyMap)
+	content = lipgloss.JoinVertical(lipgloss.Top, content, helpContent)
 
 	vp := viewport.New(m.w, m.h)
 	vp.SetContent(content)

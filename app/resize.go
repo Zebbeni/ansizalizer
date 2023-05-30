@@ -48,7 +48,7 @@ func (m Model) leftPanelWidth() int {
 }
 
 func (m Model) leftPanelHeight() int {
-	return m.h
+	return m.h - m.helpHeight()
 }
 
 func (m Model) rPanelWidth() int {
@@ -56,5 +56,9 @@ func (m Model) rPanelWidth() int {
 }
 
 func (m Model) rPanelHeight() int {
-	return m.h
+	return m.h - m.helpHeight()
+}
+
+func (m Model) helpHeight() int {
+	return 1
 }
