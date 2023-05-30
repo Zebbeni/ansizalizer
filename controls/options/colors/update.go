@@ -74,6 +74,7 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.selected = m.focus
 	// Kick off a new palette generation before rendering if not done yet.
+	// Allow the app to trigger a render when the generation is complete.
 	if m.IsAdaptive() && len(m.Adaptive.Palette) == 0 {
 		return m, io.StartAdaptingCmd
 	}
@@ -109,12 +110,18 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	switch m.focus {
 	case Adaptive:
 		m.controls = Adaptive
+		m.selected = Adaptive
 	case Paletted:
 		m.controls = Paletted
+		m.selected = Paletted
 	case TrueColor:
 		m.controls = TrueColor
+		m.selected = TrueColor
 	case AdaptiveControls:
 		m.Adaptive.IsActive = true
+		m.selected = Adaptive
+	case PalettedControls:
+		m.selected = Paletted
 	}
 	return m, nil
 }
