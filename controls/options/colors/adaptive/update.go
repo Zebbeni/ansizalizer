@@ -38,7 +38,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.iterInput.Focus()
 		return m, nil
 	}
-	return m, io.StartAdaptingCmd
+	return m, io.BuildAdaptingCmd()
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {

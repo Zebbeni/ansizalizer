@@ -17,9 +17,9 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {TrueColor: Adaptive, Adaptive: Paletted},
-	Left:  {Paletted: Adaptive, Adaptive: TrueColor},
-	Down:  {Adaptive: AdaptiveControls, Paletted: PalettedControls},
+	Right: {TrueColor: Adaptive, Adaptive: Palette},
+	Left:  {Palette: Adaptive, Adaptive: TrueColor},
+	Down:  {Adaptive: AdaptiveControls, Palette: PalettedControls},
 	Up:    {AdaptiveControls: Adaptive},
 }
 
@@ -60,7 +60,7 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	m.Palette, cmd = m.Palette.Update(msg)
 	if m.Palette.ShouldUnfocus {
 		m.Palette.ShouldUnfocus = false
-		m.focus = Paletted
+		m.focus = Palette
 		return m, cmd
 	}
 	return m, cmd
@@ -73,6 +73,11 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.selected = m.focus
+	// Kick off a new palette generation before rendering if not done yet.
+	// Allow the app to trigger a render when the generation is complete.
+	if m.IsAdaptive() && len(m.Adaptive.Palette) == 0 {
+		return m, io.BuildAdaptingCmd()
+	}
 	return m, io.StartRenderCmd
 }
 
@@ -105,12 +110,18 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	switch m.focus {
 	case Adaptive:
 		m.controls = Adaptive
-	case Paletted:
-		m.controls = Paletted
+		m.selected = Adaptive
+	case Palette:
+		m.controls = Palette
+		m.selected = Palette
 	case TrueColor:
 		m.controls = TrueColor
+		m.selected = TrueColor
 	case AdaptiveControls:
 		m.Adaptive.IsActive = true
+		m.selected = Adaptive
+	case PalettedControls:
+		m.selected = Palette
 	}
 	return m, nil
 }

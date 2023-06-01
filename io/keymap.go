@@ -11,6 +11,7 @@ type Map struct {
 	Left  key.Binding
 	Up    key.Binding
 	Down  key.Binding
+	Copy  key.Binding
 	Esc   key.Binding
 }
 
@@ -24,7 +25,7 @@ func InitKeyMap() {
 		),
 		Nav: key.NewBinding(
 			key.WithKeys("up", "down", "right", "left"),
-			key.WithHelp("↕", "nav"),
+			key.WithHelp("↕/↔", "navigate"),
 		),
 		Right: key.NewBinding(
 			key.WithKeys("right"),
@@ -38,6 +39,9 @@ func InitKeyMap() {
 		Down: key.NewBinding(
 			key.WithKeys("down"),
 		),
+		Copy: key.NewBinding(
+			key.WithKeys("c"),
+			key.WithHelp("c", "copy to clipboard")),
 		Esc: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "back"),
@@ -46,9 +50,9 @@ func InitKeyMap() {
 }
 
 func (k Map) ShortHelp() []key.Binding {
-	return []key.Binding{k.Enter, k.Esc}
+	return []key.Binding{k.Enter, k.Nav, k.Copy, k.Esc}
 }
 
 func (k Map) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.Enter, k.Esc}}
+	return [][]key.Binding{{k.Enter, k.Nav, k.Copy, k.Esc}}
 }

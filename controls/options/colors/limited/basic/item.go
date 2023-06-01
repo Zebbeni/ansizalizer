@@ -5,8 +5,8 @@ import (
 	"image/color/palette"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
-	"github.com/lucasb-eyer/go-colorful"
+
+	"github.com/Zebbeni/ansizalizer/controls/options/colors/description"
 )
 
 type item struct {
@@ -23,24 +23,7 @@ func (i item) Title() string {
 }
 
 func (i item) Description() string {
-	blocks := make([]string, len(i.palette)/2+1)
-	for idx := 0; idx < len(i.palette); idx += 2 {
-		var fg, bg colorful.Color
-		var lipFg, lipBg lipgloss.Color
-
-		fg, _ = colorful.MakeColor(i.palette[idx])
-		lipFg = lipgloss.Color(fg.Hex())
-		style := lipgloss.NewStyle().Foreground(lipFg)
-
-		if idx+1 < len(i.palette) {
-			bg, _ = colorful.MakeColor(i.palette[idx+1])
-			lipBg = lipgloss.Color(bg.Hex())
-			style = style.Copy().Background(lipBg)
-		}
-
-		blocks[idx/2] = style.Render(string('▀'))
-	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, blocks...)
+	return description.Palette(i.palette, maxWidth, 1)
 }
 
 func menuItems() []list.Item {

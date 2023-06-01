@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
@@ -35,7 +36,7 @@ func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
 
 func (m Model) handleFinishAdaptingMsg(msg io.FinishAdaptingMsg) (Model, tea.Cmd) {
 	m.controls.Options.Colors.Adaptive.Palette = msg.Palette
-	return m, io.StartRenderCmd
+	return m, tea.Batch(io.StartRenderCmd, io.BuildDisplayCmd("Rendering..."))
 }
 
 func (m Model) processAdaptingCmd() tea.Msg {
@@ -47,4 +48,19 @@ func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.controls, cmd = m.controls.Update(msg)
 	return m, cmd
+}
+
+func (m Model) handleDisplayMsg(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.display, cmd = m.display.Update(msg)
+	return m, cmd
+}
+
+func (m Model) handleCopy() (Model, tea.Cmd) {
+	if err := clipboard.WriteAll(m.viewer.View()); err != nil {
+		return m, io.BuildDisplayCmd("Error copying to clipboard")
+		// we should have a place in the UI where we display errors or processing messages,
+		// and package our desired message to the user in a specific command
+	}
+	return m, io.BuildDisplayCmd("Copied text to clipboard")
 }
