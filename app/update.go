@@ -36,7 +36,7 @@ func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
 
 func (m Model) handleFinishAdaptingMsg(msg io.FinishAdaptingMsg) (Model, tea.Cmd) {
 	m.controls.Options.Colors.Adaptive.Palette = msg.Palette
-	return m, io.StartRenderCmd
+	return m, tea.Batch(io.StartRenderCmd, io.BuildDisplayCmd("Rendering..."))
 }
 
 func (m Model) processAdaptingCmd() tea.Msg {
@@ -58,13 +58,9 @@ func (m Model) handleDisplayMsg(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleCopy() (Model, tea.Cmd) {
 	if err := clipboard.WriteAll(m.viewer.View()); err != nil {
-		return m, setDisplay("Error copying to clipboard")
+		return m, io.BuildDisplayCmd("Error copying to clipboard")
 		// we should have a place in the UI where we display errors or processing messages,
 		// and package our desired message to the user in a specific command
 	}
-	return m, setDisplay("Copied text to clipboard")
-}
-
-func setDisplay(msg string) tea.Cmd {
-	return func() tea.Msg { return io.DisplayMsg(msg) }
+	return m, io.BuildDisplayCmd("Copied text to clipboard")
 }

@@ -5,7 +5,7 @@ import (
 )
 
 func New(items []list.Item) list.Model {
-	newList := list.New(items, NewDelegate(), 25, 20)
+	newList := list.New(items, NewDelegate(), 25, 18)
 
 	newList.KeyMap.ForceQuit.Unbind()
 	newList.KeyMap.Quit.Unbind()
@@ -18,6 +18,7 @@ func New(items []list.Item) list.Model {
 }
 
 func NewDelegate() list.DefaultDelegate {
+
 	delegate := list.NewDefaultDelegate()
 	delegate.SetSpacing(0)
 	delegate.ShowDescription = false

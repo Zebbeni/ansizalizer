@@ -31,6 +31,14 @@ type FinishAdaptingMsg struct {
 // that indicates what style to use (warning, error, etc.)
 type DisplayMsg string
 
-func DisplayCmd(toDisplay string) tea.Msg {
-	return DisplayMsg(toDisplay)
+func BuildDisplayCmd(msg string) tea.Cmd {
+	return func() tea.Msg { return DisplayMsg(msg) }
+}
+
+func ClearDisplayCmd() tea.Msg {
+	return DisplayMsg("")
+}
+
+func BuildAdaptingCmd() tea.Cmd {
+	return tea.Batch(StartAdaptingCmd, BuildDisplayCmd("Generating palette..."))
 }

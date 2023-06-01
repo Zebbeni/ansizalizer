@@ -24,13 +24,11 @@ func New() Model {
 	items := menuItems()
 	newMenu := menu.New(items)
 
-	//delegate := menu.NewDelegate()
 	delegate := list.NewDefaultDelegate()
+	delegate.SetSpacing(0)
 	delegate.ShowDescription = true
 	delegate.SetHeight(maxSelectedHeight)
 	delegate.Styles = NewItemStyles()
-	//delegate.ShowDescription = true
-	//delegate.Styles.NormalDesc = delegate.Styles.NormalDesc.Height(2)
 	newMenu.SetDelegate(delegate)
 
 	return Model{
