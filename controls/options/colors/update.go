@@ -17,9 +17,9 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {TrueColor: Adaptive, Adaptive: Paletted},
-	Left:  {Paletted: Adaptive, Adaptive: TrueColor},
-	Down:  {Adaptive: AdaptiveControls, Paletted: PalettedControls},
+	Right: {TrueColor: Adaptive, Adaptive: Palette},
+	Left:  {Palette: Adaptive, Adaptive: TrueColor},
+	Down:  {Adaptive: AdaptiveControls, Palette: PalettedControls},
 	Up:    {AdaptiveControls: Adaptive},
 }
 
@@ -60,7 +60,7 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	m.Palette, cmd = m.Palette.Update(msg)
 	if m.Palette.ShouldUnfocus {
 		m.Palette.ShouldUnfocus = false
-		m.focus = Paletted
+		m.focus = Palette
 		return m, cmd
 	}
 	return m, cmd
@@ -111,9 +111,9 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	case Adaptive:
 		m.controls = Adaptive
 		m.selected = Adaptive
-	case Paletted:
-		m.controls = Paletted
-		m.selected = Paletted
+	case Palette:
+		m.controls = Palette
+		m.selected = Palette
 	case TrueColor:
 		m.controls = TrueColor
 		m.selected = TrueColor
@@ -121,7 +121,7 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 		m.Adaptive.IsActive = true
 		m.selected = Adaptive
 	case PalettedControls:
-		m.selected = Paletted
+		m.selected = Palette
 	}
 	return m, nil
 }

@@ -3,11 +3,11 @@ package colors
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	stateOrder = []State{TrueColor, Adaptive, Paletted}
+	stateOrder = []State{TrueColor, Adaptive, Palette}
 	stateNames = map[State]string{
 		TrueColor: "True",
 		Adaptive:  "Adapt",
-		Paletted:  "Palette",
+		Palette:   "Palette",
 	}
 
 	activeStyle = lipgloss.NewStyle().

@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/component/textinput"
+	"github.com/Zebbeni/ansizalizer/controls/options/colors/description"
 	"github.com/Zebbeni/ansizalizer/io"
 )
 
@@ -90,7 +91,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	inputs := m.drawInputs()
 	generate := m.drawGenerateButton()
-	return lipgloss.JoinVertical(lipgloss.Top, inputs, generate)
+	if len(m.Palette) == 0 {
+		return lipgloss.JoinVertical(lipgloss.Top, inputs, generate)
+	}
+
+	palette := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(description.Palette(m.Palette, 25, 3))
+	return lipgloss.JoinVertical(lipgloss.Top, inputs, generate, palette)
 }
 
 func (m Model) Info() (int, int) {

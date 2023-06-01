@@ -28,7 +28,7 @@ type State int
 const (
 	TrueColor State = iota
 	Adaptive
-	Paletted
+	Palette
 	PalettedControls
 	AdaptiveControls
 )
@@ -85,7 +85,7 @@ func (m Model) View() string {
 	switch m.controls {
 	case Adaptive:
 		controls = m.Adaptive.View()
-	case Paletted:
+	case Palette:
 		controls = m.Palette.View()
 	}
 	if len(controls) == 0 {
@@ -116,11 +116,11 @@ func (m Model) IsAdaptive() bool {
 }
 
 func (m Model) IsPaletted() bool {
-	return m.selected == Paletted
+	return m.selected == Palette
 }
 
 func (m Model) GetCurrentPalette() color.Palette {
-	if m.selected == Paletted {
+	if m.selected == Palette {
 		return m.Palette.GetCurrent()
 	}
 	return m.Adaptive.Palette

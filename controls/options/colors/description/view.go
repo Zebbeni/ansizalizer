@@ -10,7 +10,7 @@ import (
 
 func Palette(palette color.Palette, w, h int) string {
 	runes := make([]string, len(palette)/2+1)
-	rows := make([]string, h)
+	rows := make([]string, 0, h)
 	for idx := 0; idx < len(palette); idx += 2 {
 		var fg, bg colorful.Color
 		var lipFg, lipBg lipgloss.Color
@@ -28,7 +28,11 @@ func Palette(palette color.Palette, w, h int) string {
 	}
 	for i := 0; i < h; i++ {
 		start := w * i
+		if start >= len(runes) {
+			break
+		}
 		stop := int(math.Min(float64(w*(i+1)), float64(len(runes))))
+		rows = append(rows, "")
 		rows[i] = lipgloss.JoinHorizontal(lipgloss.Left, runes[start:stop]...)
 	}
 	return lipgloss.JoinVertical(lipgloss.Left, rows...)
