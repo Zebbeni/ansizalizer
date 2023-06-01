@@ -95,7 +95,7 @@ func (m Model) View() string {
 		return lipgloss.JoinVertical(lipgloss.Top, inputs, generate)
 	}
 
-	palette := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(description.Palette(m.Palette, 25, 3))
+	palette := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(description.Palette(m.Palette, 25, 10))
 	return lipgloss.JoinVertical(lipgloss.Top, inputs, generate, palette)
 }
 
