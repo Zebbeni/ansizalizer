@@ -30,7 +30,5 @@ func NewItemStyles() (s list.DefaultItemStyles) {
 	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
 	s.DimmedDesc = style.DimmedParagraph.Copy().MaxHeight(maxNormalHeight).Padding(0, 0, 0, 2)
 
-	//s.FilterMatch = lipgloss.NewStyle().Underline(true)
-
 	return s
 }
