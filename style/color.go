@@ -3,13 +3,19 @@ package style
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	NormalTitle     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#1a1a1a", Dark: "#aaaaaa"})
-	NormalParagraph = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#3a3a3a", Dark: "#888888"})
+	NormalColor1   = lipgloss.AdaptiveColor{Light: "#1a1a1a", Dark: "#aaaaaa"}
+	NormalColor2   = lipgloss.AdaptiveColor{Light: "#3a3a3a", Dark: "#888888"}
+	SelectedColor1 = lipgloss.AdaptiveColor{Light: "#444444", Dark: "#ffffff"}
+	SelectedColor2 = lipgloss.AdaptiveColor{Light: "#666666", Dark: "#dddddd"}
+	DimmedColor1   = lipgloss.AdaptiveColor{Light: "#999999", Dark: "#777777"}
+	DimmedColor2   = lipgloss.AdaptiveColor{Light: "#aaaaaa", Dark: "#666666"}
 
-	//SelectedTitle     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#EE6FF8", Dark: "#EE6FF8"})
-	SelectedTitle     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#444444", Dark: "#ffffff"})
-	SelectedParagraph = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#666666", Dark: "#dddddd"})
+	NormalTitle     = lipgloss.NewStyle().Foreground(NormalColor1)
+	NormalParagraph = lipgloss.NewStyle().Foreground(NormalColor2)
 
-	DimmedTitle     = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#999999", Dark: "#777777"})
-	DimmedParagraph = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{Light: "#aaaaaa", Dark: "#666666"})
+	SelectedTitle     = lipgloss.NewStyle().Foreground(SelectedColor1)
+	SelectedParagraph = lipgloss.NewStyle().Foreground(SelectedColor2)
+
+	DimmedTitle     = lipgloss.NewStyle().Foreground(DimmedColor1)
+	DimmedParagraph = lipgloss.NewStyle().Foreground(DimmedColor2)
 )

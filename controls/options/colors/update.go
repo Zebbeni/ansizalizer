@@ -42,12 +42,12 @@ func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Adaptive, cmd = m.Adaptive.Update(msg)
 	if m.Adaptive.ShouldUnfocus {
-		m.Adaptive.IsActive = false
+		m.Adaptive.IsActive = true
 		m.Adaptive.ShouldUnfocus = false
 		m.focus = Adaptive
 		return m, cmd
 	} else if m.Adaptive.ShouldClose {
-		m.Adaptive.IsActive = false
+		m.Adaptive.IsActive = true
 		m.Adaptive.ShouldClose = false
 		m.ShouldClose = true
 		return m, cmd
