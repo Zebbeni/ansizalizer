@@ -19,7 +19,7 @@ package settings
 
 //func newMenu() list.Model {
 //	items := []list.Item{
-//		item{name: "Colors", state: Colors},
+//		item{name: "Palette", state: Palette},
 //		item{name: "Sampling", state: Sampling},
 //		//item{name: "Limited", state: Limited},
 //		//item{name: "Characters", state: Characters},

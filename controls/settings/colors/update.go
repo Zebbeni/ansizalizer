@@ -17,10 +17,10 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {TrueColor: Adaptive, Adaptive: Palette},
-	Left:  {Palette: Adaptive, Adaptive: TrueColor},
-	Down:  {Adaptive: AdaptiveControls, Palette: PalettedControls},
-	Up:    {AdaptiveControls: Adaptive},
+	Right: {Full: Load, Load: Create, Create: Lospec},
+	Left:  {Lospec: Create, Create: Load, Load: Full},
+	Down:  {Create: CreateControls, Load: LoadControls},
+	Up:    {CreateControls: Create},
 }
 
 func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -44,7 +44,7 @@ func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.Adaptive.ShouldUnfocus {
 		m.Adaptive.IsActive = true
 		m.Adaptive.ShouldUnfocus = false
-		m.focus = Adaptive
+		m.focus = Create
 		return m, cmd
 	} else if m.Adaptive.ShouldClose {
 		m.Adaptive.IsActive = true
@@ -60,7 +60,7 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	m.Palette, cmd = m.Palette.Update(msg)
 	if m.Palette.ShouldUnfocus {
 		m.Palette.ShouldUnfocus = false
-		m.focus = Palette
+		m.focus = Load
 		return m, cmd
 	}
 	return m, cmd
@@ -108,20 +108,20 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
 	switch m.focus {
-	case Adaptive:
-		m.controls = Adaptive
-		m.selected = Adaptive
-	case Palette:
-		m.controls = Palette
-		m.selected = Palette
-	case TrueColor:
-		m.controls = TrueColor
-		m.selected = TrueColor
-	case AdaptiveControls:
+	case Create:
+		m.controls = Create
+		m.selected = Create
+	case Load:
+		m.controls = Load
+		m.selected = Load
+	case Full:
+		m.controls = Full
+		m.selected = Full
+	case CreateControls:
 		m.Adaptive.IsActive = true
-		m.selected = Adaptive
-	case PalettedControls:
-		m.selected = Palette
+		m.selected = Create
+	case LoadControls:
+		m.selected = Load
 	}
 	return m, nil
 }

@@ -28,7 +28,7 @@ type Model struct {
 func New(w int) Model {
 	return Model{
 		active: None,
-		focus:  Colors,
+		focus:  Palette,
 
 		Colors:     colors.New(w),
 		Characters: characters.New(w - 2),
@@ -48,7 +48,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.active {
-	case Colors:
+	case Palette:
 		return m.handleColorsUpdate(msg)
 	case Characters:
 		return m.handleCharactersUpdate(msg)
@@ -61,7 +61,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	col := m.renderWithBorder(m.Colors.View(), Colors)
+	col := m.renderWithBorder(m.Colors.View(), Palette)
 	char := m.renderWithBorder(m.Characters.View(), Characters)
 	siz := m.renderWithBorder(m.Size.View(), Size)
 	sam := m.renderWithBorder(m.Sampling.View(), Sampling)

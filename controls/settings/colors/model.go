@@ -18,7 +18,7 @@ type State int
 // which component is currently focused. From top to bottom the components are:
 
 // 1) Limited (on/off)
-// 2) Palette (Name) (if Limited) -> [Enter] displays Palette menu
+// 2) Load (Name) (if Limited) -> [Enter] displays Load menu
 // 3) Dithering (on/off) (if Limited)
 // 4) Serpentine (on/off) (if Dithering)
 // 5) Matrix (Name) (if Dithering) -> [Enter] displays to Matrix menu
@@ -26,11 +26,13 @@ type State int
 // These can all be part of a single list, but we need to onSelect the list items
 
 const (
-	TrueColor State = iota
-	Adaptive
-	Palette
-	PalettedControls
-	AdaptiveControls
+	Full State = iota
+	Create
+	Load
+	Lospec
+	CreateControls
+	LoadControls
+	LospecControls
 )
 
 type Model struct {
@@ -51,9 +53,9 @@ type Model struct {
 
 func New(w int) Model {
 	m := Model{
-		selected:         TrueColor,
-		focus:            TrueColor,
-		controls:         TrueColor,
+		selected:         Full,
+		focus:            Full,
+		controls:         Full,
 		Adaptive:         adaptive.New(w),
 		Palette:          limited.New(w),
 		ShouldClose:      false,
@@ -70,9 +72,9 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.focus {
-	case AdaptiveControls:
+	case CreateControls:
 		return m.handleAdaptiveUpdate(msg)
-	case PalettedControls:
+	case LoadControls:
 		return m.handlePaletteUpdate(msg)
 	}
 	return m.handleMenuUpdate(msg)
@@ -86,9 +88,9 @@ func (m Model) View() string {
 
 	var controls string
 	switch m.controls {
-	case Adaptive:
+	case Create:
 		controls = m.Adaptive.View()
-	case Palette:
+	case Load:
 		controls = m.Palette.View()
 	}
 	if len(controls) == 0 {
@@ -99,7 +101,7 @@ func (m Model) View() string {
 }
 
 func (m Model) IsLimited() bool {
-	return m.selected != TrueColor
+	return m.selected != Full
 }
 
 func (m Model) IsDithered() bool {
@@ -115,15 +117,15 @@ func (m Model) Matrix() dither.ErrorDiffusionMatrix {
 }
 
 func (m Model) IsAdaptive() bool {
-	return m.selected == Adaptive
+	return m.selected == Create
 }
 
 func (m Model) IsPaletted() bool {
-	return m.selected == Palette
+	return m.selected == Load
 }
 
 func (m Model) GetCurrentPalette() color.Palette {
-	if m.selected == Palette {
+	if m.selected == Load {
 		return m.Palette.GetCurrent()
 	}
 	return m.Adaptive.Palette
