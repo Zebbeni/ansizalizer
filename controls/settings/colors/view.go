@@ -27,7 +27,7 @@ var (
 )
 
 func (m Model) drawTitle() string {
-	return titleStyle.Copy().Width(24).Align(lipgloss.Center).Render("Colors")
+	return titleStyle.Copy().Width(m.width).Align(lipgloss.Center).Render("Colors")
 }
 
 func (m Model) drawButtons() string {

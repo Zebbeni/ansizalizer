@@ -62,5 +62,5 @@ func (m Model) handleCopy() (Model, tea.Cmd) {
 		// we should have a place in the UI where we display errors or processing messages,
 		// and package our desired message to the user in a specific command
 	}
-	return m, io.BuildDisplayCmd("Copied text to clipboard")
+	return m, io.BuildDisplayCmd("copied to clipboard")
 }

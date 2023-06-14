@@ -24,7 +24,7 @@ type Model struct {
 
 func New(w int) Model {
 	items := menuItems()
-	newMenu := menu.New(items, w)
+	newMenu := menu.New(items, w-2)
 
 	delegate := list.NewDefaultDelegate()
 	delegate.SetSpacing(0)

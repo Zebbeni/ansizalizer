@@ -31,7 +31,7 @@ func New(w int) Model {
 		focus:  Colors,
 
 		Colors:     colors.New(w),
-		Characters: characters.New(),
+		Characters: characters.New(w - 2),
 		Size:       size.New(),
 		Sampling:   sampling.New(),
 
