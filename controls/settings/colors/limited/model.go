@@ -5,9 +5,9 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited/basic"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited/file"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited/lospec"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/limited/basic"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/limited/file"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/limited/lospec"
 )
 
 type State int
@@ -32,15 +32,18 @@ type Model struct {
 
 	// Set this flag to false to tell parent to navigate away
 	ShouldUnfocus bool
+
+	width int
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
 		state:         Basic,
-		basic:         basic.New(),
-		file:          file.New(),
-		lospec:        lospec.New(),
+		basic:         basic.New(w),
+		file:          file.New(w),
+		lospec:        lospec.New(w),
 		ShouldUnfocus: false,
+		width:         w,
 	}
 }
 

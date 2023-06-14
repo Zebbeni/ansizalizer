@@ -17,8 +17,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {Open: Options, Options: Export},
-	Left:  {Export: Options, Options: Open},
+	Right: {Open: Settings, Settings: Export},
+	Left:  {Export: Settings, Settings: Open},
 }
 
 func (m Model) handleOpenUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -34,10 +34,10 @@ func (m Model) handleOpenUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.Options, cmd = m.Options.Update(msg)
+	m.Settings, cmd = m.Settings.Update(msg)
 
-	if m.Options.ShouldClose {
-		m.Options.ShouldClose = false
+	if m.Settings.ShouldClose {
+		m.Settings.ShouldClose = false
 		m.active = Menu
 	}
 

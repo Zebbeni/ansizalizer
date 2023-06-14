@@ -7,8 +7,8 @@ import (
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-func New(items []list.Item) list.Model {
-	newList := list.New(items, NewDelegate(), 25, 18)
+func New(items []list.Item, w int) list.Model {
+	newList := list.New(items, NewDelegate(), w, 18)
 
 	newList.KeyMap.ForceQuit.Unbind()
 	newList.KeyMap.Quit.Unbind()

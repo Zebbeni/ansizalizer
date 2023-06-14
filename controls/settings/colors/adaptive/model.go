@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/component/textinput"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/description"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/description"
 	"github.com/Zebbeni/ansizalizer/io"
 )
 
@@ -37,7 +37,7 @@ type Model struct {
 	IsActive      bool
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
 		focus: CountForm,
 
@@ -46,6 +46,8 @@ func New() Model {
 
 		ShouldUnfocus: false,
 		IsActive:      false,
+
+		width: w,
 	}
 }
 

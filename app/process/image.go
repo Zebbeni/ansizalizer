@@ -7,8 +7,8 @@ import (
 
 	"github.com/lucasb-eyer/go-colorful"
 
-	"github.com/Zebbeni/ansizalizer/controls/options"
-	"github.com/Zebbeni/ansizalizer/controls/options/characters"
+	"github.com/Zebbeni/ansizalizer/controls/settings"
+	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 )
 
 const PROPORTION = 0.44
@@ -17,7 +17,7 @@ var (
 	black = colorful.Color{}
 )
 
-func RenderImageFile(s options.Model, imgFilePath string) string {
+func RenderImageFile(s settings.Model, imgFilePath string) string {
 	if imgFilePath == "" {
 		return "Choose an image to render"
 	}

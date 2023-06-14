@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -86,7 +85,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // │                ├────────────────────────────────────────┤
 // │                │               Viewer                   │
 // │                │                                        │
-// │                │                                        │
 // ├────────────────┴────────────────────────────────────────┤
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
@@ -100,38 +98,10 @@ func (m Model) View() string {
 	rightPanel := lipgloss.JoinVertical(lipgloss.Top, display, viewer)
 	panels := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
 	all := lipgloss.JoinVertical(lipgloss.Top, panels, help)
-	
+
 	vp := viewport.New(m.w, m.h)
 	vp.SetContent(all)
 	vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h)
 
 	return vp.View()
-}
-
-func (m Model) renderControls() string {
-	viewport := viewport.New(controlsWidth, m.leftPanelHeight())
-
-	leftContent := m.controls.View()
-
-	viewport.SetContent(lipgloss.NewStyle().
-		Width(controlsWidth).
-		Height(m.leftPanelHeight()).
-		Render(leftContent))
-	return viewport.View()
-}
-
-func (m Model) renderViewer() string {
-	viewer := m.viewer.View()
-
-	renderViewport := viewport.New(m.rPanelWidth(), m.rPanelHeight()-displayHeight)
-
-	vpRightStyle := lipgloss.NewStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
-	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth()).Height(m.rPanelHeight()).Render(viewer)
-	renderViewport.SetContent(rightContent)
-	return renderViewport.View()
-}
-
-func (m Model) renderHelp() string {
-	helpBar := help.New()
-	return helpBar.View(io.KeyMap)
 }

@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/description"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/description"
 )
 
 type item struct {

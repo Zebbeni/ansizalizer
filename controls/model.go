@@ -6,7 +6,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/controls/export"
-	"github.com/Zebbeni/ansizalizer/controls/options"
+	"github.com/Zebbeni/ansizalizer/controls/settings"
 )
 
 type State int
@@ -14,16 +14,18 @@ type State int
 const (
 	Menu State = iota
 	Open
-	Options
+	Settings
 	Export
+
+	numButtons = 3
 )
 
 var (
-	stateOrder = []State{Open, Options, Export}
+	stateOrder = []State{Open, Settings, Export}
 	stateNames = map[State]string{
-		Open:    "Open",
-		Options: "Options",
-		Export:  "Export",
+		Open:     "Open",
+		Settings: "Render",
+		Export:   "Export",
 	}
 )
 
@@ -32,7 +34,7 @@ type Model struct {
 	focus  State
 
 	FileBrowser browser.Model
-	Options     options.Model
+	Settings    settings.Model
 	Export      export.Model
 
 	width int
@@ -43,8 +45,8 @@ func New(w int) Model {
 		active: Menu,
 		focus:  Open,
 
-		FileBrowser: browser.New(),
-		Options:     options.New(),
+		FileBrowser: browser.New(w),
+		Settings:    settings.New(w),
 		Export:      export.New(),
 
 		width: w,
@@ -59,7 +61,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.active {
 	case Open:
 		return m.handleOpenUpdate(msg)
-	case Options:
+	case Settings:
 		return m.handleSettingsUpdate(msg)
 	case Export:
 		return m.handleExportUpdate(msg)
@@ -68,7 +70,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 // View displays a row of 3 buttons above 1 of 3 control panels:
-// Open | Options | Export
+// Open | Settings | Export
 func (m Model) View() string {
 	title := m.drawTitle()
 
@@ -79,8 +81,8 @@ func (m Model) View() string {
 	switch m.active {
 	case Open:
 		controls = m.FileBrowser.View()
-	case Options:
-		controls = m.Options.View()
+	case Settings:
+		controls = m.Settings.View()
 	case Export:
 		controls = m.Export.View()
 	}

@@ -8,7 +8,7 @@ import (
 
 	"github.com/mccutchen/palettor"
 
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/adaptive"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
 )
 
 func GeneratePalette(m adaptive.Model, imgFilePath string) color.Palette {
