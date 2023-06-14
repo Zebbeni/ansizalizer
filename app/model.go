@@ -35,7 +35,7 @@ type Model struct {
 func New() Model {
 	return Model{
 		state:    Main,
-		controls: controls.New(),
+		controls: controls.New(controlsWidth),
 		display:  display.New(),
 		viewer:   viewer.New(),
 		w:        100,
@@ -91,16 +91,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
 func (m Model) View() string {
-	lViewport := viewport.New(m.leftPanelWidth(), m.leftPanelHeight())
+	controls := m.renderControls()
+	display := m.display.View()
+	viewer := m.renderViewer()
+	help := m.renderHelp()
+
+	leftPanel := controls
+	rightPanel := lipgloss.JoinVertical(lipgloss.Top, display, viewer)
+	panels := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
+	all := lipgloss.JoinVertical(lipgloss.Top, panels, help)
+	
+	vp := viewport.New(m.w, m.h)
+	vp.SetContent(all)
+	vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h)
+
+	return vp.View()
+}
+
+func (m Model) renderControls() string {
+	viewport := viewport.New(controlsWidth, m.leftPanelHeight())
 
 	leftContent := m.controls.View()
 
-	lViewport.SetContent(lipgloss.NewStyle().
-		Width(m.leftPanelWidth()).
+	viewport.SetContent(lipgloss.NewStyle().
+		Width(controlsWidth).
 		Height(m.leftPanelHeight()).
 		Render(leftContent))
-	leftPanel := lViewport.View()
+	return viewport.View()
+}
 
+func (m Model) renderViewer() string {
 	viewer := m.viewer.View()
 
 	renderViewport := viewport.New(m.rPanelWidth(), m.rPanelHeight()-displayHeight)
@@ -108,18 +128,10 @@ func (m Model) View() string {
 	vpRightStyle := lipgloss.NewStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
 	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth()).Height(m.rPanelHeight()).Render(viewer)
 	renderViewport.SetContent(rightContent)
+	return renderViewport.View()
+}
 
-	rightPanel := lipgloss.JoinVertical(lipgloss.Top, m.display.View(), renderViewport.View())
-
-	content := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
-
+func (m Model) renderHelp() string {
 	helpBar := help.New()
-	helpContent := helpBar.View(io.KeyMap)
-	content = lipgloss.JoinVertical(lipgloss.Top, content, helpContent)
-
-	vp := viewport.New(m.w, m.h)
-	vp.SetContent(content)
-	//vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h).BorderStyle(lipgloss.RoundedBorder())
-	vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h)
-	return vp.View()
+	return helpBar.View(io.KeyMap)
 }

@@ -34,9 +34,11 @@ type Model struct {
 	FileBrowser browser.Model
 	Options     options.Model
 	Export      export.Model
+
+	width int
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
 		active: Menu,
 		focus:  Open,
@@ -44,6 +46,8 @@ func New() Model {
 		FileBrowser: browser.New(),
 		Options:     options.New(),
 		Export:      export.New(),
+
+		width: w,
 	}
 }
 
