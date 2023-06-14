@@ -19,16 +19,18 @@ type Model struct {
 	lists []list.Model
 
 	ShouldClose bool
+
+	width int
 }
 
-func New() Model {
+func New(w int) Model {
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Error getting starting directory:", err)
 		os.Exit(1)
 	}
 
-	m := Model{}.addListForDirectory(dir)
+	m := Model{width: w}.addListForDirectory(dir)
 	return m
 }
 

@@ -9,8 +9,8 @@ import (
 	"github.com/makeworld-the-better-one/dither/v2"
 	"github.com/nfnt/resize"
 
-	"github.com/Zebbeni/ansizalizer/controls/options/characters"
-	"github.com/Zebbeni/ansizalizer/controls/options/size"
+	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
+	"github.com/Zebbeni/ansizalizer/controls/settings/size"
 )
 
 // A list of Ascii characters by ascending brightness

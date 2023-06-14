@@ -16,7 +16,7 @@ var (
 		HeightForm:    "Height",
 	}
 
-	inputStyle = lipgloss.NewStyle().Width(13).AlignHorizontal(lipgloss.Left)
+	inputStyle = lipgloss.NewStyle().Width(14).AlignHorizontal(lipgloss.Left)
 
 	activeColor = lipgloss.Color("#aaaaaa")
 	focusColor  = lipgloss.Color("#ffffff")
@@ -40,7 +40,7 @@ func (m Model) drawButtons() string {
 			BorderStyle(lipgloss.RoundedBorder()).
 			BorderForeground(styleColor).
 			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(11).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }
@@ -50,7 +50,7 @@ func (m Model) drawInputs() string {
 	m.widthInput.PromptStyle = m.widthInput.PromptStyle.Copy().Foreground(prompt)
 	m.widthInput.PlaceholderStyle = m.widthInput.PlaceholderStyle.Copy().Foreground(placeholder)
 	if m.widthInput.Focused() == false {
-		m.widthInput.Placeholder = fmt.Sprintf("%4d", m.width)
+		m.widthInput.Placeholder = fmt.Sprintf(m.widthInput.Value())
 	} else {
 		m.widthInput.Placeholder = "    "
 	}

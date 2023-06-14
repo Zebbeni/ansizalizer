@@ -1,4 +1,4 @@
-package options
+package settings
 
 import (
 	"github.com/charmbracelet/lipgloss"
@@ -33,5 +33,5 @@ func (m Model) renderWithBorder(content string, state State) string {
 		LabelStyle: textStyle,
 	}
 
-	return renderer.Render(stateTitles[state], content, 27)
+	return renderer.Render(stateTitles[state], content, m.width-2)
 }

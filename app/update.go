@@ -26,7 +26,7 @@ func (m Model) handleFinishRenderMsg(msg io.FinishRenderMsg) (Model, tea.Cmd) {
 }
 
 func (m Model) processRenderCmd() tea.Msg {
-	imgString := process.RenderImageFile(m.controls.Options, m.controls.FileBrowser.ActiveFile)
+	imgString := process.RenderImageFile(m.controls.Settings, m.controls.FileBrowser.ActiveFile)
 	return io.FinishRenderMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString}
 }
 
@@ -35,12 +35,12 @@ func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
 }
 
 func (m Model) handleFinishAdaptingMsg(msg io.FinishAdaptingMsg) (Model, tea.Cmd) {
-	m.controls.Options.Colors.Adaptive.Palette = msg.Palette
+	m.controls.Settings.Colors.Adaptive.Palette = msg.Palette
 	return m, tea.Batch(io.StartRenderCmd, io.BuildDisplayCmd("Rendering..."))
 }
 
 func (m Model) processAdaptingCmd() tea.Msg {
-	palette := adapt.GeneratePalette(m.controls.Options.Colors.Adaptive, m.controls.FileBrowser.ActiveFile)
+	palette := adapt.GeneratePalette(m.controls.Settings.Colors.Adaptive, m.controls.FileBrowser.ActiveFile)
 	return io.FinishAdaptingMsg{Palette: palette}
 }
 
@@ -62,5 +62,5 @@ func (m Model) handleCopy() (Model, tea.Cmd) {
 		// we should have a place in the UI where we display errors or processing messages,
 		// and package our desired message to the user in a specific command
 	}
-	return m, io.BuildDisplayCmd("Copied text to clipboard")
+	return m, io.BuildDisplayCmd("copied to clipboard")
 }

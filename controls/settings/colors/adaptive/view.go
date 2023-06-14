@@ -29,7 +29,7 @@ func (m Model) drawInputs() string {
 	m.countInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
 	if m.countInput.Focused() == false {
-		m.countInput.Placeholder = fmt.Sprintf("%4d", m.width)
+		m.countInput.Placeholder = fmt.Sprintf("%4d", m.countInput.Value())
 	} else {
 		m.countInput.Placeholder = "    "
 	}
@@ -43,7 +43,7 @@ func (m Model) drawInputs() string {
 	m.iterInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.iterInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
 	if m.iterInput.Focused() == false {
-		m.iterInput.Placeholder = fmt.Sprintf("%4d", m.height)
+		m.iterInput.Placeholder = fmt.Sprintf("%4d", m.iterInput.Value())
 	} else {
 		m.iterInput.Placeholder = "    "
 	}

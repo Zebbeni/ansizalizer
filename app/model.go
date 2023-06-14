@@ -1,7 +1,6 @@
 package app
 
 import (
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -35,7 +34,7 @@ type Model struct {
 func New() Model {
 	return Model{
 		state:    Main,
-		controls: controls.New(),
+		controls: controls.New(controlsWidth),
 		display:  display.New(),
 		viewer:   viewer.New(),
 		w:        100,
@@ -86,40 +85,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // │                ├────────────────────────────────────────┤
 // │                │               Viewer                   │
 // │                │                                        │
-// │                │                                        │
 // ├────────────────┴────────────────────────────────────────┤
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
 func (m Model) View() string {
-	lViewport := viewport.New(m.leftPanelWidth(), m.leftPanelHeight())
+	controls := m.renderControls()
+	display := m.display.View()
+	viewer := m.renderViewer()
+	help := m.renderHelp()
 
-	leftContent := m.controls.View()
-
-	lViewport.SetContent(lipgloss.NewStyle().
-		Width(m.leftPanelWidth()).
-		Height(m.leftPanelHeight()).
-		Render(leftContent))
-	leftPanel := lViewport.View()
-
-	viewer := m.viewer.View()
-
-	renderViewport := viewport.New(m.rPanelWidth(), m.rPanelHeight()-displayHeight)
-
-	vpRightStyle := lipgloss.NewStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
-	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth()).Height(m.rPanelHeight()).Render(viewer)
-	renderViewport.SetContent(rightContent)
-
-	rightPanel := lipgloss.JoinVertical(lipgloss.Top, m.display.View(), renderViewport.View())
-
-	content := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
-
-	helpBar := help.New()
-	helpContent := helpBar.View(io.KeyMap)
-	content = lipgloss.JoinVertical(lipgloss.Top, content, helpContent)
+	leftPanel := controls
+	rightPanel := lipgloss.JoinVertical(lipgloss.Top, display, viewer)
+	panels := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
+	all := lipgloss.JoinVertical(lipgloss.Top, panels, help)
 
 	vp := viewport.New(m.w, m.h)
-	vp.SetContent(content)
-	//vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h).BorderStyle(lipgloss.RoundedBorder())
+	vp.SetContent(all)
 	vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h)
+
 	return vp.View()
 }

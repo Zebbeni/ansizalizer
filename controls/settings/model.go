@@ -1,13 +1,13 @@
-package options
+package settings
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/controls/options/characters"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors"
-	"github.com/Zebbeni/ansizalizer/controls/options/sampling"
-	"github.com/Zebbeni/ansizalizer/controls/options/size"
+	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors"
+	"github.com/Zebbeni/ansizalizer/controls/settings/sampling"
+	"github.com/Zebbeni/ansizalizer/controls/settings/size"
 )
 
 type Model struct {
@@ -21,20 +21,24 @@ type Model struct {
 
 	ShouldUnfocus bool
 	ShouldClose   bool
+
+	width int
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
 		active: None,
 		focus:  Colors,
 
-		Colors:     colors.New(),
-		Characters: characters.New(),
+		Colors:     colors.New(w),
+		Characters: characters.New(w - 2),
 		Size:       size.New(),
 		Sampling:   sampling.New(),
 
 		ShouldUnfocus: false,
 		ShouldClose:   false,
+
+		width: w,
 	}
 }
 

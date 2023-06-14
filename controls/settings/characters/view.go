@@ -48,7 +48,7 @@ func (m Model) drawModeButtons() string {
 			BorderStyle(lipgloss.RoundedBorder()).
 			BorderForeground(styleColor).
 			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(11).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }
@@ -82,7 +82,7 @@ func (m Model) drawCharButtons() string {
 		}
 	}
 	content := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
-	return lipgloss.NewStyle().Width(27).AlignHorizontal(lipgloss.Center).Render(content)
+	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Render(content)
 }
 
 func (m Model) drawColorsButtons() string {
@@ -98,7 +98,7 @@ func (m Model) drawColorsButtons() string {
 			BorderStyle(lipgloss.RoundedBorder()).
 			BorderForeground(styleColor).
 			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(11).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }

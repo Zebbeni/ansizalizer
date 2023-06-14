@@ -7,8 +7,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/makeworld-the-better-one/dither/v2"
 
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/adaptive"
-	"github.com/Zebbeni/ansizalizer/controls/options/colors/limited"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/limited"
 )
 
 type State int
@@ -45,18 +45,21 @@ type Model struct {
 	ShouldDeactivate bool
 
 	IsActive bool
+
+	width int
 }
 
-func New() Model {
+func New(w int) Model {
 	m := Model{
 		selected:         TrueColor,
 		focus:            TrueColor,
 		controls:         TrueColor,
-		Adaptive:         adaptive.New(),
-		Palette:          limited.New(),
+		Adaptive:         adaptive.New(w),
+		Palette:          limited.New(w),
 		ShouldClose:      false,
 		ShouldDeactivate: false,
 		IsActive:         false,
+		width:            w,
 	}
 	return m
 }

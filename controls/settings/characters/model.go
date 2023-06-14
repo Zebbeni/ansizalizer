@@ -39,9 +39,10 @@ type Model struct {
 	ShouldClose   bool
 	ShouldUnfocus bool
 	IsActive      bool
+	width         int
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
 		focus:         Ascii,
 		active:        Ascii,
@@ -53,6 +54,7 @@ func New() Model {
 		ShouldClose:   false,
 		ShouldUnfocus: false,
 		IsActive:      false,
+		width:         w,
 	}
 }
 

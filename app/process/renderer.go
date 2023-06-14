@@ -6,12 +6,12 @@ import (
 
 	"github.com/lucasb-eyer/go-colorful"
 
-	"github.com/Zebbeni/ansizalizer/controls/options"
-	"github.com/Zebbeni/ansizalizer/controls/options/characters"
+	"github.com/Zebbeni/ansizalizer/controls/settings"
+	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 )
 
 type Renderer struct {
-	Settings             options.Model
+	Settings             settings.Model
 	shadeAllBlockFuncs   map[rune]blockFunc
 	shadeLightBlockFuncs map[rune]blockFunc
 	shadeMedBlockFuncs   map[rune]blockFunc
@@ -21,7 +21,7 @@ type Renderer struct {
 	fullBlockFuncs       map[rune]blockFunc
 }
 
-func New(s options.Model) Renderer {
+func New(s settings.Model) Renderer {
 	m := Renderer{
 		Settings: s,
 	}

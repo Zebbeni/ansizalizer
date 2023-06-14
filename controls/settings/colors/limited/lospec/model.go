@@ -1,4 +1,4 @@
-package basic
+package lospec
 
 import (
 	"image/color"
@@ -17,25 +17,15 @@ type Model struct {
 	name    string
 	palette color.Palette
 
-	ShouldFocus bool
+	ShouldClose bool
+
+	width int
 }
 
-func New() Model {
-	items := menuItems()
-	newMenu := menu.New(items)
-
-	delegate := list.NewDefaultDelegate()
-	delegate.SetSpacing(0)
-	delegate.ShowDescription = true
-	delegate.SetHeight(maxSelectedHeight)
-	delegate.Styles = NewItemStyles()
-	newMenu.SetDelegate(delegate)
-
+func New(w int) Model {
 	return Model{
-		menu:        newMenu,
-		name:        items[0].(item).name,
-		palette:     items[0].(item).palette,
-		ShouldFocus: false,
+		menu:  menu.New(menuItems(), w),
+		width: w,
 	}
 }
 

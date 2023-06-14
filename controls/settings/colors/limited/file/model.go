@@ -18,11 +18,14 @@ type Model struct {
 	palette color.Palette
 
 	ShouldClose bool
+
+	width int
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
-		menu: menu.New(menuItems()),
+		menu:  menu.New(menuItems(), w),
+		width: w,
 	}
 }
 

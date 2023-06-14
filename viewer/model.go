@@ -6,13 +6,13 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/controls/options"
+	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/io"
 )
 
 type Model struct {
 	imgString string
-	settings  options.Model
+	settings  settings.Model
 
 	WaitingOnRender bool
 }
