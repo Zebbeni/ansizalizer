@@ -1,4 +1,4 @@
-package adaptive
+package creator
 
 import (
 	"fmt"

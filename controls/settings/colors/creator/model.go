@@ -1,4 +1,4 @@
-package adaptive
+package creator
 
 import (
 	"image/color"
@@ -106,4 +106,8 @@ func (m Model) Info() (int, int) {
 	count, _ = strconv.Atoi(m.countInput.Value())
 	iterations, _ = strconv.Atoi(m.iterInput.Value())
 	return count, iterations
+}
+
+func (m Model) GetCurrent() color.Palette {
+	return m.Palette
 }

@@ -7,8 +7,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/makeworld-the-better-one/dither/v2"
 
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/limited"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/creator"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/loader"
 )
 
 type State int
@@ -18,7 +18,7 @@ type State int
 // which component is currently focused. From top to bottom the components are:
 
 // 1) Limited (on/off)
-// 2) Load (Name) (if Limited) -> [Enter] displays Load menu
+// 2) Loader (Name) (if Limited) -> [Enter] displays Loader menu
 // 3) Dithering (on/off) (if Limited)
 // 4) Serpentine (on/off) (if Dithering)
 // 5) Matrix (Name) (if Dithering) -> [Enter] displays to Matrix menu
@@ -26,7 +26,7 @@ type State int
 // These can all be part of a single list, but we need to onSelect the list items
 
 const (
-	Full State = iota
+	NoPalette State = iota
 	Create
 	Load
 	Lospec
@@ -40,8 +40,8 @@ type Model struct {
 	focus    State // the component taking input
 	controls State
 
-	Adaptive adaptive.Model
-	Palette  limited.Model
+	Creator creator.Model
+	Loader  loader.Model
 
 	ShouldClose      bool
 	ShouldDeactivate bool
@@ -53,11 +53,11 @@ type Model struct {
 
 func New(w int) Model {
 	m := Model{
-		selected:         Full,
-		focus:            Full,
-		controls:         Full,
-		Adaptive:         adaptive.New(w),
-		Palette:          limited.New(w),
+		selected:         NoPalette,
+		focus:            NoPalette,
+		controls:         NoPalette,
+		Creator:          creator.New(w),
+		Loader:           loader.New(w),
 		ShouldClose:      false,
 		ShouldDeactivate: false,
 		IsActive:         false,
@@ -89,9 +89,9 @@ func (m Model) View() string {
 	var controls string
 	switch m.controls {
 	case Create:
-		controls = m.Adaptive.View()
+		controls = m.Creator.View()
 	case Load:
-		controls = m.Palette.View()
+		controls = m.Loader.View()
 	}
 	if len(controls) == 0 {
 		return buttons
@@ -101,7 +101,7 @@ func (m Model) View() string {
 }
 
 func (m Model) IsLimited() bool {
-	return m.selected != Full
+	return m.selected != NoPalette
 }
 
 func (m Model) IsDithered() bool {
@@ -125,8 +125,14 @@ func (m Model) IsPaletted() bool {
 }
 
 func (m Model) GetCurrentPalette() color.Palette {
-	if m.selected == Load {
-		return m.Palette.GetCurrent()
+	switch m.selected {
+	case Load:
+		return m.Loader.GetCurrent()
+	case Create:
+		return m.Creator.Palette
 	}
-	return m.Adaptive.Palette
+	if m.selected == Load {
+		return m.Loader.GetCurrent()
+	}
+	return m.Creator.Palette
 }

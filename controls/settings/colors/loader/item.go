@@ -1,10 +1,12 @@
-package lospec
+package loader
 
 import (
 	"image/color"
 	"image/color/palette"
 
 	"github.com/charmbracelet/bubbles/list"
+
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/description"
 )
 
 type item struct {
@@ -21,7 +23,7 @@ func (i item) Title() string {
 }
 
 func (i item) Description() string {
-	return ""
+	return description.Palette(i.palette, maxWidth, 1)
 }
 
 func menuItems() []list.Item {
@@ -33,5 +35,8 @@ func menuItems() []list.Item {
 		item{name: "Ansi16", palette: Ansi16()},
 		item{name: "Ansi256", palette: Ansi256()},
 		item{name: "BlackAndWhite", palette: BlackAndWhite()},
+		item{name: "KlarikFilmic", palette: KlarikFilmic()},
+		item{name: "Mudstone", palette: Mudstone()},
+		item{name: "IsleOfTheDead", palette: IsleOfTheDead()},
 	}
 }

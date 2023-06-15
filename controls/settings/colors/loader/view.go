@@ -1,4 +1,4 @@
-package basic
+package loader
 
 import (
 	"github.com/charmbracelet/bubbles/list"

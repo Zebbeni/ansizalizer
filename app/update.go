@@ -35,12 +35,12 @@ func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
 }
 
 func (m Model) handleFinishAdaptingMsg(msg io.FinishAdaptingMsg) (Model, tea.Cmd) {
-	m.controls.Settings.Colors.Adaptive.Palette = msg.Palette
+	m.controls.Settings.Colors.Creator.Palette = msg.Palette
 	return m, tea.Batch(io.StartRenderCmd, io.BuildDisplayCmd("Rendering..."))
 }
 
 func (m Model) processAdaptingCmd() tea.Msg {
-	palette := adapt.GeneratePalette(m.controls.Settings.Colors.Adaptive, m.controls.FileBrowser.ActiveFile)
+	palette := adapt.GeneratePalette(m.controls.Settings.Colors.Creator, m.controls.FileBrowser.ActiveFile)
 	return io.FinishAdaptingMsg{Palette: palette}
 }
 
