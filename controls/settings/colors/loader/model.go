@@ -3,16 +3,17 @@ package loader
 import (
 	"image/color"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/controls/menu"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/controls/browser"
+)
+
+var (
+	paletteExtensions = []string{".hex"}
 )
 
 type Model struct {
-	menu list.Model
+	FileBrowser browser.Model
 
 	name    string
 	palette color.Palette
@@ -23,20 +24,10 @@ type Model struct {
 }
 
 func New(w int) Model {
-	items := menuItems()
-	newMenu := menu.New(items, w-2)
-
-	delegate := list.NewDefaultDelegate()
-	delegate.SetSpacing(0)
-	delegate.ShowDescription = true
-	delegate.SetHeight(maxSelectedHeight)
-	delegate.Styles = NewItemStyles()
-	newMenu.SetDelegate(delegate)
+	fileBrowser := browser.New(paletteExtensions, w-2)
 
 	return Model{
-		menu:          newMenu,
-		name:          items[0].(item).name,
-		palette:       items[0].(item).palette,
+		FileBrowser:   fileBrowser,
 		ShouldUnfocus: false,
 		width:         w,
 	}
@@ -47,22 +38,18 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, io.KeyMap.Enter):
-			return m.handleEnter()
-		case key.Matches(msg, io.KeyMap.Esc):
-			return m.handleEsc()
-		case key.Matches(msg, io.KeyMap.Nav):
-			return m.handleNav(msg)
-		}
+	var cmd tea.Cmd
+	m.FileBrowser, cmd = m.FileBrowser.Update(msg)
+
+	if m.FileBrowser.ShouldClose {
+		m.FileBrowser.ShouldClose = false
+		m.ShouldUnfocus = true
 	}
-	return m, nil
+	return m, cmd
 }
 
 func (m Model) View() string {
-	return m.menu.View()
+	return m.FileBrowser.View()
 }
 
 func (m Model) GetCurrent() color.Palette {

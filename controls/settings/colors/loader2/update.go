@@ -1,4 +1,4 @@
-package loader
+package loader2
 
 import (
 	"github.com/charmbracelet/bubbles/key"

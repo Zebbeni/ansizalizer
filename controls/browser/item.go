@@ -8,8 +8,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 )
 
-var imgExtensions = []string{".jpg", ".png"}
-
 type item struct {
 	name  string
 	path  string
@@ -38,7 +36,7 @@ func (i item) Description() string {
 	return "file"
 }
 
-func getItems(dir string) []list.Item {
+func getItems(extensions []string, dir string) []list.Item {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println("Error reading directory entries:", err)
@@ -62,7 +60,7 @@ func getItems(dir string) []list.Item {
 			continue
 		}
 
-		for _, ext := range imgExtensions {
+		for _, ext := range extensions {
 			if filepath.Ext(e.Name()) == ext {
 				fileItem := item{name: e.Name(), path: path, isDir: false, isTop: false}
 				fileItems = append(fileItems, fileItem)

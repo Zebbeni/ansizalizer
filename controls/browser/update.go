@@ -60,7 +60,7 @@ func (m Model) updateSelected() (Model, tea.Cmd) {
 }
 
 func (m Model) addListForDirectory(dir string) Model {
-	newList := menu.New(getItems(dir), m.width)
+	newList := menu.New(getItems(m.fileExtensions, dir), m.width)
 
 	newList.SetShowTitle(false)
 	newList.SetShowStatusBar(false)

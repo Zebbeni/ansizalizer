@@ -16,21 +16,27 @@ type Model struct {
 	SelectedFile string
 	ActiveFile   string
 
-	lists []list.Model
+	lists          []list.Model
+	fileExtensions []string
 
 	ShouldClose bool
 
 	width int
 }
 
-func New(w int) Model {
+func New(exts []string, w int) Model {
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Error getting starting directory:", err)
 		os.Exit(1)
 	}
 
-	m := Model{width: w}.addListForDirectory(dir)
+	m := Model{
+		width:          w,
+		fileExtensions: exts,
+	}
+	m = m.addListForDirectory(dir)
+
 	return m
 }
 
