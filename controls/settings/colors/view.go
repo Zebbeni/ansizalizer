@@ -3,11 +3,11 @@ package colors
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	stateOrder = []State{NoPalette, Load, Create, Lospec}
+	stateOrder = []State{NoPalette, Load, Adapt, Lospec}
 	stateNames = map[State]string{
 		NoPalette: "None",
 		Load:      "Open",
-		Create:    "Create",
+		Adapt:     "Adapt",
 		Lospec:    "Lospec",
 	}
 

@@ -17,10 +17,10 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {NoPalette: Load, Load: Create, Create: Lospec},
-	Left:  {Lospec: Create, Create: Load, Load: NoPalette},
-	Down:  {Create: CreateControls, Load: LoadControls},
-	Up:    {CreateControls: Create},
+	Right: {NoPalette: Load, Load: Adapt, Adapt: Lospec},
+	Left:  {Lospec: Adapt, Adapt: Load, Load: NoPalette},
+	Down:  {Adapt: AdaptiveControls, Load: LoadControls},
+	Up:    {AdaptiveControls: Adapt},
 }
 
 func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -40,15 +40,15 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.Creator, cmd = m.Creator.Update(msg)
-	if m.Creator.ShouldUnfocus {
-		m.Creator.IsActive = true
-		m.Creator.ShouldUnfocus = false
-		m.focus = Create
+	m.Adapter, cmd = m.Adapter.Update(msg)
+	if m.Adapter.ShouldUnfocus {
+		m.Adapter.IsActive = true
+		m.Adapter.ShouldUnfocus = false
+		m.focus = Adapt
 		return m, cmd
-	} else if m.Creator.ShouldClose {
-		m.Creator.IsActive = true
-		m.Creator.ShouldClose = false
+	} else if m.Adapter.ShouldClose {
+		m.Adapter.IsActive = true
+		m.Adapter.ShouldClose = false
 		m.ShouldClose = true
 		return m, cmd
 	}
@@ -75,7 +75,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.selected = m.focus
 	// Kick off a new palette generation before rendering if not done yet.
 	// Allow the app to trigger a render when the generation is complete.
-	if m.IsAdaptive() && len(m.Creator.Palette) == 0 {
+	if m.IsAdaptive() && len(m.Adapter.Palette) == 0 {
 		return m, io.BuildAdaptingCmd()
 	}
 	return m, io.StartRenderCmd
@@ -108,18 +108,18 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
 	switch m.focus {
-	case Create:
-		m.controls = Create
-		m.selected = Create
+	case Adapt:
+		m.controls = Adapt
+		m.selected = Adapt
 	case Load:
 		m.controls = Load
 		m.selected = Load
 	case NoPalette:
 		m.controls = NoPalette
 		m.selected = NoPalette
-	case CreateControls:
-		m.Creator.IsActive = true
-		m.selected = Create
+	case AdaptiveControls:
+		m.Adapter.IsActive = true
+		m.selected = Adapt
 	case LoadControls:
 		m.selected = Load
 	}

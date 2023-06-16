@@ -1,4 +1,4 @@
-package creator
+package adaptive
 
 import (
 	"github.com/charmbracelet/bubbles/key"

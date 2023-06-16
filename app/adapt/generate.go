@@ -8,10 +8,10 @@ import (
 
 	"github.com/mccutchen/palettor"
 
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/creator"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
 )
 
-func GeneratePalette(m creator.Model, imgFilePath string) color.Palette {
+func GeneratePalette(m adaptive.Model, imgFilePath string) color.Palette {
 	if imgFilePath == "" {
 		return nil
 	}

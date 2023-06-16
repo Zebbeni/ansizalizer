@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/makeworld-the-better-one/dither/v2"
 
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/creator"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/loader"
 )
 
@@ -27,10 +27,10 @@ type State int
 
 const (
 	NoPalette State = iota
-	Create
+	Adapt
 	Load
 	Lospec
-	CreateControls
+	AdaptiveControls
 	LoadControls
 	LospecControls
 )
@@ -40,7 +40,7 @@ type Model struct {
 	focus    State // the component taking input
 	controls State
 
-	Creator creator.Model
+	Adapter adaptive.Model
 	Loader  loader.Model
 
 	ShouldClose      bool
@@ -56,7 +56,7 @@ func New(w int) Model {
 		selected:         NoPalette,
 		focus:            NoPalette,
 		controls:         NoPalette,
-		Creator:          creator.New(w),
+		Adapter:          adaptive.New(w),
 		Loader:           loader.New(w),
 		ShouldClose:      false,
 		ShouldDeactivate: false,
@@ -72,7 +72,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.focus {
-	case CreateControls:
+	case AdaptiveControls:
 		return m.handleAdaptiveUpdate(msg)
 	case LoadControls:
 		return m.handlePaletteUpdate(msg)
@@ -88,8 +88,8 @@ func (m Model) View() string {
 
 	var controls string
 	switch m.controls {
-	case Create:
-		controls = m.Creator.View()
+	case Adapt:
+		controls = m.Adapter.View()
 	case Load:
 		controls = m.Loader.View()
 	}
@@ -117,7 +117,7 @@ func (m Model) Matrix() dither.ErrorDiffusionMatrix {
 }
 
 func (m Model) IsAdaptive() bool {
-	return m.selected == Create
+	return m.selected == Adapt
 }
 
 func (m Model) IsPaletted() bool {
@@ -128,11 +128,11 @@ func (m Model) GetCurrentPalette() color.Palette {
 	switch m.selected {
 	case Load:
 		return m.Loader.GetCurrent()
-	case Create:
-		return m.Creator.Palette
+	case Adapt:
+		return m.Adapter.Palette
 	}
 	if m.selected == Load {
 		return m.Loader.GetCurrent()
 	}
-	return m.Creator.Palette
+	return m.Adapter.Palette
 }

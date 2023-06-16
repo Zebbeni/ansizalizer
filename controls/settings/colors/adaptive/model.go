@@ -1,4 +1,4 @@
-package creator
+package adaptive
 
 import (
 	"image/color"
