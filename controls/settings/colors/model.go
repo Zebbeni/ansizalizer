@@ -7,6 +7,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/loader"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/lospec"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
 
@@ -41,6 +42,7 @@ type Model struct {
 
 	Adapter adaptive.Model
 	Loader  loader.Model
+	Lospec  lospec.Model
 
 	ShouldClose      bool
 	ShouldDeactivate bool
@@ -57,6 +59,7 @@ func New(w int) Model {
 		controls:         NoPalette,
 		Adapter:          adaptive.New(w),
 		Loader:           loader.New(w),
+		Lospec:           lospec.New(w),
 		ShouldClose:      false,
 		ShouldDeactivate: false,
 		IsActive:         false,
@@ -91,6 +94,8 @@ func (m Model) View() string {
 		controls = m.Adapter.View()
 	case Load:
 		controls = m.Loader.View()
+	case Lospec:
+		controls = m.Lospec.View()
 	}
 	if len(controls) == 0 {
 		return buttons

@@ -19,8 +19,8 @@ const (
 var navMap = map[Direction]map[State]State{
 	Right: {NoPalette: Load, Load: Adapt, Adapt: Lospec},
 	Left:  {Lospec: Adapt, Adapt: Load, Load: NoPalette},
-	Down:  {Adapt: AdaptiveControls, Load: LoadControls},
-	Up:    {AdaptiveControls: Adapt},
+	Down:  {Adapt: AdaptiveControls, Load: LoadControls, Lospec: LospecControls},
+	Up:    {AdaptiveControls: Adapt, LoadControls: Load, LospecControls: Lospec},
 }
 
 func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -114,6 +114,9 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	case Load:
 		m.controls = Load
 		m.selected = Load
+	case Lospec:
+		m.controls = Lospec
+		m.selected = Lospec
 	case NoPalette:
 		m.controls = NoPalette
 		m.selected = NoPalette
@@ -122,6 +125,8 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 		m.selected = Adapt
 	case LoadControls:
 		m.selected = Load
+	case LospecControls:
+		m.selected = Lospec
 	}
 	return m, nil
 }
