@@ -1,14 +1,13 @@
 package colors
 
 import (
-	"image/color"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/makeworld-the-better-one/dither/v2"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/loader"
+	"github.com/Zebbeni/ansizalizer/palette"
 )
 
 type State int
@@ -124,15 +123,12 @@ func (m Model) IsPaletted() bool {
 	return m.selected == Load
 }
 
-func (m Model) GetCurrentPalette() color.Palette {
+func (m Model) GetCurrentPalette() palette.Model {
 	switch m.selected {
 	case Load:
 		return m.Loader.GetCurrent()
 	case Adapt:
-		return m.Adapter.Palette
+		return m.Adapter.GetCurrent()
 	}
-	if m.selected == Load {
-		return m.Loader.GetCurrent()
-	}
-	return m.Adapter.Palette
+	return palette.Model{}
 }

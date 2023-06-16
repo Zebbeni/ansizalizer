@@ -39,7 +39,7 @@ func (m Renderer) processAscii(input image.Image) string {
 	palette := m.Settings.Colors.GetCurrentPalette()
 
 	if m.Settings.Colors.IsDithered() {
-		ditherer := dither.NewDitherer(palette)
+		ditherer := dither.NewDitherer(palette.Colors())
 		ditherer.Matrix = m.Settings.Colors.Matrix()
 		if m.Settings.Colors.IsSerpentine() {
 			ditherer.Serpentine = true
@@ -87,7 +87,7 @@ func (m Renderer) processAscii(input image.Image) string {
 				fg := m.avgColTrue(r1, r2, r3, r4)
 				brightness := math.Min(1.0, math.Abs(fg.DistanceLuv(black)))
 				if m.Settings.Colors.IsLimited() {
-					fg, _ = colorful.MakeColor(palette.Convert(fg))
+					fg, _ = colorful.MakeColor(palette.Colors().Convert(fg))
 				}
 				lipFg := lipgloss.Color(fg.Hex())
 				style := lipgloss.NewStyle().Foreground(lipFg)

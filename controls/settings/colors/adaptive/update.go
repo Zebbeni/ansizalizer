@@ -19,8 +19,8 @@ const (
 var navMap = map[Direction]map[State]State{
 	Right: {CountForm: IterForm},
 	Left:  {IterForm: CountForm},
-	Up:    {Generate: CountForm},
-	Down:  {CountForm: Generate, IterForm: Generate},
+	Up:    {Generate: CountForm, Save: Generate},
+	Down:  {CountForm: Generate, IterForm: Generate, Generate: Save},
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {

@@ -9,8 +9,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/component/textinput"
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/description"
 	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/palette"
 )
 
 type State int
@@ -19,13 +19,14 @@ const (
 	CountForm State = iota
 	IterForm
 	Generate
+	Save
 )
 
 type Model struct {
 	focus  State
 	active State
 
-	Palette color.Palette
+	palette palette.Model
 
 	countInput textinput.Model
 	iterInput  textinput.Model
@@ -93,12 +94,14 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	inputs := m.drawInputs()
 	generate := m.drawGenerateButton()
-	if len(m.Palette) == 0 {
+	if len(m.palette.Colors()) == 0 {
 		return lipgloss.JoinVertical(lipgloss.Top, inputs, generate)
 	}
 
-	palette := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(description.Palette(m.Palette, 25, 10))
-	return lipgloss.JoinVertical(lipgloss.Top, inputs, generate, palette)
+	palette := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(m.palette.View())
+	saveButton := m.drawSaveButton()
+	content := lipgloss.JoinVertical(lipgloss.Top, inputs, generate, palette, saveButton)
+	return content
 }
 
 func (m Model) Info() (int, int) {
@@ -108,6 +111,11 @@ func (m Model) Info() (int, int) {
 	return count, iterations
 }
 
-func (m Model) GetCurrent() color.Palette {
-	return m.Palette
+func (m Model) GetCurrent() palette.Model {
+	return m.palette
+}
+
+func (m Model) SetPalette(colors color.Palette, name string) Model {
+	m.palette = palette.New(name, colors, m.width-4, 3)
+	return m
 }

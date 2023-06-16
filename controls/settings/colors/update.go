@@ -75,7 +75,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.selected = m.focus
 	// Kick off a new palette generation before rendering if not done yet.
 	// Allow the app to trigger a render when the generation is complete.
-	if m.IsAdaptive() && len(m.Adapter.Palette) == 0 {
+	if m.IsAdaptive() && len(m.Adapter.GetCurrent().Colors()) == 0 {
 		return m, io.BuildAdaptingCmd()
 	}
 	return m, io.StartRenderCmd

@@ -13,8 +13,8 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/description"
 	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/palette"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
@@ -26,7 +26,7 @@ type Model struct {
 	FileBrowser browser.Model
 
 	paletteFilepath string
-	palette         color.Palette
+	palette         palette.Model
 
 	ShouldUnfocus bool
 
@@ -49,16 +49,19 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var err error
 
 	m.FileBrowser, cmd = m.FileBrowser.Update(msg)
 
 	if m.FileBrowser.ActiveFile != m.paletteFilepath {
 		m.paletteFilepath = m.FileBrowser.ActiveFile
-		m.palette, err = parsePaletteFile(m.paletteFilepath)
+
+		name := strings.Split(filepath.Base(m.paletteFilepath), ".hex")[0]
+		colors, err := parsePaletteFile(m.paletteFilepath)
 		if err != nil {
 			return m, tea.Batch(cmd, io.BuildDisplayCmd("error parsing paletteFilepath file"))
 		}
+		m.palette = palette.New(name, colors, m.width-5, 3)
+
 		return m, tea.Batch(cmd, io.StartRenderCmd)
 	}
 
@@ -71,28 +74,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	var activePreview string
-
-	if shouldParse(m.paletteFilepath) {
-		name := strings.Split(filepath.Base(m.paletteFilepath), ".hex")[0]
-		title := style.SelectedTitle.Render(name)
-
-		palette := m.palette
-		desc := description.Palette(palette, m.width-5, 3)
-
-		activePreview = lipgloss.JoinVertical(lipgloss.Top, title, desc)
-
-	} else {
-		activePreview = style.DimmedTitle.Render("None")
+	activePreview := style.DimmedTitle.Render("No palette selected")
+	if len(m.palette.Colors()) != 0 {
+		activePreview = m.palette.View()
 	}
-
-	activePreview = lipgloss.NewStyle().PaddingBottom(1).PaddingLeft(2).Render(activePreview)
+	activePreview = lipgloss.NewStyle().Padding(0, 0, 1, 2).Render(activePreview)
 
 	browser := m.FileBrowser.View()
 	return lipgloss.JoinVertical(lipgloss.Top, browser, activePreview)
 }
 
-func (m Model) GetCurrent() color.Palette {
+func (m Model) GetCurrent() palette.Model {
 	return m.palette
 }
 
@@ -110,15 +102,15 @@ func parsePaletteFile(filepath string) (color.Palette, error) {
 	fileScanner.Split(bufio.ScanLines)
 
 	var col colorful.Color
-	palette := make(color.Palette, 0, 256)
+	p := make(color.Palette, 0, 256)
 
 	for fileScanner.Scan() {
 		col, err = colorful.Hex(fmt.Sprintf("#%s", fileScanner.Text()))
-		palette = append(palette, col)
+		p = append(p, col)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return palette, nil
+	return p, nil
 }

@@ -68,14 +68,34 @@ func (m Model) drawGenerateButton() string {
 	}
 
 	style := lipgloss.NewStyle().
-		Width(25).
+		Width(m.width - 4).
 		AlignHorizontal(lipgloss.Center).
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(styleColor).
 		Foreground(styleColor)
 
 	button := style.Render("Generate")
-	return lipgloss.NewStyle().Width(27).AlignHorizontal(lipgloss.Center).Render(button)
+	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
+}
+
+// TODO: This is almost the same as drawGenerateButton. See if we can generalize
+func (m Model) drawSaveButton() string {
+	styleColor := normalColor
+	if m.IsActive && m.focus == Save {
+		styleColor = focusColor
+	} else if m.active == Save {
+		styleColor = activeColor
+	}
+
+	style := lipgloss.NewStyle().
+		Width(m.width - 4).
+		AlignHorizontal(lipgloss.Center).
+		BorderStyle(lipgloss.RoundedBorder()).
+		BorderForeground(styleColor).
+		Foreground(styleColor)
+
+	button := style.Render("Save .hex file")
+	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
 }
 
 func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {

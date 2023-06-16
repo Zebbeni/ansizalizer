@@ -40,7 +40,7 @@ func RenderImageFile(s settings.Model, imgFilePath string) string {
 }
 
 func (m Renderer) process(input image.Image) string {
-	if m.Settings.Colors.IsLimited() && len(m.Settings.Colors.GetCurrentPalette()) == 0 {
+	if m.Settings.Colors.IsLimited() && len(m.Settings.Colors.GetCurrentPalette().Colors()) == 0 {
 		return "Choose a color palette"
 	}
 	mode, _, _ := m.Settings.Characters.Selected()

@@ -6,7 +6,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/description"
+	"github.com/Zebbeni/ansizalizer/palette"
 )
 
 type item struct {
@@ -23,7 +23,7 @@ func (i item) Title() string {
 }
 
 func (i item) Description() string {
-	return description.Palette(i.palette, maxWidth, 1)
+	return palette.Palette(i.palette, maxWidth, 1)
 }
 
 func menuItems() []list.Item {
