@@ -24,7 +24,8 @@ func StartAdaptingCmd() tea.Msg {
 }
 
 type FinishAdaptingMsg struct {
-	Palette color.Palette
+	Name   string
+	Colors color.Palette
 }
 
 // DisplayMsg could eventually contain a type

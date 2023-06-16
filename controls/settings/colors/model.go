@@ -1,14 +1,13 @@
 package colors
 
 import (
-	"image/color"
-
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/makeworld-the-better-one/dither/v2"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/limited"
+	"github.com/Zebbeni/ansizalizer/controls/settings/colors/loader"
+	"github.com/Zebbeni/ansizalizer/palette"
 )
 
 type State int
@@ -18,7 +17,7 @@ type State int
 // which component is currently focused. From top to bottom the components are:
 
 // 1) Limited (on/off)
-// 2) Palette (Name) (if Limited) -> [Enter] displays Palette menu
+// 2) Loader (Name) (if Limited) -> [Enter] displays Loader menu
 // 3) Dithering (on/off) (if Limited)
 // 4) Serpentine (on/off) (if Dithering)
 // 5) Matrix (Name) (if Dithering) -> [Enter] displays to Matrix menu
@@ -26,11 +25,13 @@ type State int
 // These can all be part of a single list, but we need to onSelect the list items
 
 const (
-	TrueColor State = iota
-	Adaptive
-	Palette
-	PalettedControls
+	NoPalette State = iota
+	Adapt
+	Load
+	Lospec
 	AdaptiveControls
+	LoadControls
+	LospecControls
 )
 
 type Model struct {
@@ -38,8 +39,8 @@ type Model struct {
 	focus    State // the component taking input
 	controls State
 
-	Adaptive adaptive.Model
-	Palette  limited.Model
+	Adapter adaptive.Model
+	Loader  loader.Model
 
 	ShouldClose      bool
 	ShouldDeactivate bool
@@ -51,11 +52,11 @@ type Model struct {
 
 func New(w int) Model {
 	m := Model{
-		selected:         TrueColor,
-		focus:            TrueColor,
-		controls:         TrueColor,
-		Adaptive:         adaptive.New(w),
-		Palette:          limited.New(w),
+		selected:         NoPalette,
+		focus:            NoPalette,
+		controls:         NoPalette,
+		Adapter:          adaptive.New(w),
+		Loader:           loader.New(w),
 		ShouldClose:      false,
 		ShouldDeactivate: false,
 		IsActive:         false,
@@ -72,7 +73,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.focus {
 	case AdaptiveControls:
 		return m.handleAdaptiveUpdate(msg)
-	case PalettedControls:
+	case LoadControls:
 		return m.handlePaletteUpdate(msg)
 	}
 	return m.handleMenuUpdate(msg)
@@ -86,10 +87,10 @@ func (m Model) View() string {
 
 	var controls string
 	switch m.controls {
-	case Adaptive:
-		controls = m.Adaptive.View()
-	case Palette:
-		controls = m.Palette.View()
+	case Adapt:
+		controls = m.Adapter.View()
+	case Load:
+		controls = m.Loader.View()
 	}
 	if len(controls) == 0 {
 		return buttons
@@ -99,7 +100,7 @@ func (m Model) View() string {
 }
 
 func (m Model) IsLimited() bool {
-	return m.selected != TrueColor
+	return m.selected != NoPalette
 }
 
 func (m Model) IsDithered() bool {
@@ -115,16 +116,19 @@ func (m Model) Matrix() dither.ErrorDiffusionMatrix {
 }
 
 func (m Model) IsAdaptive() bool {
-	return m.selected == Adaptive
+	return m.selected == Adapt
 }
 
 func (m Model) IsPaletted() bool {
-	return m.selected == Palette
+	return m.selected == Load
 }
 
-func (m Model) GetCurrentPalette() color.Palette {
-	if m.selected == Palette {
-		return m.Palette.GetCurrent()
+func (m Model) GetCurrentPalette() palette.Model {
+	switch m.selected {
+	case Load:
+		return m.Loader.GetCurrent()
+	case Adapt:
+		return m.Adapter.GetCurrent()
 	}
-	return m.Adaptive.Palette
+	return palette.Model{}
 }

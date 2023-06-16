@@ -17,10 +17,10 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {TrueColor: Adaptive, Adaptive: Palette},
-	Left:  {Palette: Adaptive, Adaptive: TrueColor},
-	Down:  {Adaptive: AdaptiveControls, Palette: PalettedControls},
-	Up:    {AdaptiveControls: Adaptive},
+	Right: {NoPalette: Load, Load: Adapt, Adapt: Lospec},
+	Left:  {Lospec: Adapt, Adapt: Load, Load: NoPalette},
+	Down:  {Adapt: AdaptiveControls, Load: LoadControls},
+	Up:    {AdaptiveControls: Adapt},
 }
 
 func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -40,15 +40,15 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.Adaptive, cmd = m.Adaptive.Update(msg)
-	if m.Adaptive.ShouldUnfocus {
-		m.Adaptive.IsActive = true
-		m.Adaptive.ShouldUnfocus = false
-		m.focus = Adaptive
+	m.Adapter, cmd = m.Adapter.Update(msg)
+	if m.Adapter.ShouldUnfocus {
+		m.Adapter.IsActive = true
+		m.Adapter.ShouldUnfocus = false
+		m.focus = Adapt
 		return m, cmd
-	} else if m.Adaptive.ShouldClose {
-		m.Adaptive.IsActive = true
-		m.Adaptive.ShouldClose = false
+	} else if m.Adapter.ShouldClose {
+		m.Adapter.IsActive = true
+		m.Adapter.ShouldClose = false
 		m.ShouldClose = true
 		return m, cmd
 	}
@@ -57,10 +57,10 @@ func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.Palette, cmd = m.Palette.Update(msg)
-	if m.Palette.ShouldUnfocus {
-		m.Palette.ShouldUnfocus = false
-		m.focus = Palette
+	m.Loader, cmd = m.Loader.Update(msg)
+	if m.Loader.ShouldUnfocus {
+		m.Loader.ShouldUnfocus = false
+		m.focus = Load
 		return m, cmd
 	}
 	return m, cmd
@@ -75,7 +75,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.selected = m.focus
 	// Kick off a new palette generation before rendering if not done yet.
 	// Allow the app to trigger a render when the generation is complete.
-	if m.IsAdaptive() && len(m.Adaptive.Palette) == 0 {
+	if m.IsAdaptive() && len(m.Adapter.GetCurrent().Colors()) == 0 {
 		return m, io.BuildAdaptingCmd()
 	}
 	return m, io.StartRenderCmd
@@ -108,20 +108,20 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
 	switch m.focus {
-	case Adaptive:
-		m.controls = Adaptive
-		m.selected = Adaptive
-	case Palette:
-		m.controls = Palette
-		m.selected = Palette
-	case TrueColor:
-		m.controls = TrueColor
-		m.selected = TrueColor
+	case Adapt:
+		m.controls = Adapt
+		m.selected = Adapt
+	case Load:
+		m.controls = Load
+		m.selected = Load
+	case NoPalette:
+		m.controls = NoPalette
+		m.selected = NoPalette
 	case AdaptiveControls:
-		m.Adaptive.IsActive = true
-		m.selected = Adaptive
-	case PalettedControls:
-		m.selected = Palette
+		m.Adapter.IsActive = true
+		m.selected = Adapt
+	case LoadControls:
+		m.selected = Load
 	}
 	return m, nil
 }

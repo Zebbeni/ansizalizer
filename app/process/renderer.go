@@ -85,7 +85,7 @@ func (m Renderer) createShadeAllFuncs() map[rune]blockFunc {
 }
 
 func (m Renderer) getLightDarkPaletted(light, dark colorful.Color) (colorful.Color, colorful.Color) {
-	colorPalette := m.Settings.Colors.GetCurrentPalette()
+	colorPalette := m.Settings.Colors.GetCurrentPalette().Colors()
 
 	index := colorPalette.Index(dark)
 	paletteDark := colorPalette.Convert(dark)

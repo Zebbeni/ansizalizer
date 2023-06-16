@@ -27,6 +27,7 @@ var (
 		Settings: "Render",
 		Export:   "Export",
 	}
+	imgExtensions = []string{".jpg", ".png"}
 )
 
 type Model struct {
@@ -45,7 +46,7 @@ func New(w int) Model {
 		active: Menu,
 		focus:  Open,
 
-		FileBrowser: browser.New(w),
+		FileBrowser: browser.New(imgExtensions, w),
 		Settings:    settings.New(w),
 		Export:      export.New(),
 

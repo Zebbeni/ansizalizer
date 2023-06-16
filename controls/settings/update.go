@@ -15,8 +15,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Down: {Colors: Characters, Characters: Size, Size: Sampling},
-	Up:   {Sampling: Size, Size: Characters, Characters: Colors},
+	Down: {Palette: Characters, Characters: Size, Size: Sampling},
+	Up:   {Sampling: Size, Size: Characters, Characters: Palette},
 }
 
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -83,7 +83,7 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		case key.Matches(msg, io.KeyMap.Enter):
 			m.active = m.focus
 			switch m.active {
-			case Colors:
+			case Palette:
 				m.Colors.IsActive = true
 			case Characters:
 				m.Characters.IsActive = true

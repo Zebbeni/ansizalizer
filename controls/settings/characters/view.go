@@ -25,7 +25,7 @@ var (
 		UnicodeShadeHeavy: "▓",
 		UnicodeShadeAll:   "░▒▓",
 		OneColor:          "1 Color",
-		TwoColor:          "2 Color",
+		TwoColor:          "2 Colors",
 	}
 
 	activeColor = lipgloss.Color("#aaaaaa")

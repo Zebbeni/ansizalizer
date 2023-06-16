@@ -1,4 +1,4 @@
-package description
+package palette
 
 import (
 	"image/color"
