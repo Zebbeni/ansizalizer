@@ -98,7 +98,7 @@ func (m Model) savePaletteFile() (Model, tea.Cmd) {
 	_, err = f.WriteString(hexStrings)
 
 	dir, _ := os.Getwd()
-	msg := fmt.Sprintf("saved %s in %s", filename, filepath.Base(dir))
+	msg := fmt.Sprintf("saved %s in /%s", filename, filepath.Base(dir))
 	return m, io.BuildDisplayCmd(msg)
 }
 
