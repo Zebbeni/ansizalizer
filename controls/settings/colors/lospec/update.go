@@ -6,9 +6,11 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/lucasb-eyer/go-colorful"
 
+	"github.com/Zebbeni/ansizalizer/controls/menu"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
@@ -24,13 +26,6 @@ const (
 	Right
 	Up
 	Down
-
-	Colors Param = iota
-	Tag
-	Filter
-	Sorting
-	//lospecRequestUrl = "https://lospec.com/palette-list/load?colorNumberFilterType=exact&colorNumber=32&tag=&sortingType=alphabetical"
-	lospecRequestUrl = "https://lospec.com/palette-list/load?colorNumberFilterType=exact&colorNumber=32&tag=&sortingType=alphabetical"
 )
 
 var (
@@ -93,11 +88,12 @@ func (m Model) handleLospecResponse(msg event.LospecResponseMsg) (Model, tea.Cmd
 
 	// if we haven't initialized and allocated an array of palettes for the current , do that first
 	if !m.isPaletteListAllocated {
-		m.paletteList = make([]palette.Model, msg.Data.TotalCount)
+		m.palettes = make([]list.Item, msg.Data.TotalCount)
+		m.paletteList = menu.New(nil, m.width-2)
 		m.isPaletteListAllocated = true
 	}
 
-	// use the page number (and assuming 10 palettes per page) to populate our paletteList
+	// use the page number*10 (assumes 10 palettes per page) to populate palettes
 	for i, p := range msg.Data.Palettes {
 		colors := make([]color.Color, len(p.Colors))
 		var err error
@@ -107,12 +103,13 @@ func (m Model) handleLospecResponse(msg event.LospecResponseMsg) (Model, tea.Cmd
 			if err != nil {
 				return m, event.BuildDisplayCmd("error converting hex value")
 			}
-
 		}
 
 		idx := (msg.Page * 10) + i
-		m.paletteList[idx] = palette.New(p.Title, colors, m.width-2, 1)
+		m.palettes[idx] = palette.New(p.Title, colors, m.width-2, 2)
 	}
+
+	m.paletteList.SetItems(m.palettes)
 
 	return m, cmd
 }

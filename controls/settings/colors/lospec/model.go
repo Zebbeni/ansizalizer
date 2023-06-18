@@ -2,11 +2,12 @@ package lospec
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/component/textinput"
 	"github.com/Zebbeni/ansizalizer/event"
-	"github.com/Zebbeni/ansizalizer/palette"
 )
 
 type State int
@@ -26,7 +27,8 @@ type Model struct {
 	countInput textinput.Model
 	tagInput   textinput.Model
 
-	paletteList            []palette.Model
+	paletteList            list.Model
+	palettes               []list.Item
 	isPaletteListAllocated bool
 	requestID              int
 
@@ -107,7 +109,8 @@ func (m Model) View() string {
 	// draw filter buttons
 	// draw sorting buttons
 	// draw list
-	return inputs
+	paletteList := m.paletteList.View()
+	return lipgloss.JoinVertical(lipgloss.Top, inputs, paletteList)
 }
 
 // https://lospec.com/palette-list/load?colorNumberFilterType=exact&colorNumber=32&tag=&sortingType=alphabetical

@@ -42,6 +42,7 @@ func newMenu(items []list.Item, height int) list.Model {
 
 	l.KeyMap.ForceQuit.Unbind()
 	l.KeyMap.Quit.Unbind()
+
 	return l
 }
 
