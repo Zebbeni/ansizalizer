@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 type Direction int
@@ -80,7 +80,7 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, io.KeyMap.Enter):
+		case key.Matches(msg, event.KeyMap.Enter):
 			m.active = m.focus
 			switch m.active {
 			case Palette:
@@ -90,15 +90,15 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			case Size:
 				m.Size.IsActive = true
 			}
-		case key.Matches(msg, io.KeyMap.Esc):
+		case key.Matches(msg, event.KeyMap.Esc):
 			m.ShouldClose = true
-		case key.Matches(msg, io.KeyMap.Nav):
+		case key.Matches(msg, event.KeyMap.Nav):
 			switch {
-			case key.Matches(msg, io.KeyMap.Up):
+			case key.Matches(msg, event.KeyMap.Up):
 				if next, hasNext := navMap[Up][m.focus]; hasNext {
 					m.focus = next
 				}
-			case key.Matches(msg, io.KeyMap.Down):
+			case key.Matches(msg, event.KeyMap.Down):
 				if next, hasNext := navMap[Down][m.focus]; hasNext {
 					m.focus = next
 				}
@@ -111,9 +111,9 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch {
-	case key.Matches(msg, io.KeyMap.Esc):
+	case key.Matches(msg, event.KeyMap.Esc):
 		m.ShouldClose = true
-	case key.Matches(msg, io.KeyMap.Nav):
+	case key.Matches(msg, event.KeyMap.Nav):
 		m.ShouldUnfocus = true
 	}
 	return m, cmd

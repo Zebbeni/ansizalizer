@@ -7,11 +7,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/app"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 func init() {
-	io.InitKeyMap()
+	event.InitKeyMap()
 }
 
 func main() {

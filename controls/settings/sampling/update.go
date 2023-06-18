@@ -3,7 +3,7 @@ package sampling
 import (
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
@@ -28,5 +28,5 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 	m.Function = selectedItem.Function
 
-	return m, tea.Batch(cmd, io.StartRenderCmd)
+	return m, tea.Batch(cmd, event.StartRenderCmd)
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 type Direction int
@@ -27,11 +27,11 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, io.KeyMap.Esc):
+		case key.Matches(msg, event.KeyMap.Esc):
 			return m.handleEsc()
-		case key.Matches(msg, io.KeyMap.Enter):
+		case key.Matches(msg, event.KeyMap.Enter):
 			return m.handleEnter()
-		case key.Matches(msg, io.KeyMap.Nav):
+		case key.Matches(msg, event.KeyMap.Nav):
 			return m.handleNav(msg)
 		}
 	}
@@ -45,12 +45,10 @@ func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		m.Adapter.IsActive = true
 		m.Adapter.ShouldUnfocus = false
 		m.focus = Adapt
-		return m, cmd
 	} else if m.Adapter.ShouldClose {
 		m.Adapter.IsActive = true
 		m.Adapter.ShouldClose = false
 		m.ShouldClose = true
-		return m, cmd
 	}
 	return m, cmd
 }
@@ -61,7 +59,21 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.Loader.ShouldUnfocus {
 		m.Loader.ShouldUnfocus = false
 		m.focus = Load
-		return m, cmd
+	}
+	return m, cmd
+}
+
+func (m Model) handleLospecUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Lospec, cmd = m.Lospec.Update(msg)
+	if m.Lospec.ShouldUnfocus {
+		m.Lospec.IsActive = true
+		m.Lospec.ShouldUnfocus = false
+		m.focus = Lospec
+	} else if m.Lospec.ShouldClose {
+		m.Lospec.IsActive = true
+		m.Lospec.ShouldClose = false
+		m.ShouldClose = true
 	}
 	return m, cmd
 }
@@ -76,27 +88,27 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	// Kick off a new palette generation before rendering if not done yet.
 	// Allow the app to trigger a render when the generation is complete.
 	if m.IsAdaptive() && len(m.Adapter.GetCurrent().Colors()) == 0 {
-		return m, io.BuildAdaptingCmd()
+		return m, event.BuildAdaptingCmd()
 	}
-	return m, io.StartRenderCmd
+	return m, event.StartRenderCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch {
-	case key.Matches(msg, io.KeyMap.Right):
+	case key.Matches(msg, event.KeyMap.Right):
 		if next, hasNext := navMap[Right][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-	case key.Matches(msg, io.KeyMap.Left):
+	case key.Matches(msg, event.KeyMap.Left):
 		if next, hasNext := navMap[Left][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-	case key.Matches(msg, io.KeyMap.Down):
+	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-	case key.Matches(msg, io.KeyMap.Up):
+	case key.Matches(msg, event.KeyMap.Up):
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
@@ -126,6 +138,7 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	case LoadControls:
 		m.selected = Load
 	case LospecControls:
+		m.Lospec.IsActive = true
 		m.selected = Lospec
 	}
 	return m, nil

@@ -4,7 +4,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/controls/menu"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
@@ -37,7 +37,7 @@ func (m Model) updateActive() (Model, tea.Cmd) {
 
 	if itm.isDir == false && m.ActiveFile != itm.path {
 		m.ActiveFile = itm.path
-		return m, io.StartRenderCmd
+		return m, event.StartRenderCmd
 	}
 	return m, nil
 }

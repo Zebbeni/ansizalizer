@@ -5,7 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 const (
@@ -40,5 +40,5 @@ func (m Model) renderViewer() string {
 
 func (m Model) renderHelp() string {
 	helpBar := help.New()
-	return helpBar.View(io.KeyMap)
+	return helpBar.View(event.KeyMap)
 }

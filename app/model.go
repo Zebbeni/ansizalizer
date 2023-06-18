@@ -9,7 +9,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls"
 	"github.com/Zebbeni/ansizalizer/display"
 	"github.com/Zebbeni/ansizalizer/env"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/viewer"
 )
 
@@ -57,19 +57,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleCheckSizeMsg()
 	case tea.WindowSizeMsg:
 		return m.handleSizeMsg(msg)
-	case io.StartRenderMsg:
+	case event.StartRenderMsg:
 		return m.handleStartRenderMsg()
-	case io.FinishRenderMsg:
+	case event.FinishRenderMsg:
 		return m.handleFinishRenderMsg(msg)
-	case io.StartAdaptingMsg:
+	case event.StartAdaptingMsg:
 		return m.handleStartAdaptingMsg()
-	case io.FinishAdaptingMsg:
+	case event.FinishAdaptingMsg:
 		return m.handleFinishAdaptingMsg(msg)
-	case io.DisplayMsg:
+	case event.LospecRequestMsg:
+		return m.handleLospecRequestMsg(msg)
+	case event.LospecResponseMsg:
+		return m.handleLospecResponseMsg(msg)
+	case event.DisplayMsg:
 		return m.handleDisplayMsg(msg)
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, io.KeyMap.Copy):
+		case key.Matches(msg, event.KeyMap.Copy):
 			return m.handleCopy()
 		}
 	}

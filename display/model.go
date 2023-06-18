@@ -3,7 +3,7 @@ package display
 import (
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
@@ -21,14 +21,14 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case io.DisplayMsg:
+	case event.DisplayMsg:
 		m.msg = string(msg)
 	}
 	return m, nil
 }
 
 func (m Model) View() string {
-	// TODO: Switch style based on message type (warning, info, etc.)
+	// TODO: Switch style based on event type (warning, info, etc.)
 	displayStyle := style.DimmedTitle.Copy().PaddingTop(1)
 	return displayStyle.Render(m.msg)
 }

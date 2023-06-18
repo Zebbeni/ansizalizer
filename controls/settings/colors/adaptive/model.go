@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/component/textinput"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
 
@@ -63,7 +63,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if m.countInput.Focused() {
 			m.countInput, cmd = m.countInput.Update(msg)
 			if m.countInput.Focused() == false {
-				return m, io.BuildAdaptingCmd()
+				return m, event.BuildAdaptingCmd()
 			}
 			return m, cmd
 		}
@@ -71,7 +71,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if m.iterInput.Focused() {
 			m.iterInput, cmd = m.iterInput.Update(msg)
 			if m.iterInput.Focused() == false {
-				return m, io.BuildAdaptingCmd()
+				return m, event.BuildAdaptingCmd()
 			}
 			return m, cmd
 		}
@@ -80,11 +80,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, io.KeyMap.Enter):
+		case key.Matches(msg, event.KeyMap.Enter):
 			return m.handleEnter()
-		case key.Matches(msg, io.KeyMap.Nav):
+		case key.Matches(msg, event.KeyMap.Nav):
 			return m.handleNav(msg)
-		case key.Matches(msg, io.KeyMap.Esc):
+		case key.Matches(msg, event.KeyMap.Esc):
 			return m.handleEsc()
 		}
 	}

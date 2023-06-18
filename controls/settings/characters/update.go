@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 type Direction int
@@ -99,25 +99,25 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 			}
 		}
 	}
-	return m, io.StartRenderCmd
+	return m, event.StartRenderCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch {
-	case key.Matches(msg, io.KeyMap.Right):
+	case key.Matches(msg, event.KeyMap.Right):
 		if next, hasNext := navMap[Right][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-	case key.Matches(msg, io.KeyMap.Left):
+	case key.Matches(msg, event.KeyMap.Left):
 		if next, hasNext := navMap[Left][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-	case key.Matches(msg, io.KeyMap.Up):
+	case key.Matches(msg, event.KeyMap.Up):
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-	case key.Matches(msg, io.KeyMap.Down):
+	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		}

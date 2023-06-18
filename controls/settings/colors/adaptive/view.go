@@ -53,10 +53,10 @@ func (m Model) drawInputs() string {
 		m.iterInput.Cursor.SetMode(cursor.CursorHide)
 	}
 
-	width := inputStyle.Render(m.countInput.View())
-	height := inputStyle.Render(m.iterInput.View())
+	countInput := inputStyle.Render(m.countInput.View())
+	iterInput := inputStyle.Render(m.iterInput.View())
 
-	return lipgloss.JoinHorizontal(lipgloss.Top, width, height)
+	return lipgloss.JoinHorizontal(lipgloss.Top, countInput, iterInput)
 }
 
 func (m Model) drawGenerateButton() string {

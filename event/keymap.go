@@ -1,4 +1,4 @@
-package io
+package event
 
 import (
 	"github.com/charmbracelet/bubbles/key"
