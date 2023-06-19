@@ -63,7 +63,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if m.countInput.Focused() {
 			m.countInput, cmd = m.countInput.Update(msg)
 			if m.countInput.Focused() == false {
-				return m, event.BuildAdaptingCmd()
+				return m, event.StartAdaptingCmd
 			}
 			return m, cmd
 		}
@@ -71,7 +71,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if m.iterInput.Focused() {
 			m.iterInput, cmd = m.iterInput.Update(msg)
 			if m.iterInput.Focused() == false {
-				return m, event.BuildAdaptingCmd()
+				return m, event.StartAdaptingCmd
 			}
 			return m, cmd
 		}

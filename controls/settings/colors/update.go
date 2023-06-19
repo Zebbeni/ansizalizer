@@ -88,7 +88,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	// Kick off a new palette generation before rendering if not done yet.
 	// Allow the app to trigger a render when the generation is complete.
 	if m.IsAdaptive() && len(m.Adapter.GetCurrent().Colors()) == 0 {
-		return m, event.BuildAdaptingCmd()
+		return m, event.StartAdaptingCmd
 	}
 	return m, event.StartRenderCmd
 }

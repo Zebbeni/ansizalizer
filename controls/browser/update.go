@@ -1,6 +1,7 @@
 package browser
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/controls/menu"
@@ -12,6 +13,11 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
+	if m.currentList().Index() == 0 && key.Matches(msg, event.KeyMap.Up) {
+		m.ShouldClose = true
+		return m, nil
+	}
+
 	cmds := make([]tea.Cmd, 2)
 	m.lists[m.listIndex()], cmds[0] = m.currentList().Update(msg)
 	m, cmds[1] = m.updateActive()

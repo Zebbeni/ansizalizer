@@ -5,13 +5,25 @@ import (
 
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
 	stateNames = map[State]string{
-		CountForm: "Colors",
-		TagForm:   "Tag",
+		CountForm:        "Colors",
+		TagForm:          "Tag",
+		FilterAny:        "Any",
+		FilterExact:      "Exact",
+		FilterMax:        "Max",
+		FilterMin:        "Min",
+		SortAlphabetical: "A-Z",
+		SortDownloads:    "Downloads",
+		SortNewest:       "Newest",
 	}
+
+	filterOrder = []State{FilterAny, FilterExact, FilterMax, FilterMin}
+	sortOrder   = []State{SortAlphabetical, SortDownloads, SortNewest}
 
 	activeColor = lipgloss.Color("#aaaaaa")
 	focusColor  = lipgloss.Color("#ffffff")
@@ -53,6 +65,23 @@ func (m Model) drawInputs() string {
 	countForm := m.countInput.View()
 	tagForm := m.tagInput.View()
 	return lipgloss.JoinHorizontal(lipgloss.Left, countForm, tagForm)
+}
+
+func (m Model) drawFilterButtons() string {
+	buttons := make([]string, len(filterOrder))
+	for i, filter := range filterOrder {
+		buttonStyle := style.NormalButton
+		if filter == m.focus {
+			if m.IsActive {
+				buttonStyle = style.FocusButton
+			} else {
+				buttonStyle = style.ActiveButton
+			}
+		}
+		buttons[i] = buttonStyle.Render(stateNames[filter])
+	}
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }
 
 func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {

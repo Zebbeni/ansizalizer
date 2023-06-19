@@ -45,7 +45,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case Save:
 		return m.savePaletteFile()
 	}
-	return m, event.BuildAdaptingCmd()
+	return m, event.StartAdaptingCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {

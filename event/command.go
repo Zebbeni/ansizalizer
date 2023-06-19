@@ -41,10 +41,6 @@ func ClearDisplayCmd() tea.Msg {
 	return DisplayMsg("")
 }
 
-func BuildAdaptingCmd() tea.Cmd {
-	return tea.Batch(StartAdaptingCmd, BuildDisplayCmd("Generating palette..."))
-}
-
 // LospecRequestMsg is a url request used to get a list of
 type LospecRequestMsg struct {
 	ID   int

@@ -2,8 +2,10 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
@@ -35,12 +37,14 @@ func (m Model) processRenderCmd() tea.Msg {
 }
 
 func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
-	return m, m.processAdaptingCmd
+	filename := filepath.Base(m.controls.FileBrowser.ActiveFile)
+	message := fmt.Sprintf("generating palette from %s...", filename)
+	return m, tea.Batch(event.BuildDisplayCmd(message), m.processAdaptingCmd)
 }
 
 func (m Model) handleFinishAdaptingMsg(msg event.FinishAdaptingMsg) (Model, tea.Cmd) {
 	m.controls.Settings.Colors.Adapter = m.controls.Settings.Colors.Adapter.SetPalette(msg.Colors, msg.Name)
-	return m, tea.Batch(event.StartRenderCmd, event.BuildDisplayCmd("Rendering..."))
+	return m, tea.Batch(event.StartRenderCmd, event.BuildDisplayCmd("rendering..."))
 }
 
 type Foo struct {

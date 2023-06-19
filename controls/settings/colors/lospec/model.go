@@ -15,8 +15,13 @@ type State int
 const (
 	CountForm State = iota
 	TagForm
-	FilterButtons
-	SortingButtons
+	FilterAny
+	FilterExact
+	FilterMax
+	FilterMin
+	SortAlphabetical
+	SortDownloads
+	SortNewest
 	List
 )
 
@@ -26,6 +31,8 @@ type Model struct {
 
 	countInput textinput.Model
 	tagInput   textinput.Model
+	filterType State
+	sortType   State
 
 	paletteList            list.Model
 	palettes               []list.Item
@@ -45,6 +52,8 @@ func New(w int) Model {
 
 		countInput: newInput(CountForm, "32"),
 		tagInput:   newInput(TagForm, ""),
+		filterType: FilterAny,
+		sortType:   SortAlphabetical,
 
 		isPaletteListAllocated: false,
 		requestID:              0,
@@ -71,6 +80,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if m.tagInput.Focused() {
 			return m.handleTagFormUpdate(msg)
 		}
+	}
+
+	if m.focus == List {
+		return m.handleListUpdate(msg)
 	}
 
 	switch msg := msg.(type) {
@@ -107,10 +120,9 @@ func (m Model) View() string {
 	inputs := m.drawInputs()
 	// join horizontally
 	// draw filter buttons
+	filters := m.drawFilterButtons()
 	// draw sorting buttons
 	// draw list
 	paletteList := m.paletteList.View()
-	return lipgloss.JoinVertical(lipgloss.Top, inputs, paletteList)
+	return lipgloss.JoinVertical(lipgloss.Top, inputs, filters, paletteList)
 }
-
-// https://lospec.com/palette-list/load?colorNumberFilterType=exact&colorNumber=32&tag=&sortingType=alphabetical
