@@ -104,9 +104,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 // View draws a control panel like this:
 //
-// Colors: ___ Tag: _____________
-// Number: Any Exact Max Min
-// Sort: A-Z Downloads New
+// Colors ___ |Exact Max Min
+// Tag _____________________
+// Sort By |A-Z Downloads New
 //
 // (Palette List)
 // <palette name>

@@ -33,8 +33,16 @@ var (
 )
 
 func (m Model) drawInputs() string {
+	colorsInput := m.drawColorsInput()
+	tagInput := m.drawTagInput()
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, tagInput)
+}
+
+func (m Model) drawColorsInput() string {
 	prompt, placeholder := m.getInputColors(CountForm)
 
+	m.countInput.Width = 3
 	m.countInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
 	if m.countInput.Focused() == false {
@@ -47,8 +55,13 @@ func (m Model) drawInputs() string {
 	} else {
 		m.countInput.Cursor.SetMode(cursor.CursorHide)
 	}
+	return m.countInput.View()
+}
 
-	prompt, placeholder = m.getInputColors(TagForm)
+func (m Model) drawTagInput() string {
+	prompt, placeholder := m.getInputColors(TagForm)
+
+	m.tagInput.Width = m.width - 5
 	m.tagInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.tagInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
 	if m.tagInput.Focused() == false {
@@ -61,10 +74,7 @@ func (m Model) drawInputs() string {
 	} else {
 		m.tagInput.Cursor.SetMode(cursor.CursorHide)
 	}
-
-	countForm := m.countInput.View()
-	tagForm := m.tagInput.View()
-	return lipgloss.JoinHorizontal(lipgloss.Left, countForm, tagForm)
+	return m.tagInput.View()
 }
 
 func (m Model) drawFilterButtons() string {
