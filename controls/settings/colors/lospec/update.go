@@ -29,13 +29,12 @@ const (
 
 var (
 	navMap = map[Direction]map[State]State{
-		Right: {CountForm: TagForm, FilterAny: FilterExact, FilterExact: FilterMax, FilterMax: FilterMin, SortAlphabetical: SortDownloads, SortDownloads: SortNewest},
-		Left:  {TagForm: CountForm, FilterMin: FilterMax, FilterMax: FilterExact, FilterExact: FilterAny, SortNewest: SortDownloads, SortDownloads: SortAlphabetical},
-		Up:    {FilterAny: CountForm, FilterExact: CountForm, FilterMax: TagForm, FilterMin: TagForm, SortAlphabetical: FilterAny, SortDownloads: TagForm, SortNewest: TagForm, List: SortAlphabetical},
-		Down:  {CountForm: FilterAny, TagForm: FilterMax, FilterAny: SortAlphabetical, FilterExact: SortDownloads, FilterMax: SortDownloads, FilterMin: SortNewest, SortAlphabetical: List, SortDownloads: List, SortNewest: List},
+		Right: {CountForm: FilterExact, FilterExact: FilterMax, FilterMax: FilterMin, SortAlphabetical: SortDownloads, SortDownloads: SortNewest},
+		Left:  {TagForm: CountForm, FilterMin: FilterMax, FilterMax: FilterExact, FilterExact: CountForm, SortNewest: SortDownloads, SortDownloads: SortAlphabetical},
+		Up:    {TagForm: CountForm, SortAlphabetical: TagForm, SortDownloads: TagForm, SortNewest: TagForm, List: SortAlphabetical},
+		Down:  {CountForm: TagForm, FilterExact: TagForm, FilterMax: TagForm, FilterMin: TagForm, TagForm: SortAlphabetical, SortAlphabetical: List, SortDownloads: List, SortNewest: List},
 	}
 	filterParams = map[State]string{
-		FilterAny:   "any",
 		FilterExact: "exact",
 		FilterMax:   "max",
 		FilterMin:   "min",
@@ -61,12 +60,15 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case TagForm:
 		m.tagInput.Focus()
 		return m, nil
-	case FilterAny, FilterExact, FilterMax, FilterMin:
+	case FilterExact, FilterMax, FilterMin:
 		m.filterType = m.focus
 		return m.searchLospec(0)
 	case SortAlphabetical, SortDownloads, SortNewest:
 		m.sortType = m.focus
 		return m.searchLospec(0)
+	case List:
+		m.palette, _ = m.paletteList.SelectedItem().(palette.Model)
+		return m, event.StartRenderCmd
 	}
 	return m, nil
 }
@@ -102,7 +104,7 @@ func (m Model) handleLospecResponse(msg event.LospecResponseMsg) (Model, tea.Cmd
 		return m, cmd
 	}
 
-	// if we haven't initialized and allocated an array of palettes for the current , do that first
+	// if we haven't initialized and allocated an array of palettes for the current request series, do that first
 	if !m.isPaletteListAllocated {
 		m.palettes = make([]list.Item, msg.Data.TotalCount)
 		m.paletteList = CreateList(m.palettes, m.width-2)
@@ -136,8 +138,6 @@ func (m Model) handleCountFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 	// If Update caused countInput to become de-focused, kick off a new request
 	if m.countInput.Focused() == false {
-		m.requestID += 1
-		m.isPaletteListAllocated = false
 		return m.searchLospec(0)
 	}
 	return m, cmd
@@ -147,8 +147,6 @@ func (m Model) handleTagFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.tagInput, cmd = m.tagInput.Update(msg)
 	if m.tagInput.Focused() == false {
-		m.requestID += 1
-		m.isPaletteListAllocated = false
 		return m.searchLospec(0)
 	}
 	return m, cmd
@@ -160,22 +158,37 @@ func (m Model) handleListUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		return m, nil
 	}
 
-	index := m.paletteList.Index()
-	if key.Matches(keyMsg, event.KeyMap.Up) && index == 0 {
+	switch {
+	case key.Matches(keyMsg, event.KeyMap.Enter):
+		return m.handleEnter()
+	case key.Matches(keyMsg, event.KeyMap.Up) && m.paletteList.Index() == 0:
 		return m.handleNav(keyMsg)
+	case key.Matches(keyMsg, event.KeyMap.Esc):
+		return m.handleEsc()
 	}
 
 	var cmd tea.Cmd
 	m.paletteList, cmd = m.paletteList.Update(msg)
-	return m, cmd
+	if m.paletteList.Index() < (m.highestPageRequested-1)*10 {
+		return m, cmd
+	}
+
+	m.highestPageRequested += 1
+	return m.searchLospec(m.highestPageRequested)
 }
 
 func (m Model) searchLospec(page int) (Model, tea.Cmd) {
+	if page == 0 {
+		m.requestID += 1
+		m.highestPageRequested = 0
+		m.isPaletteListAllocated = false
+	}
+
 	colors, _ := strconv.Atoi(m.countInput.Value())
 	tag := m.tagInput.Value()
 	filterType := filterParams[m.filterType]
 	sortingType := "alphabetical"
-	//sortingType := sortParams[m.sortType]
+
 	urlString := "https://lospec.com/palette-list/load?colorNumber=%d&tag=%s&colorNumberFilterType=%s&sortingType=%s&page=%d"
 	url := fmt.Sprintf(urlString, colors, tag, filterType, sortingType, page)
 	return m, event.BuildLospecRequestCmd(event.LospecRequestMsg{

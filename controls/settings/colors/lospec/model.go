@@ -8,6 +8,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/component/textinput"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/palette"
 )
 
 type State int
@@ -15,7 +16,6 @@ type State int
 const (
 	CountForm State = iota
 	TagForm
-	FilterAny
 	FilterExact
 	FilterMax
 	FilterMin
@@ -36,7 +36,9 @@ type Model struct {
 
 	paletteList            list.Model
 	palettes               []list.Item
+	palette                palette.Model
 	isPaletteListAllocated bool
+	highestPageRequested   int
 	requestID              int
 
 	ShouldClose   bool
@@ -52,10 +54,11 @@ func New(w int) Model {
 
 		countInput: newInput(CountForm, "32"),
 		tagInput:   newInput(TagForm, ""),
-		filterType: FilterAny,
+		filterType: FilterExact,
 		sortType:   SortAlphabetical,
 
 		isPaletteListAllocated: false,
+		highestPageRequested:   0,
 		requestID:              0,
 
 		ShouldClose:   false,
@@ -82,14 +85,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	}
 
-	if m.focus == List {
-		return m.handleListUpdate(msg)
-	}
-
 	switch msg := msg.(type) {
 	case event.LospecResponseMsg:
 		return m.handleLospecResponse(msg)
 	case tea.KeyMsg:
+		if m.focus == List {
+			return m.handleListUpdate(msg)
+		}
 		switch {
 		case key.Matches(msg, event.KeyMap.Enter):
 			return m.handleEnter()
@@ -117,12 +119,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	// draw count input
 	// draw tag input
-	inputs := m.drawInputs()
-	// join horizontally
-	// draw filter buttons
+	colorsInput := m.drawColorsInput()
 	filters := m.drawFilterButtons()
+	colorFilters := lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, filters)
+	tagInput := m.drawTagInput()
+	// join horizontally
 	// draw sorting buttons
 	// draw list
 	paletteList := m.paletteList.View()
-	return lipgloss.JoinVertical(lipgloss.Top, inputs, filters, paletteList)
+	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, paletteList)
+}
+
+func (m Model) GetCurrent() palette.Model {
+	return m.palette
 }

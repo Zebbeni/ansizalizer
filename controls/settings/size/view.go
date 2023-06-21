@@ -1,9 +1,6 @@
 package size
 
 import (
-	"fmt"
-
-	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
 )
 
@@ -49,30 +46,10 @@ func (m Model) drawInputs() string {
 	prompt, placeholder := m.getInputColors(WidthForm)
 	m.widthInput.PromptStyle = m.widthInput.PromptStyle.Copy().Foreground(prompt)
 	m.widthInput.PlaceholderStyle = m.widthInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.widthInput.Focused() == false {
-		m.widthInput.Placeholder = fmt.Sprintf(m.widthInput.Value())
-	} else {
-		m.widthInput.Placeholder = "    "
-	}
-	if m.widthInput.Focused() {
-		m.widthInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.widthInput.Cursor.SetMode(cursor.CursorHide)
-	}
 
 	prompt, placeholder = m.getInputColors(HeightForm)
 	m.heightInput.PromptStyle = m.widthInput.PromptStyle.Copy().Foreground(prompt)
 	m.heightInput.PlaceholderStyle = m.widthInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.heightInput.Focused() == false {
-		m.heightInput.Placeholder = fmt.Sprintf("%4d", m.height)
-	} else {
-		m.heightInput.Placeholder = "    "
-	}
-	if m.heightInput.Focused() {
-		m.heightInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.heightInput.Cursor.SetMode(cursor.CursorHide)
-	}
 
 	width := inputStyle.Render(m.widthInput.View())
 	height := inputStyle.Render(m.heightInput.View())

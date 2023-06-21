@@ -34,8 +34,6 @@ type Model struct {
 	widthInput  textinput.Model
 	heightInput textinput.Model
 
-	width, height int
-
 	ShouldUnfocus bool
 	ShouldClose   bool
 	IsActive      bool
@@ -46,10 +44,8 @@ func New() Model {
 		focus:         FitButton,
 		active:        FitButton,
 		mode:          Fit,
-		widthInput:    newInput(WidthForm),
-		heightInput:   newInput(HeightForm),
-		width:         40,
-		height:        40,
+		widthInput:    newInput(WidthForm, 80),
+		heightInput:   newInput(HeightForm, 40),
 		ShouldUnfocus: false,
 		ShouldClose:   false,
 		IsActive:      false,

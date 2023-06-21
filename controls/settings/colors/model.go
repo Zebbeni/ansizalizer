@@ -136,6 +136,8 @@ func (m Model) GetCurrentPalette() palette.Model {
 		return m.Loader.GetCurrent()
 	case Adapt:
 		return m.Adapter.GetCurrent()
+	case Lospec:
+		return m.Lospec.GetCurrent()
 	}
 	return palette.Model{}
 }

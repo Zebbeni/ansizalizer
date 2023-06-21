@@ -1,7 +1,7 @@
 package size
 
 import (
-	"fmt"
+	"strconv"
 
 	"github.com/charmbracelet/lipgloss"
 
@@ -13,7 +13,7 @@ var (
 	placeholderStyle = lipgloss.NewStyle()
 )
 
-func newInput(state State) textinput.Model {
+func newInput(state State, value int) textinput.Model {
 	textinput.New()
 	input := textinput.New()
 	input.Prompt = stateNames[state]
@@ -21,6 +21,6 @@ func newInput(state State) textinput.Model {
 	input.PlaceholderStyle = placeholderStyle
 	input.Cursor.Blink = true
 	input.CharLimit = 3
-	input.SetValue(fmt.Sprintf("40"))
+	input.SetValue(strconv.Itoa(value))
 	return input
 }

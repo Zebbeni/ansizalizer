@@ -13,7 +13,6 @@ var (
 	stateNames = map[State]string{
 		CountForm:        "Colors",
 		TagForm:          "Tag",
-		FilterAny:        "Any",
 		FilterExact:      "Exact",
 		FilterMax:        "Max",
 		FilterMin:        "Min",
@@ -22,7 +21,7 @@ var (
 		SortNewest:       "Newest",
 	}
 
-	filterOrder = []State{FilterAny, FilterExact, FilterMax, FilterMin}
+	filterOrder = []State{FilterExact, FilterMax, FilterMin}
 	sortOrder   = []State{SortAlphabetical, SortDownloads, SortNewest}
 
 	activeColor = lipgloss.Color("#aaaaaa")
@@ -48,7 +47,7 @@ func (m Model) drawColorsInput() string {
 	if m.countInput.Focused() == false {
 		m.countInput.Placeholder = fmt.Sprintf("%4s", m.countInput.Value())
 	} else {
-		m.countInput.Placeholder = "    "
+		m.countInput.Placeholder = "   "
 	}
 	if m.countInput.Focused() {
 		m.countInput.Cursor.SetMode(cursor.CursorBlink)
@@ -67,7 +66,7 @@ func (m Model) drawTagInput() string {
 	if m.tagInput.Focused() == false {
 		m.tagInput.Placeholder = m.tagInput.Value()
 	} else {
-		m.tagInput.Placeholder = "    "
+		m.tagInput.Placeholder = m.tagInput.Value()
 	}
 	if m.tagInput.Focused() {
 		m.tagInput.Cursor.SetMode(cursor.CursorBlink)
@@ -80,12 +79,12 @@ func (m Model) drawTagInput() string {
 func (m Model) drawFilterButtons() string {
 	buttons := make([]string, len(filterOrder))
 	for i, filter := range filterOrder {
-		buttonStyle := style.NormalButton
+		buttonStyle := style.NormalButtonNode
 		if filter == m.focus {
 			if m.IsActive {
-				buttonStyle = style.FocusButton
+				buttonStyle = style.FocusButtonNode
 			} else {
-				buttonStyle = style.ActiveButton
+				buttonStyle = style.ActiveButtonNode
 			}
 		}
 		buttons[i] = buttonStyle.Render(stateNames[filter])
