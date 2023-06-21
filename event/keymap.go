@@ -40,8 +40,8 @@ func InitKeyMap() {
 			key.WithKeys("down"),
 		),
 		Copy: key.NewBinding(
-			key.WithKeys("c"),
-			key.WithHelp("c", "copy to clipboard")),
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "copy to clipboard")),
 		Esc: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "back"),
