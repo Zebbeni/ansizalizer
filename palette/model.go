@@ -36,6 +36,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	title := style.SelectedTitle.Render(m.name)
+	description := m.Description()
+
+	return lipgloss.JoinVertical(lipgloss.Top, title, description)
+}
+
+func (m Model) FilterValue() string {
+	return m.name
+}
+
+func (m Model) Title() string {
+	return m.name
+}
+
+func (m Model) Description() string {
 	runes := make([]string, len(m.colors)/2+1)
 	rows := make([]string, 0, m.height)
 	for idx := 0; idx < len(m.colors); idx += 2 {
@@ -44,14 +59,14 @@ func (m Model) View() string {
 
 		fg, _ = colorful.MakeColor(m.colors[idx])
 		lipFg = lipgloss.Color(fg.Hex())
-		style := lipgloss.NewStyle().Foreground(lipFg)
+		blockStyle := lipgloss.NewStyle().Foreground(lipFg)
 
 		if idx+1 < len(m.colors) {
 			bg, _ = colorful.MakeColor(m.colors[idx+1])
 			lipBg = lipgloss.Color(bg.Hex())
-			style = style.Copy().Background(lipBg)
+			blockStyle = blockStyle.Copy().Background(lipBg)
 		}
-		runes[idx/2] = style.Render(string('▀'))
+		runes[idx/2] = blockStyle.Render(string('▀'))
 	}
 	for i := 0; i < m.height; i++ {
 		start := m.width * i
@@ -63,10 +78,7 @@ func (m Model) View() string {
 		rows[i] = lipgloss.JoinHorizontal(lipgloss.Left, runes[start:stop]...)
 	}
 
-	preview := lipgloss.JoinVertical(lipgloss.Left, rows...)
-	title := style.SelectedTitle.Render(m.name)
-
-	return lipgloss.JoinVertical(lipgloss.Top, title, preview)
+	return lipgloss.JoinVertical(lipgloss.Left, rows...)
 }
 
 func (m Model) Name() string {

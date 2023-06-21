@@ -5,7 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 type State int
@@ -66,11 +66,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, io.KeyMap.Enter):
+		case key.Matches(msg, event.KeyMap.Enter):
 			return m.handleEnter()
-		case key.Matches(msg, io.KeyMap.Nav):
+		case key.Matches(msg, event.KeyMap.Nav):
 			return m.handleNav(msg)
-		case key.Matches(msg, io.KeyMap.Esc):
+		case key.Matches(msg, event.KeyMap.Esc):
 			return m.handleEsc()
 		}
 	}

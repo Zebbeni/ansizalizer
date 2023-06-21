@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 type Model struct {
@@ -27,17 +27,17 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case io.FinishRenderMsg:
+	case event.FinishRenderMsg:
 		return m.handleFinishRenderMsg(msg)
 	}
 	return m, nil
 }
 
-func (m Model) handleFinishRenderMsg(msg io.FinishRenderMsg) (Model, tea.Cmd) {
+func (m Model) handleFinishRenderMsg(msg event.FinishRenderMsg) (Model, tea.Cmd) {
 	m.WaitingOnRender = false
 	m.imgString = msg.ImgString
 	displayMsg := fmt.Sprintf("%s/%s", filepath.Base(filepath.Dir(msg.FilePath)), filepath.Base(msg.FilePath))
-	return m, io.BuildDisplayCmd(displayMsg)
+	return m, event.BuildDisplayCmd(displayMsg)
 }
 
 func (m Model) View() string {

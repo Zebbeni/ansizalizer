@@ -1,12 +1,18 @@
 package app
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"path/filepath"
+
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
 	"github.com/Zebbeni/ansizalizer/app/process"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 func (m Model) handleStartRenderMsg() (Model, tea.Cmd) {
@@ -14,7 +20,7 @@ func (m Model) handleStartRenderMsg() (Model, tea.Cmd) {
 	return m, m.processRenderCmd
 }
 
-func (m Model) handleFinishRenderMsg(msg io.FinishRenderMsg) (Model, tea.Cmd) {
+func (m Model) handleFinishRenderMsg(msg event.FinishRenderMsg) (Model, tea.Cmd) {
 	// cut out early if the finished render is for a previously selected image
 	if msg.FilePath != m.controls.FileBrowser.ActiveFile {
 		return m, nil
@@ -27,21 +33,61 @@ func (m Model) handleFinishRenderMsg(msg io.FinishRenderMsg) (Model, tea.Cmd) {
 
 func (m Model) processRenderCmd() tea.Msg {
 	imgString := process.RenderImageFile(m.controls.Settings, m.controls.FileBrowser.ActiveFile)
-	return io.FinishRenderMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString}
+	return event.FinishRenderMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString}
 }
 
 func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
-	return m, m.processAdaptingCmd
+	filename := filepath.Base(m.controls.FileBrowser.ActiveFile)
+	message := fmt.Sprintf("generating palette from %s...", filename)
+	return m, tea.Batch(event.BuildDisplayCmd(message), m.processAdaptingCmd)
 }
 
-func (m Model) handleFinishAdaptingMsg(msg io.FinishAdaptingMsg) (Model, tea.Cmd) {
+func (m Model) handleFinishAdaptingMsg(msg event.FinishAdaptingMsg) (Model, tea.Cmd) {
 	m.controls.Settings.Colors.Adapter = m.controls.Settings.Colors.Adapter.SetPalette(msg.Colors, msg.Name)
-	return m, tea.Batch(io.StartRenderCmd, io.BuildDisplayCmd("Rendering..."))
+	return m, tea.Batch(event.StartRenderCmd, event.BuildDisplayCmd("rendering..."))
+}
+
+type Foo struct {
+	Bar string
+}
+
+func (m Model) handleLospecRequestMsg(msg event.LospecRequestMsg) (Model, tea.Cmd) {
+	// make url request
+	r, err := http.Get(msg.URL)
+	if err != nil {
+		return m, event.BuildDisplayCmd("error making lospec request")
+	}
+	defer r.Body.Close()
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return m, event.BuildDisplayCmd("error reading lospec response")
+	}
+
+	// parse json and populate LospecResponseMsg
+	data := new(event.LospecData)
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return m, event.BuildDisplayCmd("error decoding lospec request")
+	}
+
+	// build Data Cmd
+	return m, event.BuildLospecResponseCmd(event.LospecResponseMsg{
+		ID:   msg.ID,
+		Page: msg.Page,
+		Data: *data,
+	})
+}
+
+func (m Model) handleLospecResponseMsg(msg event.LospecResponseMsg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.controls.Settings.Colors.Lospec, cmd = m.controls.Settings.Colors.Lospec.Update(msg)
+	return m, cmd
 }
 
 func (m Model) processAdaptingCmd() tea.Msg {
 	colors, name := adapt.GeneratePalette(m.controls.Settings.Colors.Adapter, m.controls.FileBrowser.ActiveFile)
-	return io.FinishAdaptingMsg{
+	return event.FinishAdaptingMsg{
 		Name:   name,
 		Colors: colors,
 	}
@@ -61,9 +107,9 @@ func (m Model) handleDisplayMsg(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleCopy() (Model, tea.Cmd) {
 	if err := clipboard.WriteAll(m.viewer.View()); err != nil {
-		return m, io.BuildDisplayCmd("Error copying to clipboard")
+		return m, event.BuildDisplayCmd("Error copying to clipboard")
 		// we should have a place in the UI where we display errors or processing messages,
-		// and package our desired message to the user in a specific command
+		// and package our desired event to the user in a specific command
 	}
-	return m, io.BuildDisplayCmd("copied to clipboard")
+	return m, event.BuildDisplayCmd("copied to clipboard")
 }

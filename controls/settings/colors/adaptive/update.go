@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 type Direction int
@@ -45,25 +45,25 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case Save:
 		return m.savePaletteFile()
 	}
-	return m, io.BuildAdaptingCmd()
+	return m, event.StartAdaptingCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch {
-	case key.Matches(msg, io.KeyMap.Right):
+	case key.Matches(msg, event.KeyMap.Right):
 		if next, hasNext := navMap[Right][m.focus]; hasNext {
 			m.focus = next
 		}
-	case key.Matches(msg, io.KeyMap.Left):
+	case key.Matches(msg, event.KeyMap.Left):
 		if next, hasNext := navMap[Left][m.focus]; hasNext {
 			m.focus = next
 		}
-	case key.Matches(msg, io.KeyMap.Down):
+	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			m.focus = next
 		}
-	case key.Matches(msg, io.KeyMap.Up):
+	case key.Matches(msg, event.KeyMap.Up):
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			m.focus = next
 		} else {
@@ -80,7 +80,7 @@ func (m Model) savePaletteFile() (Model, tea.Cmd) {
 	f, err := os.Create(filename)
 
 	if err != nil {
-		return m, io.BuildDisplayCmd("error saving palette file")
+		return m, event.BuildDisplayCmd("error saving palette file")
 	}
 
 	defer f.Close()
@@ -91,7 +91,7 @@ func (m Model) savePaletteFile() (Model, tea.Cmd) {
 		hexStrings += hexColor(c) + "\n"
 
 		if err != nil {
-			return m, io.BuildDisplayCmd("error writing to palette file")
+			return m, event.BuildDisplayCmd("error writing to palette file")
 		}
 	}
 
@@ -99,7 +99,7 @@ func (m Model) savePaletteFile() (Model, tea.Cmd) {
 
 	dir, _ := os.Getwd()
 	msg := fmt.Sprintf("saved %s in /%s", filename, filepath.Base(dir))
-	return m, io.BuildDisplayCmd(msg)
+	return m, event.BuildDisplayCmd(msg)
 }
 
 func hexColor(c color.Color) string {

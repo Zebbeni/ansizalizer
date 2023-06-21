@@ -18,4 +18,29 @@ var (
 
 	DimmedTitle     = lipgloss.NewStyle().Foreground(DimmedColor1)
 	DimmedParagraph = lipgloss.NewStyle().Foreground(DimmedColor2)
+
+	ActiveButton = lipgloss.NewStyle().
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(NormalColor1).
+			Foreground(NormalColor1)
+	FocusButton = lipgloss.NewStyle().
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(SelectedColor1).
+			Foreground(SelectedColor1)
+	NormalButton = lipgloss.NewStyle().
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(DimmedColor1).
+			Foreground(DimmedColor1)
+
+	ActiveButtonNode = lipgloss.NewStyle().
+				Border(lipgloss.RoundedBorder(), false).
+				BorderForeground(NormalColor1).
+				Foreground(NormalColor1)
+	FocusButtonNode = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder(), false, false, false, true).
+			BorderForeground(SelectedColor1).
+			Foreground(SelectedColor1)
+	NormalButtonNode = lipgloss.NewStyle().
+				PaddingLeft(1).
+				Foreground(DimmedColor1)
 )

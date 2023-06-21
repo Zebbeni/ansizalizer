@@ -13,7 +13,7 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -58,11 +58,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		name := strings.Split(filepath.Base(m.paletteFilepath), ".hex")[0]
 		colors, err := parsePaletteFile(m.paletteFilepath)
 		if err != nil {
-			return m, tea.Batch(cmd, io.BuildDisplayCmd("error parsing paletteFilepath file"))
+			return m, tea.Batch(cmd, event.BuildDisplayCmd("error parsing paletteFilepath file"))
 		}
 		m.palette = palette.New(name, colors, m.width-5, 3)
 
-		return m, tea.Batch(cmd, io.StartRenderCmd)
+		return m, tea.Batch(cmd, event.StartRenderCmd)
 	}
 
 	if m.FileBrowser.ShouldClose {
@@ -106,10 +106,10 @@ func parsePaletteFile(filepath string) (color.Palette, error) {
 
 	for fileScanner.Scan() {
 		col, err = colorful.Hex(fmt.Sprintf("#%s", fileScanner.Text()))
-		p = append(p, col)
 		if err != nil {
 			return nil, err
 		}
+		p = append(p, col)
 	}
 
 	return p, nil

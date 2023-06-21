@@ -12,7 +12,7 @@ import (
 // There is (currently) no support on Windows for detecting resize events, so
 // we instead poll at regular intervals to check if the terminal size changed.
 // If a resize is detected in this way, we send a WindowSizeMsg with the new
-// dimensions to bubbletea, and handle it in the Model message handler
+// dimensions to bubbletea, and handle it in the Model event handler
 type checkSizeMsg int
 
 const (

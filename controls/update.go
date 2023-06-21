@@ -4,7 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
-	"github.com/Zebbeni/ansizalizer/io"
+	"github.com/Zebbeni/ansizalizer/event"
 )
 
 type Direction int
@@ -62,16 +62,16 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 
-		case key.Matches(msg, io.KeyMap.Enter):
+		case key.Matches(msg, event.KeyMap.Enter):
 			m.active = m.focus
 
-		case key.Matches(msg, io.KeyMap.Nav):
+		case key.Matches(msg, event.KeyMap.Nav):
 			switch {
-			case key.Matches(msg, io.KeyMap.Right):
+			case key.Matches(msg, event.KeyMap.Right):
 				if next, hasNext := navMap[Right][m.focus]; hasNext {
 					m.focus = next
 				}
-			case key.Matches(msg, io.KeyMap.Left):
+			case key.Matches(msg, event.KeyMap.Left):
 				if next, hasNext := navMap[Left][m.focus]; hasNext {
 					m.focus = next
 				}
