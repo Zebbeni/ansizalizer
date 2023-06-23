@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"path/filepath"
+	"strings"
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
@@ -33,11 +33,16 @@ func (m Model) handleFinishRenderMsg(msg event.FinishRenderMsg) (Model, tea.Cmd)
 
 func (m Model) processRenderCmd() tea.Msg {
 	imgString := process.RenderImageFile(m.controls.Settings, m.controls.FileBrowser.ActiveFile)
-	return event.FinishRenderMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString}
+	colorsString := "true color"
+	if m.controls.Settings.Colors.IsLimited() {
+		palette := m.controls.Settings.Colors.GetCurrentPalette()
+		colorsString = palette.Title()
+	}
+	return event.FinishRenderMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString, ColorsString: colorsString}
 }
 
 func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
-	filename := filepath.Base(m.controls.FileBrowser.ActiveFile)
+	filename := m.controls.FileBrowser.ActiveFilename()
 	message := fmt.Sprintf("generating palette from %s...", filename)
 	return m, tea.Batch(event.BuildDisplayCmd(message), m.processAdaptingCmd)
 }
@@ -111,5 +116,12 @@ func (m Model) handleCopy() (Model, tea.Cmd) {
 		// we should have a place in the UI where we display errors or processing messages,
 		// and package our desired event to the user in a specific command
 	}
-	return m, event.BuildDisplayCmd("copied to clipboard")
+	filename := m.controls.FileBrowser.ActiveFilename()
+	name := strings.Split(filename, ".")[0] // strip extension
+	return m, event.BuildDisplayCmd(fmt.Sprintf("copied %s to clipboard", name))
+}
+
+func (m Model) handleSave() (Model, tea.Cmd) {
+	var filename string
+	return m, event.BuildDisplayCmd(fmt.Sprintf("saved to %s", filename))
 }

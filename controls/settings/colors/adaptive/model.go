@@ -100,7 +100,7 @@ func (m Model) View() string {
 
 	palette := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(m.palette.View())
 	saveButton := m.drawSaveButton()
-	content := lipgloss.JoinVertical(lipgloss.Top, inputs, generate, palette, saveButton)
+	content := lipgloss.JoinVertical(lipgloss.Top, inputs, palette, generate, saveButton)
 	return content
 }
 

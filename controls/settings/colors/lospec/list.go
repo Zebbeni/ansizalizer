@@ -14,7 +14,7 @@ func CreateList(items []list.Item, w int) list.Model {
 	newList.KeyMap.Quit.Unbind()
 	newList.SetShowHelp(false)
 	newList.SetShowStatusBar(false)
-	newList.SetShowTitle(false)
+	newList.SetShowTitle(true)
 	newList.SetFilteringEnabled(false)
 
 	return newList

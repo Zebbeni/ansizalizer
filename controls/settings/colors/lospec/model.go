@@ -117,16 +117,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 // <...>
 // ..
 func (m Model) View() string {
-	// draw count input
-	// draw tag input
 	colorsInput := m.drawColorsInput()
 	filters := m.drawFilterButtons()
 	colorFilters := lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, filters)
 	tagInput := m.drawTagInput()
-	// join horizontally
-	// draw sorting buttons
-	// draw list
-	paletteList := m.paletteList.View()
+	paletteList := m.drawPaletteList()
+
 	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, paletteList)
 }
 

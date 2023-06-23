@@ -14,8 +14,9 @@ func StartRenderCmd() tea.Msg {
 }
 
 type FinishRenderMsg struct {
-	FilePath  string
-	ImgString string
+	FilePath     string
+	ImgString    string
+	ColorsString string
 }
 
 type StartAdaptingMsg bool

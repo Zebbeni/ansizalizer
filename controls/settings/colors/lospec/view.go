@@ -41,12 +41,15 @@ func (m Model) drawInputs() string {
 func (m Model) drawColorsInput() string {
 	prompt, placeholder := m.getInputColors(CountForm)
 
+	m.countInput.CharLimit = 3
 	m.countInput.Width = 3
 	m.countInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
+	m.countInput.TextStyle = m.countInput.TextStyle.Copy().Foreground(prompt).MaxWidth(3)
 	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
 	if m.countInput.Focused() == false {
 		m.countInput.Placeholder = fmt.Sprintf("%4s", m.countInput.Value())
 	} else {
+
 		m.countInput.Placeholder = "   "
 	}
 	if m.countInput.Focused() {
@@ -54,7 +57,7 @@ func (m Model) drawColorsInput() string {
 	} else {
 		m.countInput.Cursor.SetMode(cursor.CursorHide)
 	}
-	return m.countInput.View()
+	return lipgloss.NewStyle().Width(13).Render(m.countInput.View())
 }
 
 func (m Model) drawTagInput() string {
@@ -91,6 +94,15 @@ func (m Model) drawFilterButtons() string {
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+}
+
+func (m Model) drawPaletteList() string {
+	if len(m.paletteList.Items()) == 0 {
+		return ""
+	}
+
+	m.paletteList.Title = fmt.Sprintf("%d of %d palettes", m.paletteList.Index(), len(m.paletteList.Items()))
+	return m.paletteList.View()
 }
 
 func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {

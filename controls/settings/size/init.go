@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	promptStyle      = lipgloss.NewStyle().Width(8).PaddingLeft(1)
+	promptStyle      = lipgloss.NewStyle().Width(8).Padding(0, 0, 0, 1)
 	placeholderStyle = lipgloss.NewStyle()
 )
 
@@ -19,7 +19,6 @@ func newInput(state State, value int) textinput.Model {
 	input.Prompt = stateNames[state]
 	input.PromptStyle = promptStyle
 	input.PlaceholderStyle = placeholderStyle
-	input.Cursor.Blink = true
 	input.CharLimit = 3
 	input.SetValue(strconv.Itoa(value))
 	return input

@@ -40,5 +40,6 @@ func (m Model) renderViewer() string {
 
 func (m Model) renderHelp() string {
 	helpBar := help.New()
-	return helpBar.View(event.KeyMap)
+	helpContent := helpBar.View(event.KeyMap)
+	return lipgloss.NewStyle().PaddingLeft(1).Render(helpContent)
 }

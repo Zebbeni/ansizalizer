@@ -41,11 +41,12 @@ type Model struct {
 
 func New() Model {
 	return Model{
-		focus:         FitButton,
-		active:        FitButton,
-		mode:          Fit,
-		widthInput:    newInput(WidthForm, 80),
-		heightInput:   newInput(HeightForm, 40),
+		focus:       FitButton,
+		active:      FitButton,
+		mode:        Fit,
+		widthInput:  newInput(WidthForm, 50),
+		heightInput: newInput(HeightForm, 40),
+
 		ShouldUnfocus: false,
 		ShouldClose:   false,
 		IsActive:      false,

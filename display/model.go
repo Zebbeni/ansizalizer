@@ -29,6 +29,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	// TODO: Switch style based on event type (warning, info, etc.)
-	displayStyle := style.DimmedTitle.Copy().PaddingTop(1)
+	displayStyle := style.DimmedTitle.Copy().PaddingTop(1).Width(100)
 	return displayStyle.Render(m.msg)
 }

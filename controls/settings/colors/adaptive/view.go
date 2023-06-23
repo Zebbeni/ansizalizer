@@ -74,7 +74,7 @@ func (m Model) drawGenerateButton() string {
 		BorderForeground(styleColor).
 		Foreground(styleColor)
 
-	button := style.Render("Generate")
+	button := style.Render("Generate Adaptive Colors")
 	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
 }
 
@@ -90,11 +90,11 @@ func (m Model) drawSaveButton() string {
 	style := lipgloss.NewStyle().
 		Width(m.width - 4).
 		AlignHorizontal(lipgloss.Center).
-		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(styleColor).
+		//BorderStyle(lipgloss.RoundedBorder()).
+		//BorderForeground(styleColor).
 		Foreground(styleColor)
 
-	button := style.Render("Save .hex file")
+	button := style.Render("Save Palette to .hex File")
 	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
 }
 

@@ -3,6 +3,7 @@ package browser
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
@@ -69,4 +70,8 @@ func (m Model) listIndex() int {
 
 func (m Model) View() string {
 	return m.currentList().View()
+}
+
+func (m Model) ActiveFilename() string {
+	return filepath.Base(m.ActiveFile)
 }

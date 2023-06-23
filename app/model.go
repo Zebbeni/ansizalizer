@@ -75,6 +75,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, event.KeyMap.Copy):
 			return m.handleCopy()
+		case key.Matches(msg, event.KeyMap.Save):
+			return m.handleSave()
 		}
 	}
 	return m.handleControlsUpdate(msg)

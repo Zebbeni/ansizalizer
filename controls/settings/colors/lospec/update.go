@@ -12,6 +12,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 // TODO: Direction is redefined in multiple places
@@ -108,6 +109,7 @@ func (m Model) handleLospecResponse(msg event.LospecResponseMsg) (Model, tea.Cmd
 	if !m.isPaletteListAllocated {
 		m.palettes = make([]list.Item, msg.Data.TotalCount)
 		m.paletteList = CreateList(m.palettes, m.width-2)
+		m.paletteList.Styles.Title = style.DimmedTitle.Padding(0, 1, 0, 2).Width(25).MaxWidth(25)
 		m.isPaletteListAllocated = true
 	}
 
@@ -164,7 +166,7 @@ func (m Model) handleListUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	case key.Matches(keyMsg, event.KeyMap.Up) && m.paletteList.Index() == 0:
 		return m.handleNav(keyMsg)
 	case key.Matches(keyMsg, event.KeyMap.Esc):
-		return m.handleEsc()
+		m.focus = TagForm
 	}
 
 	var cmd tea.Cmd
