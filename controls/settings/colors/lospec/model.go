@@ -123,6 +123,7 @@ func (m Model) View() string {
 	filters := m.drawFilterButtons()
 	colorFilters := lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, filters)
 	tagInput := m.drawTagInput()
+	sortButtons := m.drawSortButtons()
 
 	title := fmt.Sprintf("%d of %d", m.paletteList.Index(), len(m.paletteList.Items()))
 	m.paletteList.Title = title
@@ -130,7 +131,7 @@ func (m Model) View() string {
 	if len(m.paletteList.Items()) == 0 {
 		paletteList = ""
 	}
-	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, paletteList)
+	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, sortButtons, paletteList)
 }
 
 func (m Model) GetCurrent() palette.Model {

@@ -201,7 +201,7 @@ func (m Model) searchLospec(page int) (Model, tea.Cmd) {
 	colors, _ := strconv.Atoi(m.countInput.Value())
 	tag := m.tagInput.Value()
 	filterType := filterParams[m.filterType]
-	sortingType := "alphabetical"
+	sortingType := sortParams[m.sortType]
 
 	urlString := "https://lospec.com/palette-list/load?colorNumber=%d&tag=%s&colorNumberFilterType=%s&sortingType=%s&page=%d"
 	url := fmt.Sprintf(urlString, colors, tag, filterType, sortingType, page)
