@@ -1,10 +1,12 @@
 package app
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/atotto/clipboard"
@@ -122,6 +124,18 @@ func (m Model) handleCopy() (Model, tea.Cmd) {
 }
 
 func (m Model) handleSave() (Model, tea.Cmd) {
-	var filename string
+	name := strings.Split(m.controls.FileBrowser.ActiveFilename(), ".")[0]
+	filename := fmt.Sprintf("%s.ansi", name)
+	file, err := os.Create(filename)
+	if err != nil {
+		return m, event.BuildDisplayCmd("error creating save file")
+	}
+
+	w := bufio.NewWriter(file)
+	_, err = w.WriteString(m.viewer.View())
+	if err != nil {
+		return m, event.BuildDisplayCmd("error writing to save file")
+	}
+
 	return m, event.BuildDisplayCmd(fmt.Sprintf("saved to %s", filename))
 }

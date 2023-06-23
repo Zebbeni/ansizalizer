@@ -90,8 +90,6 @@ func (m Model) drawSaveButton() string {
 	style := lipgloss.NewStyle().
 		Width(m.width - 4).
 		AlignHorizontal(lipgloss.Center).
-		//BorderStyle(lipgloss.RoundedBorder()).
-		//BorderForeground(styleColor).
 		Foreground(styleColor)
 
 	button := style.Render("Save Palette to .hex File")
