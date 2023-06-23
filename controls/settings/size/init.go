@@ -3,9 +3,8 @@ package size
 import (
 	"strconv"
 
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/lipgloss"
-
-	"github.com/Zebbeni/ansizalizer/component/textinput"
 )
 
 var (

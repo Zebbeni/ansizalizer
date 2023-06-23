@@ -1,8 +1,6 @@
 package adaptive
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -28,11 +26,6 @@ func (m Model) drawInputs() string {
 
 	m.countInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.countInput.Focused() == false {
-		m.countInput.Placeholder = fmt.Sprintf("%4d", m.countInput.Value())
-	} else {
-		m.countInput.Placeholder = "    "
-	}
 	if m.countInput.Focused() {
 		m.countInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
@@ -42,11 +35,6 @@ func (m Model) drawInputs() string {
 	prompt, placeholder = m.getInputColors(IterForm)
 	m.iterInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.iterInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.iterInput.Focused() == false {
-		m.iterInput.Placeholder = fmt.Sprintf("%4d", m.iterInput.Value())
-	} else {
-		m.iterInput.Placeholder = "    "
-	}
 	if m.iterInput.Focused() {
 		m.iterInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {

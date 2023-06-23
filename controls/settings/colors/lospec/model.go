@@ -1,12 +1,14 @@
 package lospec
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/component/textinput"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
@@ -121,8 +123,13 @@ func (m Model) View() string {
 	filters := m.drawFilterButtons()
 	colorFilters := lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, filters)
 	tagInput := m.drawTagInput()
-	paletteList := m.drawPaletteList()
 
+	title := fmt.Sprintf("%d of %d", m.paletteList.Index(), len(m.paletteList.Items()))
+	m.paletteList.Title = title
+	paletteList := m.paletteList.View()
+	if len(m.paletteList.Items()) == 0 {
+		paletteList = ""
+	}
 	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, paletteList)
 }
 

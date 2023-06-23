@@ -48,6 +48,36 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	return m, event.StartRenderCmd
 }
 
+func (m Model) handleWidthUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.widthInput.Blur()
+			return m, event.StartRenderCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.widthInput.Blur()
+		}
+	}
+	var cmd tea.Cmd
+	m.widthInput, cmd = m.widthInput.Update(msg)
+	return m, cmd
+}
+
+func (m Model) handleHeightUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.heightInput.Blur()
+			return m, event.StartRenderCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.heightInput.Blur()
+		}
+	}
+	var cmd tea.Cmd
+	m.heightInput, cmd = m.heightInput.Update(msg)
+	return m, cmd
+}
+
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch {

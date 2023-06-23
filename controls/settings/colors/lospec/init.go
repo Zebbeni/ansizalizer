@@ -3,7 +3,7 @@ package lospec
 import (
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/component/textinput"
+	"github.com/charmbracelet/bubbles/textinput"
 )
 
 var (

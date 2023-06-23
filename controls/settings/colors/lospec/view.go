@@ -1,8 +1,6 @@
 package lospec
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
 
@@ -28,7 +26,7 @@ var (
 	focusColor  = lipgloss.Color("#ffffff")
 	normalColor = lipgloss.Color("#555555")
 	titleStyle  = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#888888"))
+		Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawInputs() string {
@@ -46,12 +44,6 @@ func (m Model) drawColorsInput() string {
 	m.countInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.countInput.TextStyle = m.countInput.TextStyle.Copy().Foreground(prompt).MaxWidth(3)
 	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.countInput.Focused() == false {
-		m.countInput.Placeholder = fmt.Sprintf("%4s", m.countInput.Value())
-	} else {
-
-		m.countInput.Placeholder = "   "
-	}
 	if m.countInput.Focused() {
 		m.countInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
@@ -66,11 +58,6 @@ func (m Model) drawTagInput() string {
 	m.tagInput.Width = m.width - 5
 	m.tagInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
 	m.tagInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.tagInput.Focused() == false {
-		m.tagInput.Placeholder = m.tagInput.Value()
-	} else {
-		m.tagInput.Placeholder = m.tagInput.Value()
-	}
 	if m.tagInput.Focused() {
 		m.tagInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
@@ -101,7 +88,6 @@ func (m Model) drawPaletteList() string {
 		return ""
 	}
 
-	m.paletteList.Title = fmt.Sprintf("%d of %d palettes", m.paletteList.Index(), len(m.paletteList.Items()))
 	return m.paletteList.View()
 }
 

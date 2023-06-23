@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/component/textinput"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -58,23 +58,14 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
 	switch m.active {
 	case WidthForm:
 		if m.widthInput.Focused() {
-			m.widthInput, cmd = m.widthInput.Update(msg)
-			if m.widthInput.Focused() == false {
-				return m, event.StartRenderCmd
-			}
-			return m, cmd
+			return m.handleWidthUpdate(msg)
 		}
 	case HeightForm:
 		if m.heightInput.Focused() {
-			m.heightInput, cmd = m.heightInput.Update(msg)
-			if m.heightInput.Focused() == false {
-				return m, event.StartRenderCmd
-			}
-			return m, cmd
+			return m.handleHeightUpdate(msg)
 		}
 	}
 

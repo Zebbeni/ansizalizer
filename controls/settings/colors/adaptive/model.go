@@ -5,10 +5,10 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/component/textinput"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
@@ -61,11 +61,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.active {
 	case CountForm:
 		if m.countInput.Focused() {
-			m.countInput, cmd = m.countInput.Update(msg)
-			if m.countInput.Focused() == false {
-				return m, event.StartAdaptingCmd
-			}
-			return m, cmd
+			return m.handleCountUpdate(msg)
 		}
 	case IterForm:
 		if m.iterInput.Focused() {

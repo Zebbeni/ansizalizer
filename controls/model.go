@@ -24,7 +24,7 @@ var (
 	stateOrder = []State{Open, Settings, Export}
 	stateNames = map[State]string{
 		Open:     "Open",
-		Settings: "Render",
+		Settings: "Settings",
 		Export:   "Export",
 	}
 	imgExtensions = []string{".jpg", ".png"}

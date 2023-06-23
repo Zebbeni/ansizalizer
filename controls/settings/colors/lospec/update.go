@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/event"
@@ -109,7 +110,8 @@ func (m Model) handleLospecResponse(msg event.LospecResponseMsg) (Model, tea.Cmd
 	if !m.isPaletteListAllocated {
 		m.palettes = make([]list.Item, msg.Data.TotalCount)
 		m.paletteList = CreateList(m.palettes, m.width-2)
-		m.paletteList.Styles.Title = style.DimmedTitle.Padding(0, 1, 0, 2).Width(25).MaxWidth(25)
+		m.paletteList.Styles.Title = style.DimmedTitle
+		m.paletteList.Styles.TitleBar = m.paletteList.Styles.TitleBar.Padding(0).Width(m.width).AlignHorizontal(lipgloss.Center)
 		m.isPaletteListAllocated = true
 	}
 
@@ -135,22 +137,32 @@ func (m Model) handleLospecResponse(msg event.LospecResponseMsg) (Model, tea.Cmd
 }
 
 func (m Model) handleCountFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.countInput.Blur()
+			return m.searchLospec(0)
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.countInput.Blur()
+		}
+	}
 	var cmd tea.Cmd
 	m.countInput, cmd = m.countInput.Update(msg)
-
-	// If Update caused countInput to become de-focused, kick off a new request
-	if m.countInput.Focused() == false {
-		return m.searchLospec(0)
-	}
 	return m, cmd
 }
 
 func (m Model) handleTagFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.tagInput.Blur()
+			return m.searchLospec(0)
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.tagInput.Blur()
+		}
+	}
 	var cmd tea.Cmd
 	m.tagInput, cmd = m.tagInput.Update(msg)
-	if m.tagInput.Focused() == false {
-		return m.searchLospec(0)
-	}
 	return m, cmd
 }
 
