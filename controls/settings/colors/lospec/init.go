@@ -1,6 +1,7 @@
 package lospec
 
 import (
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/charmbracelet/bubbles/textinput"
@@ -21,4 +22,13 @@ func newInput(state State, value string) textinput.Model {
 	input.Cursor.Blink = true
 	input.SetValue(value)
 	return input
+}
+
+func (m Model) InitializeList() (Model, tea.Cmd) {
+	m.didInitializeList = true
+	return m.searchLospec(0)
+}
+
+func (m Model) DidInitializeList() bool {
+	return m.didInitializeList
 }

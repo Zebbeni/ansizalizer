@@ -118,7 +118,9 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 }
 
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
+	var cmd tea.Cmd
 	m.focus = focus
+	
 	switch m.focus {
 	case Adapt:
 		m.controls = Adapt
@@ -141,5 +143,10 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 		m.Lospec.IsActive = true
 		m.selected = Lospec
 	}
-	return m, nil
+
+	if m.selected == Lospec && !m.Lospec.DidInitializeList() {
+		m.Lospec, cmd = m.Lospec.InitializeList()
+	}
+
+	return m, cmd
 }

@@ -88,10 +88,6 @@ func (m Model) GetCurrent() palette.Model {
 	return m.palette
 }
 
-func shouldParse(filename string) bool {
-	return strings.Contains(filename, ".hex")
-}
-
 func parsePaletteFile(filepath string) (color.Palette, error) {
 	readFile, err := os.Open(filepath)
 	if err != nil {

@@ -48,7 +48,7 @@ func New(w int) Model {
 
 		FileBrowser: browser.New(imgExtensions, w),
 		Settings:    settings.New(w),
-		Export:      export.New(),
+		Export:      export.New(w),
 
 		width: w,
 	}

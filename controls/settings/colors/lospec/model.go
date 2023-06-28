@@ -11,6 +11,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type State int
@@ -47,17 +48,18 @@ type Model struct {
 	ShouldUnfocus bool
 	IsActive      bool
 
-	width int
+	width             int
+	didInitializeList bool
 }
 
 func New(w int) Model {
 	return Model{
 		focus: CountForm,
 
-		countInput: newInput(CountForm, "32"),
-		tagInput:   newInput(TagForm, ""),
-		filterType: FilterExact,
-		sortType:   SortAlphabetical,
+		countInput: newInput(CountForm, "8"),
+		tagInput:   newInput(TagForm, "gameboy"),
+		filterType: FilterMin,
+		sortType:   SortDownloads,
 
 		isPaletteListAllocated: false,
 		highestPageRequested:   0,
@@ -103,6 +105,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 			return m.handleEsc()
 		}
 	}
+
 	return m, nil
 }
 
@@ -125,13 +128,17 @@ func (m Model) View() string {
 	tagInput := m.drawTagInput()
 	sortButtons := m.drawSortButtons()
 
-	title := fmt.Sprintf("%d of %d", m.paletteList.Index(), len(m.paletteList.Items()))
-	m.paletteList.Title = title
+	titleString := fmt.Sprintf("%d results found\npage %d of %d", len(m.paletteList.Items()), m.paletteList.Paginator.Page, m.paletteList.Paginator.TotalPages)
+	title := style.DimmedTitle.Copy().Width(m.width).Height(2).AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 0).Render(titleString)
 	paletteList := m.paletteList.View()
 	if len(m.paletteList.Items()) == 0 {
 		paletteList = ""
 	}
-	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, sortButtons, paletteList)
+	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, sortButtons, title, paletteList)
+}
+
+func (m Model) LoadInitial() (Model, tea.Cmd) {
+	return m.searchLospec(0)
 }
 
 func (m Model) GetCurrent() palette.Model {

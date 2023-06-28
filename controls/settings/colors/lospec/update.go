@@ -182,7 +182,10 @@ func (m Model) handleListUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	m.paletteList, cmd = m.paletteList.Update(msg)
+	if len(m.paletteList.Items()) > 0 {
+		m.paletteList, cmd = m.paletteList.Update(msg)
+	}
+
 	if m.paletteList.Index() < (m.highestPageRequested-1)*10 {
 		return m, cmd
 	}

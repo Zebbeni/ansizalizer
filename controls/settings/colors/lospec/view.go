@@ -71,11 +71,9 @@ func (m Model) drawFilterButtons() string {
 	for i, filter := range filterOrder {
 		buttonStyle := style.NormalButtonNode
 		if filter == m.focus {
-			if m.IsActive {
-				buttonStyle = style.FocusButtonNode
-			} else {
-				buttonStyle = style.ActiveButtonNode
-			}
+			buttonStyle = style.FocusButtonNode
+		} else if filter == m.filterType {
+			buttonStyle = style.ActiveButtonNode
 		}
 		buttons[i] = buttonStyle.Render(stateNames[filter])
 	}
@@ -88,11 +86,9 @@ func (m Model) drawSortButtons() string {
 	for i, sort := range sortOrder {
 		buttonStyle := style.NormalButtonNode
 		if sort == m.focus {
-			if m.IsActive {
-				buttonStyle = style.FocusButtonNode
-			} else {
-				buttonStyle = style.ActiveButtonNode
-			}
+			buttonStyle = style.FocusButtonNode
+		} else if sort == m.sortType {
+			buttonStyle = style.ActiveButtonNode
 		}
 		buttons[i] = buttonStyle.Render(stateNames[sort])
 	}
