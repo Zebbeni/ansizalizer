@@ -57,7 +57,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case Sampling:
 		return m.handleSamplingUpdate(msg)
 	}
-	return m.handleMenuUpdate(msg)
+
+	keyMsg, ok := msg.(tea.KeyMsg)
+	if !ok {
+		return m, nil
+	}
+
+	return m.handleKeyMsg(keyMsg)
 }
 
 func (m Model) View() string {

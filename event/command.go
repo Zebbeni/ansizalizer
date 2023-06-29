@@ -30,6 +30,18 @@ type FinishAdaptingMsg struct {
 	Colors color.Palette
 }
 
+type StartExportMsg bool
+
+func StartExportingCmd() tea.Msg {
+	return StartExportMsg(true)
+}
+
+type FinishExportingMsg bool
+
+func FinishExportingCmd() tea.Msg {
+	return FinishExportingMsg(true)
+}
+
 // DisplayMsg could eventually contain a type
 // that indicates what style to use (warning, error, etc.)
 type DisplayMsg string

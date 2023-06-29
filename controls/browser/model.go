@@ -15,6 +15,7 @@ import (
 type Model struct {
 	SelectedDir  string
 	SelectedFile string
+	ActiveDir    string
 	ActiveFile   string
 
 	lists          []list.Model

@@ -45,10 +45,16 @@ func (m Model) updateActive() (Model, tea.Cmd) {
 		panic("Unexpected list item type")
 	}
 
+	if itm.isDir && m.ActiveDir != itm.path {
+		m.ActiveDir = itm.path
+		return m, nil
+	}
+
 	if itm.isDir == false && m.ActiveFile != itm.path {
 		m.ActiveFile = itm.path
 		return m, event.StartRenderCmd
 	}
+
 	return m, nil
 }
 
@@ -89,6 +95,9 @@ func (m Model) addListForDirectory(dir string) Model {
 }
 
 func (m Model) fileExtensionsString() string {
+	if len(m.fileExtensions) == 0 {
+		return ""
+	}
 	toReturn := ""
 	i := 0
 	for ; i < len(m.fileExtensions)-1; i++ {

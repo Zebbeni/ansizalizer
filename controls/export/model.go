@@ -5,6 +5,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -28,19 +29,32 @@ type Model struct {
 	doExportDirectory      bool
 	doExportSubDirectories bool
 
-	source      string
-	destination string
+	SourceBrowser      browser.Model
+	DestinationBrowser browser.Model
 
-	width       int
-	ShouldClose bool
+	sourceFilepath      string
+	destinationFilepath string
+
+	ShouldClose   bool
+	ShouldUnfocus bool
+
+	width int
 }
 
 func New(w int) Model {
+	sourceBrowser := browser.New(nil, w-2)
+	destinationBrowser := browser.New(nil, w-2)
+
 	return Model{
 		focus: ExpFile,
 
+		SourceBrowser:      sourceBrowser,
+		DestinationBrowser: destinationBrowser,
+
 		doExportDirectory:      false,
 		doExportSubDirectories: false,
+
+		sourceFilepath: "blah/blah/blah",
 
 		width:       w,
 		ShouldClose: false,
@@ -52,27 +66,39 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	switch m.focus {
+	case SrcBrowser:
+		return m.handleSrcBrowserUpdate(msg)
+	case DstBrowser:
+		return m.handleDstBrowserUpdate(msg)
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, event.KeyMap.Esc):
-			m.ShouldClose = true
+			return m.handleEsc()
+		case key.Matches(msg, event.KeyMap.Nav):
+			return m.handleNav(msg)
+		case key.Matches(msg, event.KeyMap.Enter):
+			return m.handleEnter()
 		}
 	}
-	return m, nil
+	return m, cmd
 }
 
 // View draws a control panel like this:
 // |Single File   Directory
 //
 //	Source <path/to/file_or_dir>
-//	 Select a file / directory (display file browser if source activated)
+//	 Select a file / directory (display file browser if sourceFilepath activated)
 //	 <dir>
 //	 <dir>
 //	 <...>
 //	Include Sub-Directories |Y  N (display if 'Directory' selected above)
-//	Destination <path/to/destination/dir>
-//	 Select a directory (display file browser if destination activated)
+//	Destination <path/to/destinationFilepath/dir>
+//	 Select a directory (display file browser if destinationFilepath activated)
 //	 <dir>
 //	 <dir>
 //	 <...>
@@ -81,10 +107,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	// draw file / directory options
 	exportTypes := m.drawExportTypeOptions()
-	// draw source
+	source := m.drawSource()
+	// draw sourceFilepath
 	// draw subdirectory options
-	// draw destination
+	// draw destinationFilepath
 	// draw export button
 	// join all vertically
-	return lipgloss.JoinVertical(lipgloss.Center, exportTypes)
+	return lipgloss.JoinVertical(lipgloss.Center, exportTypes, source)
 }
