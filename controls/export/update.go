@@ -9,23 +9,51 @@ import (
 
 type Direction int
 
-type Param int
-
 const (
-	Left Direction = iota
-	Right
+	Down Direction = iota
 	Up
-	Down
 )
 
-var (
-	navMap = map[Direction]map[State]State{
-		Right: {ExpFile: ExpDirectory},
-		Left:  {ExpDirectory: ExpFile},
-		Down:  {ExpFile: SrcInput, ExpDirectory: SrcInput},
-		Up:    {SrcInput: ExpFile},
+var navMap = map[Direction]map[State]State{
+	Down: {Source: Destination},
+	Up:   {Destination: Source},
+}
+
+func (m Model) handleSourceUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Source, cmd = m.Source.Update(msg)
+
+	if m.Source.ShouldClose {
+		m.active = None
+		m.Source.ShouldClose = false
 	}
-)
+	if m.Source.ShouldUnfocus {
+		return m.handleMenuUpdate(msg)
+	}
+	return m, cmd
+}
+
+func (m Model) handleDestinationUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Destination, cmd = m.Destination.Update(msg)
+
+	if m.Destination.ShouldClose {
+		m.active = None
+		m.Destination.ShouldClose = false
+	}
+	return m, cmd
+}
+
+func (m Model) handleEnter() (Model, tea.Cmd) {
+	m.active = m.focus
+	switch m.active {
+	case Source:
+		m.Source.IsActive = true
+	case Destination:
+		m.Destination.IsActive = true
+	}
+	return m, nil
+}
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
@@ -34,14 +62,6 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch {
-	case key.Matches(msg, event.KeyMap.Right):
-		if next, hasNext := navMap[Right][m.focus]; hasNext {
-			m.focus = next
-		}
-	case key.Matches(msg, event.KeyMap.Left):
-		if next, hasNext := navMap[Left][m.focus]; hasNext {
-			m.focus = next
-		}
 	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			m.focus = next
@@ -56,46 +76,22 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m Model) handleEnter() (Model, tea.Cmd) {
-	switch m.focus {
-	case ExpFile:
-		m.doExportDirectory = false
-	case ExpDirectory:
-		m.doExportDirectory = true
-	case SubDirYes:
-		m.doExportSubDirectories = true
-	case SubDirsNo:
-		m.doExportSubDirectories = false
-	case SrcInput:
-		m.focus = SrcBrowser
-	case DstInput:
-		m.focus = DstBrowser
-	case Export:
-		return m, event.StartExportingCmd
+func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		return m.handleKeyMsg(keyMsg)
 	}
 	return m, nil
 }
 
-func (m Model) handleSrcBrowserUpdate(msg tea.Msg) (Model, tea.Cmd) {
+func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.SourceBrowser, cmd = m.SourceBrowser.Update(msg)
-	m.sourceFilepath = m.SourceBrowser.ActiveFile
-
-	if m.SourceBrowser.ShouldClose {
-		m.focus = SrcInput
-		m.SourceBrowser.ShouldClose = false
-	}
-	return m, cmd
-}
-
-func (m Model) handleDstBrowserUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
-	m.DestinationBrowser, cmd = m.DestinationBrowser.Update(msg)
-	m.destinationFilepath = m.DestinationBrowser.ActiveFile
-
-	if m.DestinationBrowser.ShouldClose {
-		m.focus = DstInput
-		m.DestinationBrowser.ShouldClose = false
+	switch {
+	case key.Matches(msg, event.KeyMap.Enter):
+		return m.handleEnter()
+	case key.Matches(msg, event.KeyMap.Nav):
+		return m.handleNav(msg)
+	case key.Matches(msg, event.KeyMap.Esc):
+		return m.handleEsc()
 	}
 	return m, cmd
 }

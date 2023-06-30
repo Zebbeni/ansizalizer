@@ -1,70 +1,37 @@
 package export
 
 import (
-	"path/filepath"
-
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
-	stateNames = map[State]string{
-		ExpFile:      "Single File",
-		ExpDirectory: "Directory",
-	}
+	activeColor = lipgloss.Color("#aaaaaa")
+	focusColor  = lipgloss.Color("#ffffff")
+	normalColor = lipgloss.Color("#555555")
 )
 
-func (m Model) drawExportTypeOptions() string {
-	widthStyle := lipgloss.NewStyle().Width(m.width / 2)
-	optionStyle := style.NormalButtonNode
-	if ExpFile == m.focus {
-		optionStyle = style.FocusButtonNode
-	} else if m.doExportDirectory == false {
-		optionStyle = style.ActiveButtonNode
-	}
-	singleFile := optionStyle.Copy().Render(stateNames[ExpFile])
-	singleFile = widthStyle.Render(singleFile)
-
-	optionStyle = style.NormalButtonNode
-	if ExpDirectory == m.focus {
-		optionStyle = style.FocusButtonNode
-	} else if m.doExportDirectory {
-		optionStyle = style.ActiveButtonNode
-	}
-	directory := optionStyle.Copy().Render(stateNames[ExpDirectory])
-	directory = widthStyle.Render(directory)
-
-	return lipgloss.JoinHorizontal(lipgloss.Center, singleFile, " ", directory)
-}
-
-func (m Model) drawSource() string {
-	promptStyle := style.NormalButtonNode
-	valueStyle := style.DimmedTitle
-	if SrcInput == m.focus {
-		promptStyle = style.FocusButtonNode
-		valueStyle = style.SelectedTitle
-	}
-	promptString := promptStyle.Render("Source: ")
-
-	value := m.SourceBrowser.ActiveFile
-	if m.doExportDirectory {
-		value = m.SourceBrowser.ActiveDir
-	}
-	value = filepath.Base(value)
-
-	valueString := valueStyle.Render(value)
-
-	valueWidth := m.width - lipgloss.Width(promptString)
-	widthStyle := lipgloss.NewStyle().Width(valueWidth)
-	valueString = widthStyle.Render(valueString)
-
-	source := lipgloss.JoinHorizontal(lipgloss.Center, promptString, valueString)
-
-	if m.focus != SrcBrowser {
-		return source
+func (m Model) renderWithBorder(content string, state State) string {
+	renderColor := normalColor
+	if m.active == state {
+		renderColor = activeColor
+	} else if m.focus == state {
+		renderColor = focusColor
 	}
 
-	browser := m.SourceBrowser.View()
-	return lipgloss.JoinVertical(lipgloss.Left, source, browser)
+	textStyle := lipgloss.NewStyle().
+		AlignHorizontal(lipgloss.Center).
+		Padding(0, 1, 0, 1).
+		Foreground(renderColor)
+	borderStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(renderColor)
+
+	renderer := style.BoxWithLabel{
+		BoxStyle:   borderStyle,
+		LabelStyle: textStyle,
+	}
+
+	return renderer.Render(stateTitles[state], content, m.width-2)
 }
