@@ -1,6 +1,7 @@
 package destination
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/charmbracelet/lipgloss"
@@ -8,17 +9,16 @@ import (
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-func (m Model) drawSource() string {
+func (m Model) drawInput() string {
 	valueStyle := style.DimmedTitle
-	if DstInput == m.focus {
+	if Input == m.focus {
 		valueStyle = style.SelectedTitle
 	}
 
-	value := m.Browser.ActiveFile
-	if m.doExportDirectory {
-		value = m.SourceBrowser.ActiveDir
-	}
-	value = filepath.Base(value)
+	dir := m.Browser.ActiveDir
+	parentDir := filepath.Base(filepath.Dir(dir))
+	activeDir := filepath.Base(dir)
+	value := fmt.Sprintf("%s/%s", parentDir, activeDir)
 
 	if value == "." || len(value) == 0 {
 		value = "(None)"
@@ -30,10 +30,10 @@ func (m Model) drawSource() string {
 	widthStyle := lipgloss.NewStyle().Width(valueWidth).AlignHorizontal(lipgloss.Center)
 	valueContent = widthStyle.Render(valueContent)
 
-	if m.focus != SrcBrowser {
+	if m.focus != Browser {
 		return valueContent
 	}
 
-	browserContent := m.SourceBrowser.View()
+	browserContent := m.Browser.View()
 	return lipgloss.JoinVertical(lipgloss.Left, valueContent, browserContent)
 }

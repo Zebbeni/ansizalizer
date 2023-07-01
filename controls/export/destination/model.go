@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
@@ -14,8 +13,8 @@ import (
 type State int
 
 const (
-	DstInput State = iota
-	DstBrowser
+	Input State = iota
+	Browser
 )
 
 type Model struct {
@@ -37,7 +36,7 @@ func New(w int) Model {
 	filepath, _ := os.Getwd()
 
 	return Model{
-		focus: DstInput,
+		focus: Input,
 
 		Browser: browser.New(nil, w-2),
 
@@ -55,7 +54,7 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch m.focus {
-	case DstBrowser:
+	case Browser:
 		return m.handleDstBrowserUpdate(msg)
 	}
 
@@ -90,13 +89,5 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 //
 // Export
 func (m Model) View() string {
-	// draw file / directory options
-	exportTypes := m.drawExportTypeOptions()
-	source := m.drawSource()
-	// draw sourceFilepath
-	// draw subdirectory options
-	// draw filepath
-	// draw export button
-	// join all vertically
-	return lipgloss.JoinVertical(lipgloss.Center, exportTypes, source)
+	return m.drawInput()
 }
