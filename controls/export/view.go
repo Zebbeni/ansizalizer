@@ -35,3 +35,18 @@ func (m Model) renderWithBorder(content string, state State) string {
 
 	return renderer.Render(stateTitles[state], content, m.width-2)
 }
+
+func (m Model) drawProcessButton() string {
+	buttonStyle := style.NormalButton
+	if m.focus == Process {
+		buttonStyle = style.FocusButton
+	}
+
+	centerStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
+
+	internalStyle := centerStyle.Copy().Width(m.width - 2)
+	title := internalStyle.Render(stateTitles[Process])
+	button := buttonStyle.Render(title)
+
+	return centerStyle.Copy().Width(m.width).AlignHorizontal(lipgloss.Center).Render(button)
+}

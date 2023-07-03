@@ -19,10 +19,10 @@ const (
 
 var (
 	navMap = map[Direction]map[State]State{
-		Right: {ExpFile: ExpDirectory},
-		Left:  {ExpDirectory: ExpFile},
-		Down:  {ExpFile: Input, ExpDirectory: Input},
-		Up:    {Input: ExpFile},
+		Right: {ExpFile: ExpDirectory, SubDirsYes: SubDirsNo},
+		Left:  {ExpDirectory: ExpFile, SubDirsNo: SubDirsYes},
+		Down:  {ExpFile: Input, ExpDirectory: Input, Input: SubDirsYes},
+		Up:    {Input: ExpFile, SubDirsYes: Input, SubDirsNo: Input},
 	}
 	fileExts = []string{".png", ".jpg"}
 )
@@ -67,12 +67,12 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.focus = Browser
 		m.doExportDirectory = true
 		m.Browser = browser.New(nil, m.width)
-	case SubDirYes:
-		m.doExportSubDirectories = true
-	case SubDirsNo:
-		m.doExportSubDirectories = false
 	case Input:
 		m.focus = Browser
+	case SubDirsYes:
+		m.includeSubdirectories = true
+	case SubDirsNo:
+		m.includeSubdirectories = false
 	}
 	return m, nil
 }
@@ -91,4 +91,9 @@ func (m Model) handleSrcBrowserUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		m.Browser.ShouldClose = false
 	}
 	return m, cmd
+}
+
+func (m Model) handleIncludeSubdirectories(shouldInclude bool) (Model, tea.Cmd) {
+	m.includeSubdirectories = shouldInclude
+	return m, nil
 }

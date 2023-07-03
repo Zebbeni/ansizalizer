@@ -15,8 +15,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Down: {Source: Destination},
-	Up:   {Destination: Source},
+	Down: {Source: Destination, Destination: Process},
+	Up:   {Destination: Source, Process: Destination},
 }
 
 func (m Model) handleSourceUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -51,6 +51,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Source.IsActive = true
 	case Destination:
 		m.Destination.IsActive = true
+	case Process:
+		return m.handleProcess()
 	}
 	return m, nil
 }
@@ -94,4 +96,16 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 		return m.handleEsc()
 	}
 	return m, cmd
+}
+
+func (m Model) handleProcess() (Model, tea.Cmd) {
+	return m, event.StartExportingCmd
+}
+
+func (m Model) GetSource() (path string, isDir, useSubDirs bool) {
+	return m.Source.GetSelected()
+}
+
+func (m Model) GetDestination() (path string) {
+	return m.Destination.GetSelected()
 }

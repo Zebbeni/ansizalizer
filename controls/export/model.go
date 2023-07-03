@@ -14,14 +14,14 @@ const (
 	None State = iota
 	Source
 	Destination
-	Format
+	Process
 )
 
 var (
 	stateTitles = map[State]string{
 		Source:      "Source",
 		Destination: "Destination",
-		Format:      "Format",
+		Process:     "Process",
 	}
 )
 
@@ -73,5 +73,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	src := m.renderWithBorder(m.Source.View(), Source)
 	dst := m.renderWithBorder(m.Destination.View(), Destination)
-	return lipgloss.JoinVertical(lipgloss.Left, src, dst)
+	process := m.drawProcessButton()
+	return lipgloss.JoinVertical(lipgloss.Left, src, dst, process)
 }

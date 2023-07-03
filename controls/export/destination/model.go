@@ -73,22 +73,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
-// View draws a control panel like this:
-// |Single File   Directory
-//
-//	Source <path/to/file_or_dir>
-//	 Select a file / directory (display file browser if sourceFilepath activated)
-//	 <dir>
-//	 <dir>
-//	 <...>
-//	Include Sub-Directories |Y  N (display if 'Directory' selected above)
-//	Destination <path/to/selectedDir/dir>
-//	 Select a directory (display file browser if selectedDir activated)
-//	 <dir>
-//	 <dir>
-//	 <...>
-//
-// Export
 func (m Model) View() string {
 	content := make([]string, 0, 5)
 
@@ -100,4 +84,8 @@ func (m Model) View() string {
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, content...)
+}
+
+func (m Model) GetSelected() string {
+	return m.selectedDir
 }

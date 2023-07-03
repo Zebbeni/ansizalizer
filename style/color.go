@@ -40,7 +40,8 @@ var (
 	FocusButtonNode = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder(), false, false, false, true).
 			BorderForeground(SelectedColor1).
-			Foreground(SelectedColor1)
+			Foreground(SelectedColor1).
+			Padding(0)
 	NormalButtonNode = lipgloss.NewStyle().
 				PaddingLeft(1).
 				Foreground(DimmedColor1)

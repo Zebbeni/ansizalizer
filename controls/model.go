@@ -13,7 +13,7 @@ type State int
 
 const (
 	Menu State = iota
-	Open
+	Browse
 	Settings
 	Export
 
@@ -21,9 +21,9 @@ const (
 )
 
 var (
-	stateOrder = []State{Open, Settings, Export}
+	stateOrder = []State{Browse, Settings, Export}
 	stateNames = map[State]string{
-		Open:     "Open",
+		Browse:   "Browse",
 		Settings: "Settings",
 		Export:   "Export",
 	}
@@ -44,7 +44,7 @@ type Model struct {
 func New(w int) Model {
 	return Model{
 		active: Menu,
-		focus:  Open,
+		focus:  Browse,
 
 		FileBrowser: browser.New(imgExtensions, w),
 		Settings:    settings.New(w),
@@ -60,7 +60,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.active {
-	case Open:
+	case Browse:
 		return m.handleOpenUpdate(msg)
 	case Settings:
 		return m.handleSettingsUpdate(msg)
@@ -71,7 +71,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 // View displays a row of 3 buttons above 1 of 3 control panels:
-// Open | Settings | Export
+// Browse | Settings | Export
 func (m Model) View() string {
 	title := m.drawTitle()
 
@@ -80,7 +80,7 @@ func (m Model) View() string {
 	var controls string
 
 	switch m.active {
-	case Open:
+	case Browse:
 		controls = m.FileBrowser.View()
 	case Settings:
 		controls = m.Settings.View()

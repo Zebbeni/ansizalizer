@@ -16,15 +16,15 @@ const (
 	ExpDirectory
 	Input
 	Browser
-	SubDirYes
+	SubDirsYes
 	SubDirsNo
 )
 
 type Model struct {
 	focus State
 
-	doExportDirectory      bool
-	doExportSubDirectories bool
+	doExportDirectory     bool
+	includeSubdirectories bool
 
 	Browser      browser.Model
 	selectedDir  string
@@ -46,8 +46,8 @@ func New(w int) Model {
 
 		Browser: browserModel,
 
-		doExportDirectory:      false,
-		doExportSubDirectories: false,
+		doExportDirectory:     false,
+		includeSubdirectories: false,
 
 		selectedDir:  "",
 		selectedFile: "",
@@ -82,22 +82,6 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
-// View draws a control panel like this:
-// |Single File   Directory
-//
-//	Source <path/to/file_or_dir>
-//	 Select a file / directory (display file browser if filepath activated)
-//	 <dir>
-//	 <dir>
-//	 <...>
-//	Include Sub-Directories |Y  N (display if 'Directory' selected above)
-//	Destination <path/to/destinationFilepath/dir>
-//	 Select a directory (display file browser if destinationFilepath activated)
-//	 <dir>
-//	 <dir>
-//	 <...>
-//
-// Export
 func (m Model) View() string {
 	content := make([]string, 0, 5)
 	content = append(content, m.drawExportTypeOptions())
@@ -109,5 +93,22 @@ func (m Model) View() string {
 		content = append(content, m.Browser.View())
 	}
 
+	if m.doExportDirectory {
+		content = append(content, m.drawSubDirOptions())
+	}
+
 	return lipgloss.JoinVertical(lipgloss.Left, content...)
+}
+
+func (m Model) GetSelected() (path string, isDir, useSubDirs bool) {
+	if m.doExportDirectory {
+		isDir = true
+		path = m.selectedDir
+		useSubDirs = m.includeSubdirectories
+	} else {
+		path = m.selectedFile
+		isDir = false
+		useSubDirs = false
+	}
+	return
 }
