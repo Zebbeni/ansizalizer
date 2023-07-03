@@ -1,6 +1,7 @@
 package source
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/charmbracelet/lipgloss"
@@ -16,54 +17,62 @@ var (
 )
 
 func (m Model) drawExportTypeOptions() string {
-	widthStyle := lipgloss.NewStyle().Width(m.width / 2)
-	optionStyle := style.NormalButtonNode
-	if ExpFile == m.focus {
-		optionStyle = style.FocusButtonNode
+	widthStyle := lipgloss.NewStyle().Width((m.width / 2) - 2).AlignHorizontal(lipgloss.Center)
+	optionStyle := style.NormalButton
+	if ExpFile == m.focus && m.IsActive {
+		optionStyle = style.FocusButton
 	} else if m.doExportDirectory == false {
-		optionStyle = style.ActiveButtonNode
+		optionStyle = style.ActiveButton
 	}
-	singleFile := optionStyle.Copy().Render(stateNames[ExpFile])
-	singleFile = widthStyle.Render(singleFile)
+	singleFileButtonText := widthStyle.Render(stateNames[ExpFile])
+	singleFileButton := optionStyle.Render(singleFileButtonText)
 
-	optionStyle = style.NormalButtonNode
-	if ExpDirectory == m.focus {
-		optionStyle = style.FocusButtonNode
+	optionStyle = style.NormalButton
+	if ExpDirectory == m.focus && m.IsActive {
+		optionStyle = style.FocusButton
 	} else if m.doExportDirectory {
-		optionStyle = style.ActiveButtonNode
+		optionStyle = style.ActiveButton
 	}
-	directory := optionStyle.Copy().Render(stateNames[ExpDirectory])
-	directory = widthStyle.Render(directory)
+	directoryButtonText := widthStyle.Render(stateNames[ExpDirectory])
+	directoryButton := optionStyle.Render(directoryButtonText)
 
-	return lipgloss.JoinHorizontal(lipgloss.Center, singleFile, " ", directory)
+	return lipgloss.JoinHorizontal(lipgloss.Center, singleFileButton, directoryButton)
 }
 
-func (m Model) drawSource() string {
-	valueStyle := style.DimmedTitle
-	if SrcInput == m.focus {
-		valueStyle = style.SelectedTitle
-	}
+func (m Model) drawPrompt() string {
+	return style.DimmedTitle.Copy().AlignHorizontal(lipgloss.Center).Padding(0).Render("Select")
+}
 
-	value := m.SourceBrowser.ActiveFile
+func (m Model) drawSelected() string {
+	title := style.DimmedTitle.Copy().Render("Selected")
+
+	valueStyle := style.DimmedTitle.Copy()
+	if Input == m.focus {
+		if m.IsActive {
+			valueStyle = style.SelectedTitle.Copy()
+		} else {
+			valueStyle = style.NormalTitle.Copy()
+		}
+	}
+	valueStyle.Padding(0, 0, 1, 0)
+
+	path := m.Browser.SelectedFile
 	if m.doExportDirectory {
-		value = m.SourceBrowser.ActiveDir
+		path = m.Browser.SelectedDir
 	}
-	value = filepath.Base(value)
 
-	if value == "." || len(value) == 0 {
-		value = "(None)"
+	parent := filepath.Base(filepath.Dir(path))
+	selected := filepath.Base(path)
+	value := fmt.Sprintf("%s/%s", parent, selected)
+	valueRunes := []rune(value)
+	if len(valueRunes) > m.width {
+		value = string(valueRunes[len(valueRunes)-m.width:])
 	}
 
 	valueContent := valueStyle.Render(value)
 
 	valueWidth := m.width
 	widthStyle := lipgloss.NewStyle().Width(valueWidth).AlignHorizontal(lipgloss.Center)
-	valueContent = widthStyle.Render(valueContent)
-
-	if m.focus != SrcBrowser {
-		return valueContent
-	}
-
-	browserContent := m.SourceBrowser.View()
-	return lipgloss.JoinVertical(lipgloss.Left, valueContent, browserContent)
+	content := lipgloss.JoinVertical(lipgloss.Center, title, valueContent)
+	return widthStyle.Render(content)
 }

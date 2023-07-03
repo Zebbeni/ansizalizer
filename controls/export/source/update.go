@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
+	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -20,13 +21,15 @@ var (
 	navMap = map[Direction]map[State]State{
 		Right: {ExpFile: ExpDirectory},
 		Left:  {ExpDirectory: ExpFile},
-		Down:  {ExpFile: SrcInput, ExpDirectory: SrcInput},
-		Up:    {SrcInput: ExpFile},
+		Down:  {ExpFile: Input, ExpDirectory: Input},
+		Up:    {Input: ExpFile},
 	}
+	fileExts = []string{".png", ".jpg"}
 )
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
+	m.IsActive = false
 	return m, nil
 }
 
@@ -57,27 +60,35 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	switch m.focus {
 	case ExpFile:
+		m.focus = Browser
 		m.doExportDirectory = false
+		m.Browser = browser.New(fileExts, m.width)
 	case ExpDirectory:
+		m.focus = Browser
 		m.doExportDirectory = true
+		m.Browser = browser.New(nil, m.width)
 	case SubDirYes:
 		m.doExportSubDirectories = true
 	case SubDirsNo:
 		m.doExportSubDirectories = false
-	case SrcInput:
-		m.focus = SrcBrowser
+	case Input:
+		m.focus = Browser
 	}
 	return m, nil
 }
 
 func (m Model) handleSrcBrowserUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.SourceBrowser, cmd = m.SourceBrowser.Update(msg)
-	m.sourceFilepath = m.SourceBrowser.ActiveFile
+	m.Browser, cmd = m.Browser.Update(msg)
+	if m.doExportDirectory {
+		m.selectedDir = m.Browser.SelectedDir
+	} else {
+		m.selectedFile = m.Browser.ActiveFile
+	}
 
-	if m.SourceBrowser.ShouldClose {
-		m.focus = SrcInput
-		m.SourceBrowser.ShouldClose = false
+	if m.Browser.ShouldClose {
+		m.focus = Input
+		m.Browser.ShouldClose = false
 	}
 	return m, cmd
 }

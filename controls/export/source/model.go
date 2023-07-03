@@ -1,8 +1,6 @@
 package source
 
 import (
-	"os"
-
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,8 +14,8 @@ type State int
 const (
 	ExpFile State = iota
 	ExpDirectory
-	SrcInput
-	SrcBrowser
+	Input
+	Browser
 	SubDirYes
 	SubDirsNo
 )
@@ -28,8 +26,9 @@ type Model struct {
 	doExportDirectory      bool
 	doExportSubDirectories bool
 
-	SourceBrowser  browser.Model
-	sourceFilepath string
+	Browser      browser.Model
+	selectedDir  string
+	selectedFile string
 
 	ShouldClose   bool
 	ShouldUnfocus bool
@@ -40,17 +39,18 @@ type Model struct {
 }
 
 func New(w int) Model {
-	filepath, _ := os.Getwd()
+	browserModel := browser.New(nil, w-2)
 
 	return Model{
-		focus: ExpFile,
+		focus: ExpDirectory,
 
-		SourceBrowser: browser.New(nil, w-2),
+		Browser: browserModel,
 
 		doExportDirectory:      false,
 		doExportSubDirectories: false,
 
-		sourceFilepath: filepath,
+		selectedDir:  "",
+		selectedFile: "",
 
 		width:       w,
 		ShouldClose: false,
@@ -64,7 +64,7 @@ func (m Model) Init() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch m.focus {
-	case SrcBrowser:
+	case Browser:
 		return m.handleSrcBrowserUpdate(msg)
 	}
 
@@ -86,7 +86,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 // |Single File   Directory
 //
 //	Source <path/to/file_or_dir>
-//	 Select a file / directory (display file browser if sourceFilepath activated)
+//	 Select a file / directory (display file browser if filepath activated)
 //	 <dir>
 //	 <dir>
 //	 <...>
@@ -99,13 +99,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 //
 // Export
 func (m Model) View() string {
-	// draw file / directory options
-	exportTypes := m.drawExportTypeOptions()
-	source := m.drawSource()
-	// draw sourceFilepath
-	// draw subdirectory options
-	// draw destinationFilepath
-	// draw export button
-	// join all vertically
-	return lipgloss.JoinVertical(lipgloss.Center, exportTypes, source)
+	content := make([]string, 0, 5)
+	content = append(content, m.drawExportTypeOptions())
+
+	selected := lipgloss.NewStyle().PaddingTop(1).Render(m.drawSelected())
+	content = append(content, selected)
+
+	if m.focus == Browser {
+		content = append(content, m.Browser.View())
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Left, content...)
 }
