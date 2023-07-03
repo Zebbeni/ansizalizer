@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
@@ -22,7 +23,7 @@ type Model struct {
 
 	Browser browser.Model
 
-	filepath string
+	selectedDir string
 
 	ShouldClose   bool
 	ShouldUnfocus bool
@@ -40,7 +41,7 @@ func New(w int) Model {
 
 		Browser: browser.New(nil, w-2),
 
-		filepath: filepath,
+		selectedDir: filepath,
 
 		width:       w,
 		ShouldClose: false,
@@ -81,13 +82,22 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 //	 <dir>
 //	 <...>
 //	Include Sub-Directories |Y  N (display if 'Directory' selected above)
-//	Destination <path/to/filepath/dir>
-//	 Select a directory (display file browser if filepath activated)
+//	Destination <path/to/selectedDir/dir>
+//	 Select a directory (display file browser if selectedDir activated)
 //	 <dir>
 //	 <dir>
 //	 <...>
 //
 // Export
 func (m Model) View() string {
-	return m.drawInput()
+	content := make([]string, 0, 5)
+
+	selected := lipgloss.NewStyle().PaddingTop(1).Render(m.drawSelected())
+	content = append(content, selected)
+
+	if m.focus == Browser {
+		content = append(content, m.Browser.View())
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Left, content...)
 }

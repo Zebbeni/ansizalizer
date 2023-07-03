@@ -64,6 +64,7 @@ func (m Model) drawSelected() string {
 	parent := filepath.Base(filepath.Dir(path))
 	selected := filepath.Base(path)
 	value := fmt.Sprintf("%s/%s", parent, selected)
+
 	valueRunes := []rune(value)
 	if len(valueRunes) > m.width {
 		value = string(valueRunes[len(valueRunes)-m.width:])
@@ -74,5 +75,6 @@ func (m Model) drawSelected() string {
 	valueWidth := m.width
 	widthStyle := lipgloss.NewStyle().Width(valueWidth).AlignHorizontal(lipgloss.Center)
 	content := lipgloss.JoinVertical(lipgloss.Center, title, valueContent)
+
 	return widthStyle.Render(content)
 }

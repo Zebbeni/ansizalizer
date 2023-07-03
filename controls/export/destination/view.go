@@ -9,31 +9,36 @@ import (
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-func (m Model) drawInput() string {
-	valueStyle := style.DimmedTitle
+func (m Model) drawSelected() string {
+	title := style.DimmedTitle.Copy().Render("Selected")
+
+	valueStyle := style.DimmedTitle.Copy()
+
 	if Input == m.focus {
-		valueStyle = style.SelectedTitle
+		if m.IsActive {
+			valueStyle = style.SelectedTitle.Copy()
+		} else {
+			valueStyle = style.NormalTitle.Copy()
+		}
 	}
+	valueStyle.Padding(0, 0, 1, 0)
 
-	dir := m.Browser.ActiveDir
-	parentDir := filepath.Base(filepath.Dir(dir))
-	activeDir := filepath.Base(dir)
-	value := fmt.Sprintf("%s/%s", parentDir, activeDir)
+	path := m.Browser.SelectedDir
 
-	if value == "." || len(value) == 0 {
-		value = "(None)"
+	parent := filepath.Base(filepath.Dir(path))
+	selected := filepath.Base(path)
+	value := fmt.Sprintf("%s/%s", parent, selected)
+
+	valueRunes := []rune(value)
+	if len(valueRunes) > m.width {
+		value = string(valueRunes[len(valueRunes)-m.width:])
 	}
 
 	valueContent := valueStyle.Render(value)
 
 	valueWidth := m.width
 	widthStyle := lipgloss.NewStyle().Width(valueWidth).AlignHorizontal(lipgloss.Center)
-	valueContent = widthStyle.Render(valueContent)
+	content := lipgloss.JoinVertical(lipgloss.Center, title, valueContent)
 
-	if m.focus != Browser {
-		return valueContent
-	}
-
-	browserContent := m.Browser.View()
-	return lipgloss.JoinVertical(lipgloss.Left, valueContent, browserContent)
+	return widthStyle.Render(content)
 }

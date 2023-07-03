@@ -23,6 +23,7 @@ var (
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
+	m.IsActive = false
 	return m, nil
 }
 
@@ -53,7 +54,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 func (m Model) handleDstBrowserUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Browser, cmd = m.Browser.Update(msg)
-	m.filepath = m.Browser.ActiveFile
+	m.selectedDir = m.Browser.SelectedDir
 
 	if m.Browser.ShouldClose {
 		m.focus = Input

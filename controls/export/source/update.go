@@ -83,7 +83,7 @@ func (m Model) handleSrcBrowserUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.doExportDirectory {
 		m.selectedDir = m.Browser.SelectedDir
 	} else {
-		m.selectedFile = m.Browser.ActiveFile
+		m.selectedFile = m.Browser.SelectedFile
 	}
 
 	if m.Browser.ShouldClose {
