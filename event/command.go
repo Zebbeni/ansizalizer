@@ -7,16 +7,32 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type StartRenderMsg bool
+type StartRenderToViewMsg bool
 
-func StartRenderCmd() tea.Msg {
-	return StartRenderMsg(true)
+func StartRenderToViewCmd() tea.Msg {
+	return StartRenderToViewMsg(true)
 }
 
-type FinishRenderMsg struct {
+type FinishRenderToViewMsg struct {
 	FilePath     string
 	ImgString    string
 	ColorsString string
+}
+
+type StartRenderToExportMsg bool
+
+func StartRenderToExportCmd() tea.Msg {
+	return StartRenderToExportMsg(true)
+}
+
+type FinishRenderToExportMsg struct {
+	FilePath     string
+	ImgString    string
+	ColorsString string
+}
+
+func BuildFinishRenderToExportCmd(msg FinishRenderToExportMsg) tea.Cmd {
+	return func() tea.Msg { return msg }
 }
 
 type StartAdaptingMsg bool
@@ -28,6 +44,23 @@ func StartAdaptingCmd() tea.Msg {
 type FinishAdaptingMsg struct {
 	Name   string
 	Colors color.Palette
+}
+
+type StartExportMsg struct {
+	SourcePath      string
+	DestinationPath string
+	IsDir           bool
+	UseSubDirs      bool
+}
+
+func BuildStartExportCmd(msg StartExportMsg) tea.Cmd {
+	return func() tea.Msg { return msg }
+}
+
+type FinishExportMsg bool
+
+func FinishExportingCmd() tea.Msg {
+	return FinishExportMsg(true)
 }
 
 // DisplayMsg could eventually contain a type

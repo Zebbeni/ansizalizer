@@ -70,7 +70,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		return m.searchLospec(0)
 	case List:
 		m.palette, _ = m.paletteList.SelectedItem().(palette.Model)
-		return m, event.StartRenderCmd
+		return m, event.StartRenderToViewCmd
 	}
 	return m, nil
 }
@@ -182,7 +182,10 @@ func (m Model) handleListUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	}
 
 	var cmd tea.Cmd
-	m.paletteList, cmd = m.paletteList.Update(msg)
+	if len(m.paletteList.Items()) > 0 {
+		m.paletteList, cmd = m.paletteList.Update(msg)
+	}
+
 	if m.paletteList.Index() < (m.highestPageRequested-1)*10 {
 		return m, cmd
 	}
@@ -201,7 +204,7 @@ func (m Model) searchLospec(page int) (Model, tea.Cmd) {
 	colors, _ := strconv.Atoi(m.countInput.Value())
 	tag := m.tagInput.Value()
 	filterType := filterParams[m.filterType]
-	sortingType := "alphabetical"
+	sortingType := sortParams[m.sortType]
 
 	urlString := "https://lospec.com/palette-list/load?colorNumber=%d&tag=%s&colorNumberFilterType=%s&sortingType=%s&page=%d"
 	url := fmt.Sprintf(urlString, colors, tag, filterType, sortingType, page)

@@ -26,7 +26,7 @@ var (
 	focusColor  = lipgloss.Color("#ffffff")
 	normalColor = lipgloss.Color("#555555")
 	titleStyle  = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#888888"))
+			Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawInputs() string {
@@ -71,15 +71,27 @@ func (m Model) drawFilterButtons() string {
 	for i, filter := range filterOrder {
 		buttonStyle := style.NormalButtonNode
 		if filter == m.focus {
-			if m.IsActive {
-				buttonStyle = style.FocusButtonNode
-			} else {
-				buttonStyle = style.ActiveButtonNode
-			}
+			buttonStyle = style.FocusButtonNode
+		} else if filter == m.filterType {
+			buttonStyle = style.ActiveButtonNode
 		}
 		buttons[i] = buttonStyle.Render(stateNames[filter])
 	}
 
+	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+}
+
+func (m Model) drawSortButtons() string {
+	buttons := make([]string, len(sortOrder))
+	for i, sort := range sortOrder {
+		buttonStyle := style.NormalButtonNode
+		if sort == m.focus {
+			buttonStyle = style.FocusButtonNode
+		} else if sort == m.sortType {
+			buttonStyle = style.ActiveButtonNode
+		}
+		buttons[i] = buttonStyle.Render(stateNames[sort])
+	}
 	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }
 

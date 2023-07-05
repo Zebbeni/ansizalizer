@@ -20,9 +20,8 @@ var navMap = map[Direction]map[State]State{
 }
 
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		return m.handleKeyMsg(msg)
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		return m.handleKeyMsg(keyMsg)
 	}
 	return m, nil
 }
@@ -76,33 +75,35 @@ func (m Model) handleSamplingUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, event.KeyMap.Enter):
-			m.active = m.focus
-			switch m.active {
-			case Palette:
-				m.Colors.IsActive = true
-			case Characters:
-				m.Characters.IsActive = true
-			case Size:
-				m.Size.IsActive = true
-			}
-		case key.Matches(msg, event.KeyMap.Esc):
+func (m Model) handleEnter() (Model, tea.Cmd) {
+	m.active = m.focus
+	switch m.active {
+	case Palette:
+		m.Colors.IsActive = true
+	case Characters:
+		m.Characters.IsActive = true
+	case Size:
+		m.Size.IsActive = true
+	}
+	return m, nil
+}
+
+func (m Model) handleEsc() (Model, tea.Cmd) {
+	m.ShouldClose = true
+	return m, nil
+}
+
+func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
+	switch {
+	case key.Matches(msg, event.KeyMap.Down):
+		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			m.focus = next
+		}
+	case key.Matches(msg, event.KeyMap.Up):
+		if next, hasNext := navMap[Up][m.focus]; hasNext {
+			m.focus = next
+		} else {
 			m.ShouldClose = true
-		case key.Matches(msg, event.KeyMap.Nav):
-			switch {
-			case key.Matches(msg, event.KeyMap.Up):
-				if next, hasNext := navMap[Up][m.focus]; hasNext {
-					m.focus = next
-				}
-			case key.Matches(msg, event.KeyMap.Down):
-				if next, hasNext := navMap[Down][m.focus]; hasNext {
-					m.focus = next
-				}
-			}
 		}
 	}
 	return m, nil
@@ -111,15 +112,12 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch {
-	case key.Matches(msg, event.KeyMap.Esc):
-		m.ShouldClose = true
+	case key.Matches(msg, event.KeyMap.Enter):
+		return m.handleEnter()
 	case key.Matches(msg, event.KeyMap.Nav):
-		m.ShouldUnfocus = true
+		return m.handleNav(msg)
+	case key.Matches(msg, event.KeyMap.Esc):
+		return m.handleEsc()
 	}
 	return m, cmd
-}
-
-func (m Model) handleEsc() (Model, tea.Cmd) {
-	m.ShouldClose = true
-	return m, nil
 }

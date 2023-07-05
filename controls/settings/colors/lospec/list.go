@@ -8,13 +8,13 @@ import (
 )
 
 func CreateList(items []list.Item, w int) list.Model {
-	newList := list.New(items, NewDelegate(), w, 20)
+	newList := list.New(items, NewDelegate(), w, 22)
 
 	newList.KeyMap.ForceQuit.Unbind()
 	newList.KeyMap.Quit.Unbind()
 	newList.SetShowHelp(false)
 	newList.SetShowStatusBar(false)
-	newList.SetShowTitle(true)
+	newList.SetShowTitle(false)
 	newList.SetFilteringEnabled(false)
 
 	return newList

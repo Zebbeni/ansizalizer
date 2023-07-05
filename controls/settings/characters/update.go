@@ -99,7 +99,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 			}
 		}
 	}
-	return m, event.StartRenderCmd
+	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {

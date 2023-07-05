@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	paletteExtensions = []string{".hex"}
+	paletteExtensions = map[string]bool{".hex": true}
 )
 
 type Model struct {
@@ -62,7 +62,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 		m.palette = palette.New(name, colors, m.width-5, 3)
 
-		return m, tea.Batch(cmd, event.StartRenderCmd)
+		return m, tea.Batch(cmd, event.StartRenderToViewCmd)
 	}
 
 	if m.FileBrowser.ShouldClose {
@@ -86,10 +86,6 @@ func (m Model) View() string {
 
 func (m Model) GetCurrent() palette.Model {
 	return m.palette
-}
-
-func shouldParse(filename string) bool {
-	return strings.Contains(filename, ".hex")
 }
 
 func parsePaletteFile(filepath string) (color.Palette, error) {

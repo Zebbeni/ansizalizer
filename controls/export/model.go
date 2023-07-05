@@ -1,19 +1,52 @@
 package export
 
 import (
-	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/controls/export/destination"
+	"github.com/Zebbeni/ansizalizer/controls/export/source"
+)
+
+type State int
+
+const (
+	None State = iota
+	Source
+	Destination
+	Process
+)
+
+var (
+	stateTitles = map[State]string{
+		Source:      "Source",
+		Destination: "Destination",
+		Process:     "Process",
+	}
 )
 
 type Model struct {
-	ShouldClose bool
+	active State
+	focus  State
+
+	Source      source.Model
+	Destination destination.Model
+
+	ShouldClose   bool
+	ShouldUnfocus bool
+
+	width int
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
-		ShouldClose: false,
+		focus:         Source,
+		active:        None,
+		Source:        source.New(w - 2),
+		Destination:   destination.New(w - 2),
+		ShouldClose:   false,
+		ShouldUnfocus: false,
+		width:         w,
 	}
 }
 
@@ -22,16 +55,24 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, event.KeyMap.Esc):
-			m.ShouldClose = true
-		}
+	switch m.active {
+	case Source:
+		return m.handleSourceUpdate(msg)
+	case Destination:
+		return m.handleDestinationUpdate(msg)
 	}
-	return m, nil
+
+	keyMsg, ok := msg.(tea.KeyMsg)
+	if !ok {
+		return m, nil
+	}
+
+	return m.handleKeyMsg(keyMsg)
 }
 
 func (m Model) View() string {
-	return "Export Menu"
+	src := m.renderWithBorder(m.Source.View(), Source)
+	dst := m.renderWithBorder(m.Destination.View(), Destination)
+	process := m.drawProcessButton()
+	return lipgloss.JoinVertical(lipgloss.Left, src, dst, process)
 }

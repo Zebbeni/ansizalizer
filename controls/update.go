@@ -17,8 +17,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {Open: Settings, Settings: Export},
-	Left:  {Export: Settings, Settings: Open},
+	Right: {Browse: Settings, Settings: Export},
+	Left:  {Export: Settings, Settings: Browse},
 }
 
 func (m Model) handleOpenUpdate(msg tea.Msg) (Model, tea.Cmd) {

@@ -45,7 +45,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case HeightForm:
 		m.heightInput.Focus()
 	}
-	return m, event.StartRenderCmd
+	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) handleWidthUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -53,7 +53,7 @@ func (m Model) handleWidthUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		switch {
 		case key.Matches(keyMsg, event.KeyMap.Enter):
 			m.widthInput.Blur()
-			return m, event.StartRenderCmd
+			return m, event.StartRenderToViewCmd
 		case key.Matches(keyMsg, event.KeyMap.Esc):
 			m.widthInput.Blur()
 		}
@@ -68,7 +68,7 @@ func (m Model) handleHeightUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		switch {
 		case key.Matches(keyMsg, event.KeyMap.Enter):
 			m.heightInput.Blur()
-			return m, event.StartRenderCmd
+			return m, event.StartRenderToViewCmd
 		case key.Matches(keyMsg, event.KeyMap.Esc):
 			m.heightInput.Blur()
 		}

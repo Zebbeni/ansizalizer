@@ -28,6 +28,10 @@ type Model struct {
 	display  display.Model
 	viewer   viewer.Model
 
+	waitingOnExport bool
+	exportQueue     []exportJob
+	exportIndex     int
+
 	w, h int
 }
 
@@ -39,6 +43,8 @@ func New() Model {
 		viewer:   viewer.New(),
 		w:        100,
 		h:        100,
+
+		waitingOnExport: false,
 	}
 }
 
@@ -57,10 +63,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleCheckSizeMsg()
 	case tea.WindowSizeMsg:
 		return m.handleSizeMsg(msg)
-	case event.StartRenderMsg:
-		return m.handleStartRenderMsg()
-	case event.FinishRenderMsg:
-		return m.handleFinishRenderMsg(msg)
+	case event.StartRenderToViewMsg:
+		return m.handleStartRenderToViewCmd()
+	case event.FinishRenderToViewMsg:
+		return m.handleFinishRenderToViewMsg(msg)
 	case event.StartAdaptingMsg:
 		return m.handleStartAdaptingMsg()
 	case event.FinishAdaptingMsg:
@@ -69,6 +75,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleLospecRequestMsg(msg)
 	case event.LospecResponseMsg:
 		return m.handleLospecResponseMsg(msg)
+	case event.StartExportMsg:
+		return m.handleStartExportMsg(msg)
+	case event.StartRenderToExportMsg:
+		return m.handleRenderToExportMsg()
 	case event.DisplayMsg:
 		return m.handleDisplayMsg(msg)
 	case tea.KeyMsg:

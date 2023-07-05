@@ -36,7 +36,7 @@ func (i item) Description() string {
 	return "file"
 }
 
-func getItems(extensions []string, dir string) []list.Item {
+func getItems(extensions map[string]bool, dir string) []list.Item {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		fmt.Println("Error reading directory entries:", err)
@@ -60,11 +60,10 @@ func getItems(extensions []string, dir string) []list.Item {
 			continue
 		}
 
-		for _, ext := range extensions {
-			if filepath.Ext(e.Name()) == ext {
-				fileItem := item{name: e.Name(), path: path, isDir: false, isTop: false}
-				fileItems = append(fileItems, fileItem)
-			}
+		ext := filepath.Ext(e.Name())
+		if _, ok := extensions[ext]; ok {
+			fileItem := item{name: e.Name(), path: path, isDir: false, isTop: false}
+			fileItems = append(fileItems, fileItem)
 		}
 	}
 
