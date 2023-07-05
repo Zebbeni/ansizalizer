@@ -32,3 +32,7 @@ func (m Model) drawButtons() string {
 	buttonRow := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 	return buttonRow
 }
+
+func drawBrowserTitle() string {
+	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Search .png or .jpg files")
+}

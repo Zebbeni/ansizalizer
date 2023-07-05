@@ -32,3 +32,7 @@ func NewItemStyles() (s list.DefaultItemStyles) {
 
 	return s
 }
+
+func drawBrowserTitle() string {
+	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a .hex file")
+}

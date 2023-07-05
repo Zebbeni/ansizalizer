@@ -46,7 +46,7 @@ func New(w int) Model {
 		active: Menu,
 		focus:  Browse,
 
-		FileBrowser: browser.New(global.ImgExtensions, w),
+		FileBrowser: browser.New(global.ImgExtensions, drawBrowserTitle(), w),
 		Settings:    settings.New(w),
 		Export:      export.New(w),
 

@@ -42,3 +42,7 @@ func (m Model) drawSelected() string {
 
 	return widthStyle.Render(content)
 }
+
+func drawBrowserTitle() string {
+	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a directory")
+}

@@ -80,6 +80,11 @@ func buildExportQueue(dirPath, destPath string, useSubDirs bool) ([]exportJob, e
 				return nil, &MaxExportQueueError{count: len(exportJobs)}
 			}
 
+			// skip creating mirrored subdirectories if no files found there
+			if len(subDirExportJobs) == 0 {
+				continue
+			}
+
 			// create the destination folder if it doesn't already exist
 			// do this after the recursive call to buildExportQueue. Otherwise,
 			// we can hit an infinite loop where our newly created directories

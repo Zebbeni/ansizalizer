@@ -34,7 +34,7 @@ type Model struct {
 }
 
 func New(w int) Model {
-	fileBrowser := browser.New(paletteExtensions, w-2)
+	fileBrowser := browser.New(paletteExtensions, drawBrowserTitle(), w-2)
 
 	return Model{
 		FileBrowser:   fileBrowser,

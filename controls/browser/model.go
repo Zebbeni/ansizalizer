@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/event"
 )
@@ -18,6 +19,7 @@ type Model struct {
 	ActiveDir    string
 	ActiveFile   string
 
+	title          string
 	lists          []list.Model
 	fileExtensions map[string]bool
 
@@ -26,7 +28,7 @@ type Model struct {
 	width int
 }
 
-func New(exts map[string]bool, w int) Model {
+func New(exts map[string]bool, title string, w int) Model {
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Error getting starting directory:", err)
@@ -35,6 +37,7 @@ func New(exts map[string]bool, w int) Model {
 
 	m := Model{
 		width:          w,
+		title:          title,
 		fileExtensions: exts,
 	}
 	m = m.addListForDirectory(dir)
@@ -70,7 +73,11 @@ func (m Model) listIndex() int {
 }
 
 func (m Model) View() string {
-	return m.currentList().View()
+	browser := m.currentList().View()
+	if len(m.title) == 0 {
+		return browser
+	}
+	return lipgloss.JoinVertical(lipgloss.Left, m.title, browser)
 }
 
 func (m Model) ActiveFilename() string {

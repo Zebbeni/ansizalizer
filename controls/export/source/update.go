@@ -62,11 +62,11 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case ExpFile:
 		m.focus = Browser
 		m.doExportDirectory = false
-		m.Browser = browser.New(global.ImgExtensions, m.width)
+		m.Browser = browser.New(global.ImgExtensions, m.drawBrowserTitle(), m.width)
 	case ExpDirectory:
 		m.focus = Browser
 		m.doExportDirectory = true
-		m.Browser = browser.New(nil, m.width)
+		m.Browser = browser.New(nil, m.drawBrowserTitle(), m.width)
 	case Input:
 		m.focus = Browser
 	case SubDirsYes:

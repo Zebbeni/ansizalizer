@@ -39,14 +39,14 @@ type Model struct {
 }
 
 func New(w int) Model {
-	browserModel := browser.New(nil, w-2)
+	browserModel := browser.New(nil, "", w-2)
 
 	return Model{
 		focus: ExpDirectory,
 
 		Browser: browserModel,
 
-		doExportDirectory:     false,
+		doExportDirectory:     true,
 		includeSubdirectories: false,
 
 		selectedDir:  "",
