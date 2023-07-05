@@ -53,16 +53,16 @@ func (m Model) drawCharButtons() string {
 		} else if state == m.active {
 			styleColor = activeColor
 		}
-		style := lipgloss.NewStyle().
+		buttonStyle := lipgloss.NewStyle().
 			BorderStyle(lipgloss.RoundedBorder()).
 			BorderForeground(styleColor).
 			Foreground(styleColor)
 
 		// quick dirty stuff to make buttons fit nicely. Let's do this in a smarter / cleaner way later
 		if m.charButtons == Unicode {
-			buttons[i] = style.Copy().Render(stateNames[state])
+			buttons[i] = buttonStyle.Copy().Render(stateNames[state])
 		} else {
-			buttons[i] = style.Copy().Padding(0, 0).Render(stateNames[state])
+			buttons[i] = buttonStyle.Copy().Padding(0, 0).Render(stateNames[state])
 		}
 	}
 	content := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)

@@ -17,7 +17,9 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {Ascii: Unicode,
+	Right: {
+		Ascii:             Unicode,
+		Unicode:           Custom,
 		AsciiAz:           AsciiNums,
 		AsciiNums:         AsciiSpec,
 		AsciiSpec:         AsciiAll,
@@ -29,7 +31,9 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeHeavy: UnicodeShadeAll,
 		TwoColor:          OneColor,
 	},
-	Left: {Unicode: Ascii,
+	Left: {
+		Unicode:           Ascii,
+		Custom:            Unicode,
 		AsciiAll:          AsciiSpec,
 		AsciiSpec:         AsciiNums,
 		AsciiNums:         AsciiAz,
@@ -44,6 +48,7 @@ var navMap = map[Direction]map[State]State{
 	Up: {
 		Ascii:             TwoColor,
 		Unicode:           OneColor,
+		Custom:            OneColor,
 		AsciiAz:           Ascii,
 		AsciiNums:         Ascii,
 		AsciiSpec:         Ascii,
@@ -127,10 +132,16 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
-	if m.focus == Ascii {
+	switch m.focus {
+	case Ascii:
 		m.charButtons = Ascii
-	} else if m.focus == Unicode {
+		m.mode = Ascii
+	case Unicode:
 		m.charButtons = Unicode
+		m.mode = Unicode
+	case Custom:
+		m.charButtons = Custom
+		m.mode = Custom
 	}
 	return m, nil
 }
