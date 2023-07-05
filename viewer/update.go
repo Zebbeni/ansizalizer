@@ -9,7 +9,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
-func (m Model) handleFinishRenderMsg(msg event.FinishRenderMsg) (Model, tea.Cmd) {
+func (m Model) handleFinishRenderMsg(msg event.FinishRenderToViewMsg) (Model, tea.Cmd) {
 	m.WaitingOnRender = false
 	m.imgString = msg.ImgString
 

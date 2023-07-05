@@ -19,14 +19,14 @@ type Model struct {
 	ActiveFile   string
 
 	lists          []list.Model
-	fileExtensions []string
+	fileExtensions map[string]bool
 
 	ShouldClose bool
 
 	width int
 }
 
-func New(exts []string, w int) Model {
+func New(exts map[string]bool, w int) Model {
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Error getting starting directory:", err)

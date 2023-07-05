@@ -17,12 +17,12 @@ import (
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
-func (m Model) handleStartRenderMsg() (Model, tea.Cmd) {
+func (m Model) handleStartRenderToViewCmd() (Model, tea.Cmd) {
 	m.viewer.WaitingOnRender = true
-	return m, m.processRenderCmd
+	return m, m.processRenderToViewCmd
 }
 
-func (m Model) handleFinishRenderMsg(msg event.FinishRenderMsg) (Model, tea.Cmd) {
+func (m Model) handleFinishRenderToViewMsg(msg event.FinishRenderToViewMsg) (Model, tea.Cmd) {
 	// cut out early if the finished render is for a previously selected image
 	if msg.FilePath != m.controls.FileBrowser.ActiveFile {
 		return m, nil
@@ -33,14 +33,83 @@ func (m Model) handleFinishRenderMsg(msg event.FinishRenderMsg) (Model, tea.Cmd)
 	return m, cmd
 }
 
-func (m Model) processRenderCmd() tea.Msg {
+func (m Model) processRenderToViewCmd() tea.Msg {
 	imgString := process.RenderImageFile(m.controls.Settings, m.controls.FileBrowser.ActiveFile)
 	colorsString := "true color"
 	if m.controls.Settings.Colors.IsLimited() {
 		palette := m.controls.Settings.Colors.GetCurrentPalette()
 		colorsString = palette.Title()
 	}
-	return event.FinishRenderMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString, ColorsString: colorsString}
+	return event.FinishRenderToViewMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString, ColorsString: colorsString}
+}
+
+func (m Model) handleStartExportMsg(msg event.StartExportMsg) (Model, tea.Cmd) {
+	if m.waitingOnExport {
+		return m, nil
+	}
+
+	var exportQueue []exportJob
+	var err error
+
+	// build export queue
+	if msg.IsDir {
+		exportQueue, err = buildExportQueue(msg.SourcePath, msg.DestinationPath, msg.UseSubDirs)
+		if err != nil {
+			return m, event.BuildDisplayCmd(fmt.Sprintf("error exporting: %s", err))
+		}
+	} else {
+		exportQueue = []exportJob{
+			{
+				sourcePath:      msg.SourcePath,
+				destinationPath: msg.DestinationPath,
+			},
+		}
+	}
+
+	m.exportIndex = 0
+	m.exportQueue = exportQueue
+	m.waitingOnExport = true
+
+	return m, tea.Batch(event.StartRenderToExportCmd, event.BuildDisplayCmd(fmt.Sprintf("%d jobs queued", len(exportQueue))))
+}
+
+func (m Model) handleRenderToExportMsg() (Model, tea.Cmd) {
+
+	currentJob := m.exportQueue[m.exportIndex]
+
+	// render image
+	imgString := process.RenderImageFile(m.controls.Settings, currentJob.sourcePath)
+
+	// save file
+	file, err := os.Create(currentJob.destinationPath)
+	if err != nil {
+		return m, event.BuildDisplayCmd("error creating save file")
+	}
+
+	w := bufio.NewWriter(file)
+	_, err = w.WriteString(imgString)
+	if err != nil {
+		return m, event.BuildDisplayCmd("error writing to save file")
+	}
+
+	m.exportIndex += 1
+	displayMsg := fmt.Sprintf("%d/%d exports completed", m.exportIndex, len(m.exportQueue))
+	displayCmd := event.BuildDisplayCmd(displayMsg)
+
+	if m.exportIndex >= len(m.exportQueue) {
+		m.waitingOnExport = false
+		return m, displayCmd
+	}
+
+	return m, tea.Batch(event.StartRenderToExportCmd, displayCmd)
+}
+
+func (m Model) startExportingDir(msg event.StartExportMsg) (Model, tea.Cmd) {
+	return m, event.BuildDisplayCmd(fmt.Sprintf("exporting %s", msg.SourcePath))
+}
+
+func (m Model) startExportingFile(msg event.StartExportMsg) (Model, tea.Cmd) {
+	return m, event.BuildDisplayCmd(fmt.Sprintf("exporting %s", msg.SourcePath))
 }
 
 func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
@@ -51,7 +120,7 @@ func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
 
 func (m Model) handleFinishAdaptingMsg(msg event.FinishAdaptingMsg) (Model, tea.Cmd) {
 	m.controls.Settings.Colors.Adapter = m.controls.Settings.Colors.Adapter.SetPalette(msg.Colors, msg.Name)
-	return m, tea.Batch(event.StartRenderCmd, event.BuildDisplayCmd("rendering..."))
+	return m, tea.Batch(event.StartRenderToViewCmd, event.BuildDisplayCmd("rendering..."))
 }
 
 type Foo struct {

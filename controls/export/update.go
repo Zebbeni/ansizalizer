@@ -99,11 +99,14 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 }
 
 func (m Model) handleProcess() (Model, tea.Cmd) {
-	return m, event.StartExportingCmd
-}
-
-func (m Model) GetSource() (path string, isDir, useSubDirs bool) {
-	return m.Source.GetSelected()
+	sourcePath, isDir, useSubDirs := m.Source.GetSelected()
+	destinationPath := m.Destination.GetSelected()
+	return m, event.BuildStartExportCmd(event.StartExportMsg{
+		SourcePath:      sourcePath,
+		DestinationPath: destinationPath,
+		IsDir:           isDir,
+		UseSubDirs:      useSubDirs,
+	})
 }
 
 func (m Model) GetDestination() (path string) {

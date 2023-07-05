@@ -24,7 +24,7 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case event.FinishRenderMsg:
+	case event.FinishRenderToViewMsg:
 		return m.handleFinishRenderMsg(msg)
 	}
 	return m, nil

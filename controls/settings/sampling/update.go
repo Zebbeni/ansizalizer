@@ -28,5 +28,5 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 	m.Function = selectedItem.Function
 
-	return m, tea.Batch(cmd, event.StartRenderCmd)
+	return m, tea.Batch(cmd, event.StartRenderToViewCmd)
 }

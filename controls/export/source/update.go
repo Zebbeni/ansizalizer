@@ -6,6 +6,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/global"
 )
 
 type Direction int
@@ -24,7 +25,6 @@ var (
 		Down:  {ExpFile: Input, ExpDirectory: Input, Input: SubDirsYes},
 		Up:    {Input: ExpFile, SubDirsYes: Input, SubDirsNo: Input},
 	}
-	fileExts = []string{".png", ".jpg"}
 )
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
@@ -62,7 +62,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case ExpFile:
 		m.focus = Browser
 		m.doExportDirectory = false
-		m.Browser = browser.New(fileExts, m.width)
+		m.Browser = browser.New(global.ImgExtensions, m.width)
 	case ExpDirectory:
 		m.focus = Browser
 		m.doExportDirectory = true

@@ -70,7 +70,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		return m.searchLospec(0)
 	case List:
 		m.palette, _ = m.paletteList.SelectedItem().(palette.Model)
-		return m, event.StartRenderCmd
+		return m, event.StartRenderToViewCmd
 	}
 	return m, nil
 }

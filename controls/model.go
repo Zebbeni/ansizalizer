@@ -7,6 +7,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/controls/export"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
+	"github.com/Zebbeni/ansizalizer/global"
 )
 
 type State int
@@ -27,7 +28,6 @@ var (
 		Settings: "Settings",
 		Export:   "Export",
 	}
-	imgExtensions = []string{".jpg", ".png"}
 )
 
 type Model struct {
@@ -46,7 +46,7 @@ func New(w int) Model {
 		active: Menu,
 		focus:  Browse,
 
-		FileBrowser: browser.New(imgExtensions, w),
+		FileBrowser: browser.New(global.ImgExtensions, w),
 		Settings:    settings.New(w),
 		Export:      export.New(w),
 

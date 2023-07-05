@@ -90,7 +90,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	if m.IsAdaptive() && len(m.Adapter.GetCurrent().Colors()) == 0 {
 		return m, event.StartAdaptingCmd
 	}
-	return m, event.StartRenderCmd
+	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
@@ -120,7 +120,7 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.focus = focus
-	
+
 	switch m.focus {
 	case Adapt:
 		m.controls = Adapt

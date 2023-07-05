@@ -48,7 +48,7 @@ func (m Model) updateActive() (Model, tea.Cmd) {
 
 	if itm.isDir == false && m.ActiveFile != itm.path {
 		m.ActiveFile = itm.path
-		return m, event.StartRenderCmd
+		return m, event.StartRenderToViewCmd
 	}
 
 	return m, nil
@@ -84,17 +84,4 @@ func (m Model) addListForDirectory(dir string) Model {
 	m.SelectedDir = dir
 
 	return m
-}
-
-func (m Model) fileExtensionsString() string {
-	if len(m.fileExtensions) == 0 {
-		return ""
-	}
-	toReturn := ""
-	i := 0
-	for ; i < len(m.fileExtensions)-1; i++ {
-		toReturn += m.fileExtensions[i] + " "
-	}
-	toReturn += "or " + m.fileExtensions[i]
-	return toReturn
 }
