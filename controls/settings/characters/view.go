@@ -2,13 +2,14 @@ package characters
 
 import (
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
 	stateOrder         = []State{Ascii, Unicode}
 	asciiButtonOrder   = []State{AsciiAz, AsciiNums, AsciiSpec, AsciiAll}
 	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy, UnicodeShadeAll}
-	colorsButtonsOrder = []State{OneColor, TwoColor}
 
 	stateNames = map[State]string{
 		Ascii:             "Ascii",
@@ -86,19 +87,25 @@ func (m Model) drawCharButtons() string {
 }
 
 func (m Model) drawColorsButtons() string {
-	buttons := make([]string, len(colorsButtonsOrder))
-	for i, state := range colorsButtonsOrder {
-		styleColor := normalColor
-		if m.IsActive && state == m.focus {
-			styleColor = focusColor
-		} else if state == m.useFgBg {
-			styleColor = activeColor
-		}
-		style := lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(styleColor).
-			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Use Background:")
+
+	yesStyle := style.NormalButtonNode
+	if m.IsActive && TwoColor == m.focus {
+		yesStyle = style.FocusButtonNode
+	} else if m.useFgBg == TwoColor {
+		yesStyle = style.ActiveButtonNode
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	yesButton := yesStyle.Render("Yes")
+	yesButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(yesButton)
+
+	noStyle := style.NormalButtonNode
+	if m.IsActive && OneColor == m.focus {
+		noStyle = style.FocusButtonNode
+	} else if m.useFgBg == OneColor {
+		noStyle = style.ActiveButtonNode
+	}
+	noButton := noStyle.Render("No")
+	noButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(noButton)
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, title, yesButton, noButton)
 }
