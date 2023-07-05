@@ -1,11 +1,14 @@
 package browser
 
 import (
+	"path/filepath"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/controls/menu"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
@@ -74,7 +77,12 @@ func (m Model) updateSelected() (Model, tea.Cmd) {
 func (m Model) addListForDirectory(dir string) Model {
 	newList := menu.New(getItems(m.fileExtensions, dir), m.width)
 
-	newList.SetShowTitle(false)
+	newList.SetShowTitle(true)
+
+	title := filepath.Join(filepath.Base(filepath.Dir(dir)), filepath.Base(dir))
+
+	newList.Title = fitString(title, m.width-10)
+	newList.Styles.Title = newList.Styles.Title.Copy().Foreground(style.DimmedColor2).UnsetBackground()
 	newList.SetShowStatusBar(false)
 	newList.SetFilteringEnabled(false)
 	newList.SetShowFilter(false)
@@ -84,4 +92,18 @@ func (m Model) addListForDirectory(dir string) Model {
 	m.SelectedDir = dir
 
 	return m
+}
+
+func fitString(value string, width int) string {
+	valueRunes := []rune(value)
+
+	start := len(valueRunes) - width - 2
+	if start < 0 {
+		start = 0
+	}
+
+	if len(valueRunes) > width {
+		value = ".." + string(valueRunes[start:])
+	}
+	return value
 }
