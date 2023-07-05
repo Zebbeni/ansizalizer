@@ -5,6 +5,8 @@
 *.so
 *.dylib
 *.idea/
+*.hex
+*.ansi
 
 # Test binary, built with `go test -c`
 *.test
