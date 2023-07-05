@@ -13,6 +13,7 @@ type State int
 const (
 	Ascii State = iota
 	Unicode
+	Custom
 	AsciiAz
 	AsciiNums
 	AsciiSpec
@@ -79,9 +80,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	colorsButtons := m.drawColorsButtons()
-	modeButtons := m.drawModeButtons()
-	charButtons := m.drawCharButtons()
-	return lipgloss.JoinVertical(lipgloss.Top, colorsButtons, modeButtons, charButtons)
+	//modeButtons := m.drawModeButtons()
+	//charButtons := m.drawCharButtons()
+	charTabs := m.drawCharTabs()
+	return lipgloss.JoinVertical(lipgloss.Top, colorsButtons, charTabs)
 }
 
 func (m Model) Selected() (State, State, State) {

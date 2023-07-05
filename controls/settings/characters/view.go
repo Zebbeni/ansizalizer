@@ -7,13 +7,14 @@ import (
 )
 
 var (
-	stateOrder         = []State{Ascii, Unicode}
+	stateOrder         = []State{Ascii, Unicode, Custom}
 	asciiButtonOrder   = []State{AsciiAz, AsciiNums, AsciiSpec, AsciiAll}
 	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy, UnicodeShadeAll}
 
 	stateNames = map[State]string{
 		Ascii:             "Ascii",
 		Unicode:           "Unicode",
+		Custom:            "Custom",
 		AsciiAz:           "AZ",
 		AsciiNums:         "0-9",
 		AsciiSpec:         "!$",
@@ -35,24 +36,6 @@ var (
 	titleStyle  = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#888888"))
 )
-
-func (m Model) drawModeButtons() string {
-	buttons := make([]string, len(stateOrder))
-	for i, state := range stateOrder {
-		styleColor := normalColor
-		if m.IsActive && state == m.focus {
-			styleColor = focusColor
-		} else if state == m.active {
-			styleColor = activeColor
-		}
-		style := lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(styleColor).
-			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
-	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
-}
 
 func (m Model) drawCharButtons() string {
 	var buttonOrder []State
@@ -79,7 +62,7 @@ func (m Model) drawCharButtons() string {
 		if m.charButtons == Unicode {
 			buttons[i] = style.Copy().Render(stateNames[state])
 		} else {
-			buttons[i] = style.Copy().Padding(0, 1, 0, 1).Render(stateNames[state])
+			buttons[i] = style.Copy().Padding(0, 0).Render(stateNames[state])
 		}
 	}
 	content := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
