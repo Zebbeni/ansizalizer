@@ -44,5 +44,6 @@ func New() Model {
 	items := menuItems()
 	selected := items[0].(item)
 	menu := newMenu(items, len(items))
+
 	return Model{Function: selected.Function, list: menu}
 }

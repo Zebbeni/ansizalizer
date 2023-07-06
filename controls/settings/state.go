@@ -7,21 +7,21 @@ const (
 	Palette
 	Characters
 	Size
-	Sampling
+	Advanced
 )
 
 var States = []State{
 	Palette,
 	Characters,
 	Size,
-	Sampling,
+	Advanced,
 }
 
-var stateOrder = []State{Palette, Characters, Size, Sampling}
+var stateOrder = []State{Palette, Characters, Size, Advanced}
 
 var stateTitles = map[State]string{
 	Palette:    "Palette",
 	Characters: "Characters",
 	Size:       "Size",
-	Sampling:   "Sampling",
+	Advanced:   "Advanced",
 }

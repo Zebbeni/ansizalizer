@@ -15,8 +15,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Down: {Palette: Characters, Characters: Size, Size: Sampling},
-	Up:   {Sampling: Size, Size: Characters, Characters: Palette},
+	Down: {Palette: Characters, Characters: Size, Size: Advanced},
+	Up:   {Advanced: Size, Size: Characters, Characters: Palette},
 }
 
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -64,13 +64,13 @@ func (m Model) handleSizeUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) handleSamplingUpdate(msg tea.Msg) (Model, tea.Cmd) {
+func (m Model) handleAdvancedUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.Sampling, cmd = m.Sampling.Update(msg)
+	m.Advanced, cmd = m.Advanced.Update(msg)
 
-	if m.Sampling.ShouldClose {
+	if m.Advanced.ShouldClose {
 		m.active = None
-		m.Sampling.ShouldClose = false
+		m.Advanced.ShouldClose = false
 	}
 	return m, cmd
 }
@@ -84,6 +84,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Characters.IsActive = true
 	case Size:
 		m.Size.IsActive = true
+	case Advanced:
+		m.Advanced.IsActive = true
 	}
 	return m, nil
 }

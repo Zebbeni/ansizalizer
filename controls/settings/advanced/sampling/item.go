@@ -38,6 +38,7 @@ func newMenu(items []list.Item, height int) list.Model {
 	l.SetShowHelp(false)
 	l.SetFilteringEnabled(false)
 	l.SetShowTitle(false)
+	l.SetShowPagination(false)
 	l.SetShowStatusBar(false)
 
 	l.KeyMap.ForceQuit.Unbind()

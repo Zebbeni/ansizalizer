@@ -1,6 +1,7 @@
 package sampling
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/event"
@@ -17,8 +18,13 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
 
+	if key.Matches(msg, event.KeyMap.Up) && m.list.Index() == 0 {
+		m.ShouldClose = true
+		return m, nil
+	}
+
+	var cmd tea.Cmd
 	m.list, cmd = m.list.Update(msg)
 	selectedItem := m.list.SelectedItem().(item)
 

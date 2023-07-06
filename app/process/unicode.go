@@ -32,7 +32,7 @@ func (m Renderer) processUnicode(input image.Image) string {
 		}
 	}
 
-	resizeFunc := m.Settings.Sampling.Function
+	resizeFunc := m.Settings.Advanced.SamplingFunction()
 	refImg := resize.Resize(uint(width)*2, uint(height)*2, input, resizeFunc)
 
 	palette := m.Settings.Colors.GetCurrentPalette().Colors()

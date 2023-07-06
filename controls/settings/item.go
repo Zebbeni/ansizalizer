@@ -20,7 +20,7 @@ package settings
 //func newMenu() list.Model {
 //	items := []list.Item{
 //		item{name: "Loader", state: Loader},
-//		item{name: "Sampling", state: Sampling},
+//		item{name: "Advanced", state: Advanced},
 //		//item{name: "Limited", state: Limited},
 //		//item{name: "Characters", state: Characters},
 //	}
