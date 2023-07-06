@@ -9,7 +9,7 @@ import (
 var (
 	stateOrder         = []State{Ascii, Unicode, Custom}
 	asciiButtonOrder   = []State{AsciiAz, AsciiNums, AsciiSpec, AsciiAll}
-	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy, UnicodeShadeAll}
+	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy}
 
 	stateNames = map[State]string{
 		Ascii:             "Ascii",
@@ -25,7 +25,6 @@ var (
 		UnicodeShadeLight: "░",
 		UnicodeShadeMed:   "▒",
 		UnicodeShadeHeavy: "▓",
-		UnicodeShadeAll:   "░▒▓",
 		OneColor:          "1 Color",
 		TwoColor:          "2 Colors",
 	}
@@ -37,7 +36,13 @@ var (
 			Foreground(lipgloss.Color("#888888"))
 )
 
-func (m Model) drawCharButtons() string {
+func (m Model) drawCharControls() string {
+	if m.mode == Custom {
+		return m.drawCustomControls()
+	}
+
+	whitespace := 0
+
 	var buttonOrder []State
 	switch m.charButtons {
 	case Ascii:
@@ -45,28 +50,32 @@ func (m Model) drawCharButtons() string {
 	case Unicode:
 		buttonOrder = unicodeButtonOrder
 	}
+
 	buttons := make([]string, len(buttonOrder))
 	for i, state := range buttonOrder {
-		styleColor := normalColor
+		buttonStyle := style.NormalButtonNode
 		if m.IsActive && state == m.focus {
-			styleColor = focusColor
-		} else if state == m.active {
-			styleColor = activeColor
+			buttonStyle = style.FocusButtonNode
+		} else if state == m.asciiMode || state == m.unicodeMode {
+			buttonStyle = style.ActiveButtonNode
 		}
-		buttonStyle := lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(styleColor).
-			Foreground(styleColor)
 
-		// quick dirty stuff to make buttons fit nicely. Let's do this in a smarter / cleaner way later
-		if m.charButtons == Unicode {
-			buttons[i] = buttonStyle.Copy().Render(stateNames[state])
-		} else {
-			buttons[i] = buttonStyle.Copy().Padding(0, 0).Render(stateNames[state])
-		}
+		buttons[i] = buttonStyle.Copy().Render(stateNames[state])
+
+		whitespace += lipgloss.Width(buttons[i])
+	}
+
+	gapSpace := whitespace / (len(buttons))
+	for i, button := range buttons {
+		buttons[i] = lipgloss.NewStyle().PaddingRight(gapSpace).Render(button)
 	}
 	content := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
-	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Render(content)
+
+	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
+}
+
+func (m Model) drawCustomControls() string {
+	return m.customInput.View()
 }
 
 func (m Model) drawColorsButtons() string {

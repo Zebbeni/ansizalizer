@@ -67,10 +67,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	col := m.renderWithBorder(m.Colors.View(), Palette)
-	char := m.renderWithBorder(m.Characters.View(), Characters)
-	siz := m.renderWithBorder(m.Size.View(), Size)
-	sam := m.renderWithBorder(m.Sampling.View(), Sampling)
+	colorCtrls := m.Colors.View()
+	charCtrls := m.Characters.View()
+	sizeCtrls := m.Size.View()
+	sampCtrls := m.Sampling.View()
+
+	col := m.renderWithBorder(colorCtrls, Palette)
+	char := m.renderWithBorder(charCtrls, Characters)
+	siz := m.renderWithBorder(sizeCtrls, Size)
+	sam := m.renderWithBorder(sampCtrls, Sampling)
 
 	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, sam)
 }

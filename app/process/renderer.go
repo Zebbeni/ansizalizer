@@ -12,7 +12,6 @@ import (
 
 type Renderer struct {
 	Settings             settings.Model
-	shadeAllBlockFuncs   map[rune]blockFunc
 	shadeLightBlockFuncs map[rune]blockFunc
 	shadeMedBlockFuncs   map[rune]blockFunc
 	shadeHeavyBlockFuncs map[rune]blockFunc
@@ -28,7 +27,6 @@ func New(s settings.Model) Renderer {
 	m.fullBlockFuncs = m.createFullBlockFuncs()
 	m.halfBlockFuncs = m.createHalfBlockFuncs()
 	m.quarterBlockFuncs = m.createQuarterBlockFuncs()
-	m.shadeAllBlockFuncs = m.createShadeAllFuncs()
 	m.shadeLightBlockFuncs = m.createShadeLightFuncs()
 	m.shadeMedBlockFuncs = m.createShadeMedFuncs()
 	m.shadeHeavyBlockFuncs = m.createShadeHeavyFuncs()
@@ -76,14 +74,6 @@ func (m Renderer) createShadeHeavyFuncs() map[rune]blockFunc {
 	}
 }
 
-func (m Renderer) createShadeAllFuncs() map[rune]blockFunc {
-	return map[rune]blockFunc{
-		'░': m.calcLight,
-		'▒': m.calcMed,
-		'▓': m.calcHeavy,
-	}
-}
-
 func (m Renderer) getLightDarkPaletted(light, dark colorful.Color) (colorful.Color, colorful.Color) {
 	colorPalette := m.Settings.Colors.GetCurrentPalette().Colors()
 
@@ -112,7 +102,7 @@ func (m Renderer) getLightDarkPaletted(light, dark colorful.Color) (colorful.Col
 }
 
 func (m Renderer) calcLight(r1, r2, r3, r4 colorful.Color) (colorful.Color, colorful.Color, float64) {
-	if _, _, fgBg := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
+	if _, _, fgBg, _ := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
 		avg, dist := m.avgCol(r1, r2, r3, r4)
 		return avg, colorful.Color{}, math.Min(1.0, math.Abs(dist-1))
 	} else {
@@ -129,7 +119,7 @@ func (m Renderer) calcLight(r1, r2, r3, r4 colorful.Color) (colorful.Color, colo
 }
 
 func (m Renderer) calcMed(r1, r2, r3, r4 colorful.Color) (colorful.Color, colorful.Color, float64) {
-	if _, _, fgBg := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
+	if _, _, fgBg, _ := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
 		avg, dist := m.avgCol(r1, r2, r3, r4)
 		return avg, colorful.Color{}, math.Min(1.0, math.Abs(dist-1))
 	} else {
@@ -146,7 +136,7 @@ func (m Renderer) calcMed(r1, r2, r3, r4 colorful.Color) (colorful.Color, colorf
 }
 
 func (m Renderer) calcHeavy(r1, r2, r3, r4 colorful.Color) (colorful.Color, colorful.Color, float64) {
-	if _, _, fgBg := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
+	if _, _, fgBg, _ := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
 		avg, dist := m.avgCol(r1, r2, r3, r4)
 		return avg, colorful.Color{}, math.Min(1.0, math.Abs(dist-1))
 	} else {
@@ -163,7 +153,7 @@ func (m Renderer) calcHeavy(r1, r2, r3, r4 colorful.Color) (colorful.Color, colo
 }
 
 func (m Renderer) calcFull(r1, r2, r3, r4 colorful.Color) (colorful.Color, colorful.Color, float64) {
-	if _, _, fgBg := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
+	if _, _, fgBg, _ := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
 		avg, _ := m.avgCol(r1, r2, r3, r4)
 		return avg, colorful.Color{}, 1.0
 	} else {

@@ -79,7 +79,7 @@ func (m Model) drawCharTabs() string {
 	doc.WriteString(row)
 	doc.WriteString("\n")
 
-	charButtons := m.drawCharButtons()
+	charButtons := m.drawCharControls()
 	doc.WriteString(windowStyle.Copy().BorderForeground(borderColor).Width(lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize()).Render(charButtons))
 	return docStyle.Render(doc.String())
 }

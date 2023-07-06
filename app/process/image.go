@@ -43,9 +43,14 @@ func (m Renderer) process(input image.Image) string {
 	if m.Settings.Colors.IsLimited() && len(m.Settings.Colors.GetCurrentPalette().Colors()) == 0 {
 		return "Choose a color palette"
 	}
-	mode, _, _ := m.Settings.Characters.Selected()
-	if mode == characters.Ascii {
+	mode, _, _, _ := m.Settings.Characters.Selected()
+	switch mode {
+	case characters.Ascii:
 		return m.processAscii(input)
+	case characters.Unicode:
+		return m.processUnicode(input)
+	case characters.Custom:
+		return m.processCustom(input)
 	}
-	return m.processUnicode(input)
+	return "Choose a character type"
 }

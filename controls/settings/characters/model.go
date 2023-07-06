@@ -2,6 +2,7 @@ package characters
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -24,7 +25,7 @@ const (
 	UnicodeShadeLight
 	UnicodeShadeMed
 	UnicodeShadeHeavy
-	UnicodeShadeAll
+	SymbolsForm
 	OneColor
 	TwoColor
 )
@@ -37,6 +38,7 @@ type Model struct {
 	unicodeMode   State
 	asciiMode     State
 	useFgBg       State
+	customInput   textinput.Model
 	ShouldClose   bool
 	ShouldUnfocus bool
 	IsActive      bool
@@ -50,8 +52,9 @@ func New(w int) Model {
 		mode:          Ascii,
 		charButtons:   Ascii,
 		asciiMode:     AsciiAll,
-		unicodeMode:   UnicodeQuart,
+		unicodeMode:   UnicodeFull,
 		useFgBg:       OneColor,
+		customInput:   newInput("Symbols", "/%A"),
 		ShouldClose:   false,
 		ShouldUnfocus: false,
 		IsActive:      false,
@@ -64,6 +67,14 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+
+	switch m.active {
+	case SymbolsForm:
+		if m.customInput.Focused() {
+			return m.handleSymbolsFormUpdate(msg)
+		}
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -84,10 +95,19 @@ func (m Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top, colorsButtons, charTabs)
 }
 
-func (m Model) Selected() (State, State, State) {
-	charMode := m.asciiMode
-	if m.mode == Unicode {
+// Selected returns the mode, charMode, whether to use two colors, and the
+// current set of custom-defined characters
+func (m Model) Selected() (State, State, State, []rune) {
+	var charMode State
+
+	switch m.mode {
+	case Unicode:
 		charMode = m.unicodeMode
+	case Ascii:
+		charMode = m.asciiMode
+	case Custom:
+		charMode = Custom
 	}
-	return m.mode, charMode, m.useFgBg
+
+	return m.mode, charMode, m.useFgBg, []rune(m.customInput.Value())
 }

@@ -28,7 +28,6 @@ var navMap = map[Direction]map[State]State{
 		UnicodeQuart:      UnicodeShadeLight,
 		UnicodeShadeLight: UnicodeShadeMed,
 		UnicodeShadeMed:   UnicodeShadeHeavy,
-		UnicodeShadeHeavy: UnicodeShadeAll,
 		TwoColor:          OneColor,
 	},
 	Left: {
@@ -37,7 +36,6 @@ var navMap = map[Direction]map[State]State{
 		AsciiAll:          AsciiSpec,
 		AsciiSpec:         AsciiNums,
 		AsciiNums:         AsciiAz,
-		UnicodeShadeAll:   UnicodeShadeHeavy,
 		UnicodeShadeHeavy: UnicodeShadeMed,
 		UnicodeShadeMed:   UnicodeShadeLight,
 		UnicodeShadeLight: UnicodeQuart,
@@ -59,21 +57,37 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeLight: Unicode,
 		UnicodeShadeMed:   Unicode,
 		UnicodeShadeHeavy: Unicode,
-		UnicodeShadeAll:   Unicode,
+		SymbolsForm:       Custom,
 	},
 	Down: {
 		OneColor: Unicode,
 		TwoColor: Ascii,
-
-		Ascii:   AsciiAz,
-		Unicode: UnicodeShadeMed,
+		Ascii:    AsciiAz,
+		Unicode:  UnicodeShadeMed,
+		Custom:   SymbolsForm,
 	},
 }
 
 var (
 	asciiCharModeMap   = map[State]bool{AsciiAz: true, AsciiNums: true, AsciiSpec: true, AsciiAll: true}
-	unicodeCharModeMap = map[State]bool{UnicodeFull: true, UnicodeHalf: true, UnicodeQuart: true, UnicodeShadeLight: true, UnicodeShadeMed: true, UnicodeShadeHeavy: true, UnicodeShadeAll: true}
+	unicodeCharModeMap = map[State]bool{UnicodeFull: true, UnicodeHalf: true, UnicodeQuart: true, UnicodeShadeLight: true, UnicodeShadeMed: true, UnicodeShadeHeavy: true}
 )
+
+func (m Model) handleSymbolsFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.customInput.Blur()
+			return m, event.StartRenderToViewCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.customInput.Blur()
+		}
+	}
+
+	var cmd tea.Cmd
+	m.customInput, cmd = m.customInput.Update(msg)
+	return m, cmd
+}
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
@@ -88,6 +102,10 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.mode = Ascii
 	case Unicode:
 		m.mode = Unicode
+	case Custom:
+		m.mode = Custom
+	case SymbolsForm:
+		m.customInput.Focus()
 	case OneColor, TwoColor:
 		m.useFgBg = m.active
 	default:
@@ -108,6 +126,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
+
 	var cmd tea.Cmd
 	switch {
 	case key.Matches(msg, event.KeyMap.Right):
@@ -121,10 +140,16 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	case key.Matches(msg, event.KeyMap.Up):
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			return m.setFocus(next)
+		} else {
+			m.IsActive = false
+			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
+		} else {
+			m.IsActive = false
+			m.ShouldClose = true
 		}
 	}
 	return m, cmd
