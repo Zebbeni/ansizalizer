@@ -38,7 +38,8 @@ var (
 
 func (m Model) drawCharControls() string {
 	if m.mode == Custom {
-		return m.drawCustomControls()
+		content := m.drawCustomControls()
+		return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
 	}
 
 	whitespace := 0
@@ -75,11 +76,18 @@ func (m Model) drawCharControls() string {
 }
 
 func (m Model) drawCustomControls() string {
+	nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
+	if m.customInput.Focused() {
+		nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
+	} else if m.focus == SymbolsForm {
+		nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
+	}
+	m.customInput.PromptStyle = nodeStyle.Copy()
 	return m.customInput.View()
 }
 
 func (m Model) drawColorsButtons() string {
-	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Use Background:")
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Background Color:")
 
 	yesStyle := style.NormalButtonNode
 	if m.IsActive && TwoColor == m.focus {
