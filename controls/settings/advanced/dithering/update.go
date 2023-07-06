@@ -1,4 +1,4 @@
-package advanced
+package dithering
 
 import (
 	"github.com/charmbracelet/bubbles/key"
@@ -18,45 +18,24 @@ const (
 
 var navMap = map[Direction]map[State]State{
 	Right: {
-		Sampling: Dithering,
+		DitherOn:     DitherOff,
+		SerpentineOn: SerpentineOff,
 	},
 	Left: {
-		Dithering: Sampling,
+		DitherOff:     DitherOn,
+		SerpentineOff: SerpentineOn,
 	},
 	Down: {
-		Sampling:  SamplingControls,
-		Dithering: DitheringControls,
+		DitherOn:      SerpentineOn,
+		DitherOff:     SerpentineOff,
+		SerpentineOn:  Matrix,
+		SerpentineOff: Matrix,
 	},
 	Up: {
-		SamplingControls:  Sampling,
-		DitheringControls: Dithering,
+		SerpentineOn:  DitherOn,
+		SerpentineOff: DitherOff,
+		Matrix:        SerpentineOn,
 	},
-}
-
-func (m Model) handleSamplingUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
-	m.sampling, cmd = m.sampling.Update(msg)
-
-	if m.sampling.ShouldClose {
-		m.active = Menu
-		m.focus = Sampling
-		m.sampling.ShouldClose = false
-		m.sampling.IsActive = false
-	}
-	return m, cmd
-}
-
-func (m Model) handleDitheringUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
-	m.dithering, cmd = m.dithering.Update(msg)
-
-	if m.dithering.ShouldClose {
-		m.active = Menu
-		m.focus = Dithering
-		m.dithering.ShouldClose = false
-		m.dithering.IsActive = false
-	}
-	return m, cmd
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
@@ -65,8 +44,17 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
-	m.active = m.focus
-	return m, nil
+	switch m.focus {
+	case DitherOn:
+		m.doDithering = true
+	case DitherOff:
+		m.doDithering = false
+	case SerpentineOn:
+		m.doSerpentine = true
+	case SerpentineOff:
+		m.doSerpentine = false
+	}
+	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
@@ -84,33 +72,32 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
-			m.IsActive = false
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
-			m.IsActive = false
 			m.ShouldClose = true
 		}
 	}
 	return m, cmd
 }
 
+func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	switch {
+	case key.Matches(msg, event.KeyMap.Enter):
+		return m.handleEnter()
+	case key.Matches(msg, event.KeyMap.Nav):
+		return m.handleNav(msg)
+	case key.Matches(msg, event.KeyMap.Esc):
+		return m.handleEsc()
+	}
+	return m, cmd
+}
+
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
-	switch m.focus {
-	case Sampling:
-		m.activeTab = Sampling
-		m.sampling.IsActive = true
-	case Dithering:
-		m.activeTab = Dithering
-		m.dithering.IsActive = true
-	case SamplingControls:
-		m.active = SamplingControls
-	case DitheringControls:
-		m.active = DitheringControls
-	}
 	return m, nil
 }

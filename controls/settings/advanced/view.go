@@ -90,7 +90,7 @@ func (m Model) drawTabContent() string {
 	case Sampling:
 		return m.sampling.View()
 	case Dithering:
-		return "Dithering Content"
+		return m.dithering.View()
 	}
 	return ""
 }

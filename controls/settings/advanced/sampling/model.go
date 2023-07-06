@@ -14,7 +14,21 @@ type Model struct {
 
 	list list.Model
 
+	IsActive    bool
 	ShouldClose bool
+}
+
+func New() Model {
+	items := menuItems()
+	selected := items[0].(item)
+	menu := newMenu(items, len(items))
+
+	return Model{
+		Function:    selected.Function,
+		list:        menu,
+		IsActive:    false,
+		ShouldClose: false,
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -38,12 +52,4 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	return m.list.View()
-}
-
-func New() Model {
-	items := menuItems()
-	selected := items[0].(item)
-	menu := newMenu(items, len(items))
-
-	return Model{Function: selected.Function, list: menu}
 }
