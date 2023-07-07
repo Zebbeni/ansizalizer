@@ -31,32 +31,32 @@ const (
 )
 
 type Model struct {
-	focus       State
-	active      State
-	mode        State
-	charButtons State
-	unicodeMode State
-	asciiMode   State
-	useFgBg     State
-	customInput textinput.Model
-	ShouldClose bool
-	IsActive    bool
-	width       int
+	focus        State
+	active       State
+	mode         State
+	charControls State
+	unicodeMode  State
+	asciiMode    State
+	useFgBg      State
+	customInput  textinput.Model
+	ShouldClose  bool
+	IsActive     bool
+	width        int
 }
 
 func New(w int) Model {
 	return Model{
-		focus:       Ascii,
-		active:      Ascii,
-		mode:        Ascii,
-		charButtons: Ascii,
-		asciiMode:   AsciiAll,
-		unicodeMode: UnicodeFull,
-		useFgBg:     OneColor,
-		customInput: newInput("Symbols", "/%A"),
-		ShouldClose: false,
-		IsActive:    false,
-		width:       w,
+		focus:        Ascii,
+		active:       Ascii,
+		mode:         Ascii,
+		charControls: Ascii,
+		asciiMode:    AsciiAll,
+		unicodeMode:  UnicodeFull,
+		useFgBg:      OneColor,
+		customInput:  newInput("Symbols", "/%A"),
+		ShouldClose:  false,
+		IsActive:     false,
+		width:        w,
 	}
 }
 

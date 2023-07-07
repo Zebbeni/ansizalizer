@@ -30,11 +30,13 @@ var navMap = map[Direction]map[State]State{
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
+	m.IsSelected = false
 	return m, nil
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.active = m.focus
+	m.IsSelected = true
 	switch m.active {
 	case CountForm:
 		m.countInput.Focus()
@@ -67,6 +69,7 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			m.focus = next
 		} else {
+			m.IsSelected = false
 			m.ShouldUnfocus = true
 		}
 	}
@@ -78,6 +81,7 @@ func (m Model) handleCountUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.IsSelected = true
 			m.countInput.Blur()
 			return m, event.StartAdaptingCmd
 		case key.Matches(keyMsg, event.KeyMap.Esc):
@@ -93,6 +97,7 @@ func (m Model) handleIterUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		switch {
 		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.IsSelected = true
 			m.iterInput.Blur()
 			return m, event.StartAdaptingCmd
 		case key.Matches(keyMsg, event.KeyMap.Esc):

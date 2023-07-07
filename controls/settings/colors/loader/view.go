@@ -33,6 +33,7 @@ func NewItemStyles() (s list.DefaultItemStyles) {
 	return s
 }
 
-func drawBrowserTitle() string {
-	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a .hex file")
+func (m Model) drawTitle() string {
+	title := style.DimmedTitle.Copy().Render("Load Palette .hex File")
+	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }

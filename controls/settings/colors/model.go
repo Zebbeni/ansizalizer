@@ -76,7 +76,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case AdaptiveControls:
 		return m.handleAdaptiveUpdate(msg)
 	case LoadControls:
-		return m.handlePaletteUpdate(msg)
+		return m.handleLoaderUpdate(msg)
 	case LospecControls:
 		return m.handleLospecUpdate(msg)
 	}

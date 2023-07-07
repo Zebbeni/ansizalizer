@@ -4,23 +4,23 @@ type State int
 
 const (
 	None State = iota
-	Palette
+	Colors
 	Characters
 	Size
 	Advanced
 )
 
 var States = []State{
-	Palette,
+	Colors,
 	Characters,
 	Size,
 	Advanced,
 }
 
-var stateOrder = []State{Palette, Characters, Size, Advanced}
+var stateOrder = []State{Colors, Characters, Size, Advanced}
 
 var stateTitles = map[State]string{
-	Palette:    "Palette",
+	Colors:     "Color",
 	Characters: "Characters",
 	Size:       "Size",
 	Advanced:   "Advanced",

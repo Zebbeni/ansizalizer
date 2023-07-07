@@ -41,7 +41,9 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Adapter, cmd = m.Adapter.Update(msg)
-	if m.Adapter.ShouldUnfocus {
+	if m.Adapter.IsSelected {
+		m.selected = Adapt
+	} else if m.Adapter.ShouldUnfocus {
 		m.Adapter.IsActive = true
 		m.Adapter.ShouldUnfocus = false
 		m.focus = Adapt
@@ -53,9 +55,12 @@ func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
+func (m Model) handleLoaderUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Loader, cmd = m.Loader.Update(msg)
+	if m.Loader.IsSelected {
+		m.selected = Load
+	}
 	if m.Loader.ShouldUnfocus {
 		m.Loader.ShouldUnfocus = false
 		m.focus = Load
@@ -66,7 +71,9 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleLospecUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Lospec, cmd = m.Lospec.Update(msg)
-	if m.Lospec.ShouldUnfocus {
+	if m.Lospec.IsSelected {
+		m.selected = Lospec
+	} else if m.Lospec.ShouldUnfocus {
 		m.Lospec.IsActive = true
 		m.Lospec.ShouldUnfocus = false
 		m.focus = Lospec
@@ -130,27 +137,21 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	switch m.focus {
 	case Adapt:
 		m.controls = Adapt
-		m.selected = Adapt
 	case Load:
 		m.controls = Load
-		m.selected = Load
 	case Lospec:
 		m.controls = Lospec
-		m.selected = Lospec
 	case NoPalette:
 		m.controls = NoPalette
-		m.selected = NoPalette
 	case AdaptiveControls:
 		m.Adapter.IsActive = true
-		m.selected = Adapt
 	case LoadControls:
-		m.selected = Load
+		m.controls = Load
 	case LospecControls:
 		m.Lospec.IsActive = true
-		m.selected = Lospec
 	}
 
-	if m.selected == Lospec && !m.Lospec.DidInitializeList() {
+	if m.controls == Lospec && !m.Lospec.DidInitializeList() {
 		m.Lospec, cmd = m.Lospec.InitializeList()
 	}
 

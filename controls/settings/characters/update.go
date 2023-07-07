@@ -105,11 +105,12 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case Custom:
 		m.mode = Custom
 	case SymbolsForm:
+		m.mode = Custom
 		m.customInput.Focus()
 	case OneColor, TwoColor:
 		m.useFgBg = m.active
 	default:
-		switch m.charButtons {
+		switch m.charControls {
 		case Ascii:
 			if _, ok := asciiCharModeMap[m.active]; ok {
 				m.asciiMode = m.active
@@ -159,14 +160,11 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
 	switch m.focus {
 	case Ascii:
-		m.charButtons = Ascii
-		m.mode = Ascii
+		m.charControls = Ascii
 	case Unicode:
-		m.charButtons = Unicode
-		m.mode = Unicode
+		m.charControls = Unicode
 	case Custom:
-		m.charButtons = Custom
-		m.mode = Custom
+		m.charControls = Custom
 	}
 	return m, nil
 }

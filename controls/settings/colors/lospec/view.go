@@ -36,6 +36,11 @@ func (m Model) drawInputs() string {
 	return lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, tagInput)
 }
 
+func (m Model) drawTitle() string {
+	title := style.DimmedTitle.Copy().Render("Search Lospec.com")
+	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
+}
+
 func (m Model) drawColorsInput() string {
 	prompt, placeholder := m.getInputColors(CountForm)
 
@@ -82,6 +87,7 @@ func (m Model) drawFilterButtons() string {
 }
 
 func (m Model) drawSortButtons() string {
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Sort:")
 	buttons := make([]string, len(sortOrder))
 	for i, sort := range sortOrder {
 		buttonStyle := style.NormalButtonNode
@@ -92,7 +98,8 @@ func (m Model) drawSortButtons() string {
 		}
 		buttons[i] = buttonStyle.Render(stateNames[sort])
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	buttonContent := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	return lipgloss.JoinHorizontal(lipgloss.Left, title, buttonContent)
 }
 
 func (m Model) drawPaletteList() string {
