@@ -15,7 +15,7 @@ var (
 	inactiveTabStyle  = lipgloss.NewStyle().Border(inactiveTabBorder, true)
 	activeTabStyle    = lipgloss.NewStyle().Border(activeTabBorder, true)
 	focusTabStyle     = activeTabStyle.Copy().BorderForeground(style.SelectedColor1)
-	windowStyle       = lipgloss.NewStyle().Align(lipgloss.Center).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
+	windowStyle       = lipgloss.NewStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
 	stateNames        = map[State]string{Sampling: "Sampling", Dithering: "Dithering"}
 )
 

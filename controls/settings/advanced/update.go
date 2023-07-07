@@ -103,14 +103,14 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	switch m.focus {
 	case Sampling:
 		m.activeTab = Sampling
-		m.sampling.IsActive = true
 	case Dithering:
 		m.activeTab = Dithering
-		m.dithering.IsActive = true
 	case SamplingControls:
 		m.active = SamplingControls
+		m.sampling.IsActive = true
 	case DitheringControls:
 		m.active = DitheringControls
+		m.dithering.IsActive = true
 	}
 	return m, nil
 }

@@ -4,9 +4,11 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/nfnt/resize"
 
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type Model struct {
@@ -18,10 +20,10 @@ type Model struct {
 	ShouldClose bool
 }
 
-func New() Model {
+func New(w int) Model {
 	items := menuItems()
 	selected := items[0].(item)
-	menu := newMenu(items, len(items))
+	menu := newMenu(items, w, len(items))
 
 	return Model{
 		Function:    selected.Function,
@@ -51,5 +53,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.list.View()
+	prompt := style.DimmedTitle.Copy().Render("Select Method")
+	menu := m.list.View()
+	content := lipgloss.JoinVertical(lipgloss.Left, prompt, menu)
+	return lipgloss.NewStyle().Padding(0, 1).Render(content)
 }

@@ -38,7 +38,7 @@ func New(w int) Model {
 		doDithering:  false,
 		doSerpentine: false,
 		matrix:       dither.FloydSteinberg,
-		list:         newMatrixMenu(),
+		list:         newMatrixMenu(w),
 		ShouldClose:  false,
 		IsActive:     false,
 		width:        w,
@@ -50,6 +50,10 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	if m.focus == Matrix {
+		return m.handleMatrixListUpdate(msg)
+	}
+
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		return m.handleKeyMsg(keyMsg)
 	}
@@ -60,5 +64,6 @@ func (m Model) View() string {
 	ditheringOpts := m.drawDitheringOptions()
 	serpentineOpts := m.drawSerpentineOptions()
 	matrixList := m.drawMatrix()
-	return lipgloss.JoinVertical(lipgloss.Left, ditheringOpts, serpentineOpts, matrixList)
+	content := lipgloss.JoinVertical(lipgloss.Left, ditheringOpts, serpentineOpts, matrixList)
+	return lipgloss.NewStyle().Padding(0, 1).Render(content)
 }

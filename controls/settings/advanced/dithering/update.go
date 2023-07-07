@@ -38,6 +38,24 @@ var navMap = map[Direction]map[State]State{
 	},
 }
 
+func (m Model) handleMatrixListUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Up) && m.list.Index() == 0:
+			return m.handleNav(keyMsg)
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			var cmd tea.Cmd
+			m, cmd = m.setFocus(navMap[Up][Matrix])
+			return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+		}
+	}
+
+	var cmd tea.Cmd
+	m.list, cmd = m.list.Update(msg)
+	return m, cmd
+}
+
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
 	return m, nil
@@ -99,5 +117,11 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
+	if focus != Matrix {
+		m.list.SetDelegate(NewDelegate(false))
+	} else {
+		m.list.SetDelegate(NewDelegate(true))
+	}
+
 	return m, nil
 }

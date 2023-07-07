@@ -21,7 +21,7 @@ func (m Model) drawDitheringOptions() string {
 	nodeStyle = style.NormalButtonNode
 	if m.IsActive && m.focus == DitherOff {
 		nodeStyle = style.FocusButtonNode
-	} else if m.doDithering {
+	} else if !m.doDithering {
 		nodeStyle = style.ActiveButtonNode
 	}
 	offNode := nodeStyle.Copy().Render("Off")
@@ -36,7 +36,7 @@ func (m Model) drawSerpentineOptions() string {
 	nodeStyle := style.NormalButtonNode
 	if m.IsActive && m.focus == SerpentineOn {
 		nodeStyle = style.FocusButtonNode
-	} else if m.doDithering {
+	} else if m.doSerpentine {
 		nodeStyle = style.ActiveButtonNode
 	}
 	onNode := lipgloss.NewStyle().Width(4).Render(nodeStyle.Copy().Render("On"))
@@ -44,7 +44,7 @@ func (m Model) drawSerpentineOptions() string {
 	nodeStyle = style.NormalButtonNode
 	if m.IsActive && m.focus == SerpentineOff {
 		nodeStyle = style.FocusButtonNode
-	} else if m.doDithering {
+	} else if !m.doSerpentine {
 		nodeStyle = style.ActiveButtonNode
 	}
 	offNode := nodeStyle.Copy().Render("Off")
@@ -53,6 +53,6 @@ func (m Model) drawSerpentineOptions() string {
 }
 
 func (m Model) drawMatrix() string {
-	prompt := style.DimmedTitle.Render("Select Matrix")
+	prompt := style.DimmedTitle.Copy().PaddingTop(1).Render("Select Matrix")
 	return lipgloss.JoinVertical(lipgloss.Left, prompt, m.list.View())
 }

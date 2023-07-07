@@ -36,7 +36,7 @@ func New(w int) Model {
 		focus:       Sampling,
 		active:      Menu,
 		activeTab:   Sampling,
-		sampling:    sampling.New(),
+		sampling:    sampling.New(w - 2),
 		dithering:   dithering.New(w - 2),
 		ShouldClose: false,
 		IsActive:    false,

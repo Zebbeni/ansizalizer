@@ -9,23 +9,26 @@ import (
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
+	m.list.SetDelegate(NewDelegate(false))
 	return m, nil
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.ShouldClose = true
+	m.list.SetDelegate(NewDelegate(false))
 	return m, nil
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
-
 	if key.Matches(msg, event.KeyMap.Up) && m.list.Index() == 0 {
+		m.list.SetDelegate(NewDelegate(false))
 		m.ShouldClose = true
 		return m, nil
 	}
 
 	var cmd tea.Cmd
 	m.list, cmd = m.list.Update(msg)
+	m.list.SetDelegate(NewDelegate(true))
 	selectedItem := m.list.SelectedItem().(item)
 
 	if selectedItem.Function == m.Function {

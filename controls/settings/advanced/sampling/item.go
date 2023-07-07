@@ -33,8 +33,8 @@ func menuItems() []list.Item {
 	return items
 }
 
-func newMenu(items []list.Item, height int) list.Model {
-	l := list.New(items, NewDelegate(), 30, height)
+func newMenu(items []list.Item, width, height int) list.Model {
+	l := list.New(items, NewDelegate(false), width, height)
 	l.SetShowHelp(false)
 	l.SetFilteringEnabled(false)
 	l.SetShowTitle(false)
@@ -47,24 +47,30 @@ func newMenu(items []list.Item, height int) list.Model {
 	return l
 }
 
-func NewDelegate() list.DefaultDelegate {
+func NewDelegate(isActive bool) list.DefaultDelegate {
 	delegate := list.NewDefaultDelegate()
 	delegate.SetSpacing(0)
 	delegate.ShowDescription = false
-	delegate.Styles = ItemStyles()
+	if isActive {
+		delegate.Styles = ItemStylesActive()
+	} else {
+		delegate.Styles = ItemStylesInactive()
+	}
 	return delegate
 }
 
-func ItemStyles() (s list.DefaultItemStyles) {
+func ItemStylesActive() (s list.DefaultItemStyles) {
 	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
-	s.NormalDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
-
 	s.SelectedTitle = style.SelectedTitle.Copy().Padding(0, 1, 0, 1).
 		Border(lipgloss.NormalBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1)
-
 	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
-	s.DimmedDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+	return s
+}
 
+func ItemStylesInactive() (s list.DefaultItemStyles) {
+	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
+	s.SelectedTitle = style.NormalTitle.Copy().Padding(0, 1, 0, 2)
+	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
 	return s
 }
