@@ -1,5 +1,5 @@
 package global
 
 var (
-	ImgExtensions = map[string]bool{".png": true, ".jpg": true}
+	ImgExtensions = map[string]bool{".png": true, ".jpg": true, ".jpeg": true}
 )

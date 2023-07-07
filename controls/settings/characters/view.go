@@ -2,17 +2,19 @@ package characters
 
 import (
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
-	stateOrder         = []State{Ascii, Unicode}
+	stateOrder         = []State{Ascii, Unicode, Custom}
 	asciiButtonOrder   = []State{AsciiAz, AsciiNums, AsciiSpec, AsciiAll}
-	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy, UnicodeShadeAll}
-	colorsButtonsOrder = []State{OneColor, TwoColor}
+	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy}
 
 	stateNames = map[State]string{
 		Ascii:             "Ascii",
 		Unicode:           "Unicode",
+		Custom:            "Custom",
 		AsciiAz:           "AZ",
 		AsciiNums:         "0-9",
 		AsciiSpec:         "!$",
@@ -23,7 +25,6 @@ var (
 		UnicodeShadeLight: "░",
 		UnicodeShadeMed:   "▒",
 		UnicodeShadeHeavy: "▓",
-		UnicodeShadeAll:   "░▒▓",
 		OneColor:          "1 Color",
 		TwoColor:          "2 Colors",
 	}
@@ -35,25 +36,14 @@ var (
 			Foreground(lipgloss.Color("#888888"))
 )
 
-func (m Model) drawModeButtons() string {
-	buttons := make([]string, len(stateOrder))
-	for i, state := range stateOrder {
-		styleColor := normalColor
-		if m.IsActive && state == m.focus {
-			styleColor = focusColor
-		} else if state == m.active {
-			styleColor = activeColor
-		}
-		style := lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(styleColor).
-			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+func (m Model) drawCharControls() string {
+	if m.mode == Custom {
+		content := m.drawCustomControls()
+		return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
-}
 
-func (m Model) drawCharButtons() string {
+	whitespace := 0
+
 	var buttonOrder []State
 	switch m.charButtons {
 	case Ascii:
@@ -61,44 +51,61 @@ func (m Model) drawCharButtons() string {
 	case Unicode:
 		buttonOrder = unicodeButtonOrder
 	}
+
 	buttons := make([]string, len(buttonOrder))
 	for i, state := range buttonOrder {
-		styleColor := normalColor
+		buttonStyle := style.NormalButtonNode
 		if m.IsActive && state == m.focus {
-			styleColor = focusColor
-		} else if state == m.active {
-			styleColor = activeColor
+			buttonStyle = style.FocusButtonNode
+		} else if state == m.asciiMode || state == m.unicodeMode {
+			buttonStyle = style.ActiveButtonNode
 		}
-		style := lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(styleColor).
-			Foreground(styleColor)
 
-		// quick dirty stuff to make buttons fit nicely. Let's do this in a smarter / cleaner way later
-		if m.charButtons == Unicode {
-			buttons[i] = style.Copy().Render(stateNames[state])
-		} else {
-			buttons[i] = style.Copy().Padding(0, 1, 0, 1).Render(stateNames[state])
-		}
+		buttons[i] = buttonStyle.Copy().Render(stateNames[state])
+
+		whitespace += lipgloss.Width(buttons[i])
+	}
+
+	gapSpace := whitespace / (len(buttons))
+	for i, button := range buttons {
+		buttons[i] = lipgloss.NewStyle().PaddingRight(gapSpace).Render(button)
 	}
 	content := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
-	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Render(content)
+
+	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
+}
+
+func (m Model) drawCustomControls() string {
+	nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
+	if m.customInput.Focused() {
+		nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
+	} else if m.focus == SymbolsForm {
+		nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
+	}
+	m.customInput.PromptStyle = nodeStyle.Copy()
+	return m.customInput.View()
 }
 
 func (m Model) drawColorsButtons() string {
-	buttons := make([]string, len(colorsButtonsOrder))
-	for i, state := range colorsButtonsOrder {
-		styleColor := normalColor
-		if m.IsActive && state == m.focus {
-			styleColor = focusColor
-		} else if state == m.useFgBg {
-			styleColor = activeColor
-		}
-		style := lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(styleColor).
-			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Colors per Char:")
+
+	oneStyle := style.NormalButtonNode
+	if m.IsActive && OneColor == m.focus {
+		oneStyle = style.FocusButtonNode
+	} else if m.useFgBg == OneColor {
+		oneStyle = style.ActiveButtonNode
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	oneButton := oneStyle.Render("1")
+	oneButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(oneButton)
+
+	twoStyle := style.NormalButtonNode
+	if m.IsActive && TwoColor == m.focus {
+		twoStyle = style.FocusButtonNode
+	} else if m.useFgBg == TwoColor {
+		twoStyle = style.ActiveButtonNode
+	}
+	twoButton := twoStyle.Render("2")
+	twoButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(twoButton)
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, title, oneButton, twoButton)
 }

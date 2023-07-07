@@ -4,9 +4,11 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/nfnt/resize"
 
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type Model struct {
@@ -14,7 +16,21 @@ type Model struct {
 
 	list list.Model
 
+	IsActive    bool
 	ShouldClose bool
+}
+
+func New(w int) Model {
+	items := menuItems()
+	selected := items[0].(item)
+	menu := newMenu(items, w, len(items))
+
+	return Model{
+		Function:    selected.Function,
+		list:        menu,
+		IsActive:    false,
+		ShouldClose: false,
+	}
 }
 
 func (m Model) Init() tea.Cmd {
@@ -37,12 +53,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	return m.list.View()
-}
-
-func New() Model {
-	items := menuItems()
-	selected := items[0].(item)
-	menu := newMenu(items, len(items))
-	return Model{Function: selected.Function, list: menu}
+	prompt := style.DimmedTitle.Copy().Render("Select Method")
+	menu := m.list.View()
+	content := lipgloss.JoinVertical(lipgloss.Left, prompt, menu)
+	return lipgloss.NewStyle().Padding(0, 1).Render(content)
 }

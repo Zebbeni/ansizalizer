@@ -2,6 +2,7 @@ package characters
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -13,6 +14,7 @@ type State int
 const (
 	Ascii State = iota
 	Unicode
+	Custom
 	AsciiAz
 	AsciiNums
 	AsciiSpec
@@ -23,38 +25,38 @@ const (
 	UnicodeShadeLight
 	UnicodeShadeMed
 	UnicodeShadeHeavy
-	UnicodeShadeAll
+	SymbolsForm
 	OneColor
 	TwoColor
 )
 
 type Model struct {
-	focus         State
-	active        State
-	mode          State
-	charButtons   State
-	unicodeMode   State
-	asciiMode     State
-	useFgBg       State
-	ShouldClose   bool
-	ShouldUnfocus bool
-	IsActive      bool
-	width         int
+	focus       State
+	active      State
+	mode        State
+	charButtons State
+	unicodeMode State
+	asciiMode   State
+	useFgBg     State
+	customInput textinput.Model
+	ShouldClose bool
+	IsActive    bool
+	width       int
 }
 
 func New(w int) Model {
 	return Model{
-		focus:         Ascii,
-		active:        Ascii,
-		mode:          Ascii,
-		charButtons:   Ascii,
-		asciiMode:     AsciiAll,
-		unicodeMode:   UnicodeQuart,
-		useFgBg:       OneColor,
-		ShouldClose:   false,
-		ShouldUnfocus: false,
-		IsActive:      false,
-		width:         w,
+		focus:       Ascii,
+		active:      Ascii,
+		mode:        Ascii,
+		charButtons: Ascii,
+		asciiMode:   AsciiAll,
+		unicodeMode: UnicodeFull,
+		useFgBg:     OneColor,
+		customInput: newInput("Symbols", "/%A"),
+		ShouldClose: false,
+		IsActive:    false,
+		width:       w,
 	}
 }
 
@@ -63,6 +65,13 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	switch m.active {
+	case SymbolsForm:
+		if m.customInput.Focused() {
+			return m.handleSymbolsFormUpdate(msg)
+		}
+	}
+
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -79,15 +88,23 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	colorsButtons := m.drawColorsButtons()
-	modeButtons := m.drawModeButtons()
-	charButtons := m.drawCharButtons()
-	return lipgloss.JoinVertical(lipgloss.Top, colorsButtons, modeButtons, charButtons)
+	charTabs := m.drawCharTabs()
+	return lipgloss.JoinVertical(lipgloss.Top, colorsButtons, charTabs)
 }
 
-func (m Model) Selected() (State, State, State) {
-	charMode := m.asciiMode
-	if m.mode == Unicode {
+// Selected returns the mode, charMode, whether to use two colors, and the
+// current set of custom-defined characters
+func (m Model) Selected() (State, State, State, []rune) {
+	var charMode State
+
+	switch m.mode {
+	case Unicode:
 		charMode = m.unicodeMode
+	case Ascii:
+		charMode = m.asciiMode
+	case Custom:
+		charMode = Custom
 	}
-	return m.mode, charMode, m.useFgBg
+
+	return m.mode, charMode, m.useFgBg, []rune(m.customInput.Value())
 }

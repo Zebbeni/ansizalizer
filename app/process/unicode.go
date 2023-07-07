@@ -32,15 +32,16 @@ func (m Renderer) processUnicode(input image.Image) string {
 		}
 	}
 
-	resizeFunc := m.Settings.Sampling.Function
+	resizeFunc := m.Settings.Advanced.SamplingFunction()
 	refImg := resize.Resize(uint(width)*2, uint(height)*2, input, resizeFunc)
 
 	palette := m.Settings.Colors.GetCurrentPalette().Colors()
 
-	if m.Settings.Colors.IsDithered() {
+	doDither, doSerpentine, matrix := m.Settings.Advanced.Dithering()
+	if doDither && m.Settings.Colors.IsLimited() {
 		ditherer := dither.NewDitherer(palette)
-		ditherer.Matrix = m.Settings.Colors.Matrix()
-		if m.Settings.Colors.IsSerpentine() {
+		ditherer.Matrix = matrix
+		if doSerpentine {
 			ditherer.Serpentine = true
 		}
 		refImg = ditherer.Dither(refImg)
@@ -69,7 +70,7 @@ func (m Renderer) processUnicode(input image.Image) string {
 			lipBg := lipgloss.Color(pBg.Hex())
 
 			style := lipgloss.NewStyle().Foreground(lipFg)
-			if _, _, mode := m.Settings.Characters.Selected(); mode == characters.TwoColor {
+			if _, _, mode, _ := m.Settings.Characters.Selected(); mode == characters.TwoColor {
 				style = style.Copy().Background(lipBg)
 			}
 
@@ -85,7 +86,7 @@ func (m Renderer) processUnicode(input image.Image) string {
 // a set of 4 pixels. return
 func (m Renderer) getBlock(r1, r2, r3, r4 colorful.Color) (r rune, fg, bg colorful.Color) {
 	var blockFuncs map[rune]blockFunc
-	switch _, charSet, _ := m.Settings.Characters.Selected(); charSet {
+	switch _, charSet, _, _ := m.Settings.Characters.Selected(); charSet {
 	case characters.UnicodeFull:
 		blockFuncs = m.fullBlockFuncs
 	case characters.UnicodeHalf:
@@ -98,8 +99,6 @@ func (m Renderer) getBlock(r1, r2, r3, r4 colorful.Color) (r rune, fg, bg colorf
 		blockFuncs = m.shadeMedBlockFuncs
 	case characters.UnicodeShadeHeavy:
 		blockFuncs = m.shadeHeavyBlockFuncs
-	case characters.UnicodeShadeAll:
-		blockFuncs = m.shadeAllBlockFuncs
 	}
 
 	minDist := 100.0

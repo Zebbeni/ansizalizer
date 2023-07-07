@@ -57,7 +57,6 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
 	switch m.active {
 	case CountForm:
 		if m.countInput.Focused() {
@@ -65,11 +64,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	case IterForm:
 		if m.iterInput.Focused() {
-			m.iterInput, cmd = m.iterInput.Update(msg)
-			if m.iterInput.Focused() == false {
-				return m, event.StartAdaptingCmd
-			}
-			return m, cmd
+			return m.handleIterUpdate(msg)
 		}
 	}
 

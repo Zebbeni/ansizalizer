@@ -56,8 +56,8 @@ func New(w int) Model {
 	return Model{
 		focus: CountForm,
 
-		countInput: newInput(CountForm, "8"),
-		tagInput:   newInput(TagForm, "gameboy"),
+		countInput: newInput(CountForm, "16"),
+		tagInput:   newInput(TagForm, ""),
 		filterType: FilterMin,
 		sortType:   SortDownloads,
 
