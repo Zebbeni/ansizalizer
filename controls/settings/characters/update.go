@@ -28,7 +28,7 @@ var navMap = map[Direction]map[State]State{
 		UnicodeQuart:      UnicodeShadeLight,
 		UnicodeShadeLight: UnicodeShadeMed,
 		UnicodeShadeMed:   UnicodeShadeHeavy,
-		TwoColor:          OneColor,
+		OneColor:          TwoColor,
 	},
 	Left: {
 		Unicode:           Ascii,
@@ -41,10 +41,10 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeLight: UnicodeQuart,
 		UnicodeQuart:      UnicodeHalf,
 		UnicodeHalf:       UnicodeFull,
-		OneColor:          TwoColor,
+		TwoColor:          OneColor,
 	},
 	Up: {
-		Ascii:             TwoColor,
+		Ascii:             OneColor,
 		Unicode:           OneColor,
 		Custom:            OneColor,
 		AsciiAz:           Ascii,
@@ -60,8 +60,8 @@ var navMap = map[Direction]map[State]State{
 		SymbolsForm:       Custom,
 	},
 	Down: {
-		OneColor: Unicode,
-		TwoColor: Ascii,
+		OneColor: Custom,
+		TwoColor: Custom,
 		Ascii:    AsciiAz,
 		Unicode:  UnicodeShadeMed,
 		Custom:   SymbolsForm,

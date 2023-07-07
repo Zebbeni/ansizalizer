@@ -3,6 +3,7 @@ package advanced
 import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/makeworld-the-better-one/dither/v2"
 	"github.com/nfnt/resize"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/advanced/dithering"
@@ -76,4 +77,8 @@ func (m Model) View() string {
 
 func (m Model) SamplingFunction() resize.InterpolationFunction {
 	return m.sampling.Function
+}
+
+func (m Model) Dithering() (bool, bool, dither.ErrorDiffusionMatrix) {
+	return m.dithering.Settings()
 }

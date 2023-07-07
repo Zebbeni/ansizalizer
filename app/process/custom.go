@@ -32,10 +32,11 @@ func (m Renderer) processCustom(input image.Image) string {
 
 	palette := m.Settings.Colors.GetCurrentPalette()
 
-	if m.Settings.Colors.IsDithered() {
+	doDither, doSerpentine, matrix := m.Settings.Advanced.Dithering()
+	if doDither && m.Settings.Colors.IsLimited() {
 		ditherer := dither.NewDitherer(palette.Colors())
-		ditherer.Matrix = m.Settings.Colors.Matrix()
-		if m.Settings.Colors.IsSerpentine() {
+		ditherer.Matrix = matrix
+		if doSerpentine {
 			ditherer.Serpentine = true
 		}
 		refImg = ditherer.Dither(refImg)

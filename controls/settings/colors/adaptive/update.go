@@ -89,6 +89,21 @@ func (m Model) handleCountUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) handleIterUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.iterInput.Blur()
+			return m, event.StartAdaptingCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.iterInput.Blur()
+		}
+	}
+	var cmd tea.Cmd
+	m.iterInput, cmd = m.iterInput.Update(msg)
+	return m, cmd
+}
+
 func (m Model) savePaletteFile() (Model, tea.Cmd) {
 	filename := fmt.Sprintf("%s.hex", m.palette.Name())
 

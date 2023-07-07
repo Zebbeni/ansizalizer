@@ -87,25 +87,25 @@ func (m Model) drawCustomControls() string {
 }
 
 func (m Model) drawColorsButtons() string {
-	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Background Color:")
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Colors per Char:")
 
-	yesStyle := style.NormalButtonNode
-	if m.IsActive && TwoColor == m.focus {
-		yesStyle = style.FocusButtonNode
-	} else if m.useFgBg == TwoColor {
-		yesStyle = style.ActiveButtonNode
-	}
-	yesButton := yesStyle.Render("Yes")
-	yesButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(yesButton)
-
-	noStyle := style.NormalButtonNode
+	oneStyle := style.NormalButtonNode
 	if m.IsActive && OneColor == m.focus {
-		noStyle = style.FocusButtonNode
+		oneStyle = style.FocusButtonNode
 	} else if m.useFgBg == OneColor {
-		noStyle = style.ActiveButtonNode
+		oneStyle = style.ActiveButtonNode
 	}
-	noButton := noStyle.Render("No")
-	noButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(noButton)
+	oneButton := oneStyle.Render("1")
+	oneButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(oneButton)
 
-	return lipgloss.JoinHorizontal(lipgloss.Left, title, yesButton, noButton)
+	twoStyle := style.NormalButtonNode
+	if m.IsActive && TwoColor == m.focus {
+		twoStyle = style.FocusButtonNode
+	} else if m.useFgBg == TwoColor {
+		twoStyle = style.ActiveButtonNode
+	}
+	twoButton := twoStyle.Render("2")
+	twoButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(twoButton)
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, title, oneButton, twoButton)
 }

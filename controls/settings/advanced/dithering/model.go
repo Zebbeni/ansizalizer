@@ -67,3 +67,7 @@ func (m Model) View() string {
 	content := lipgloss.JoinVertical(lipgloss.Left, ditheringOpts, serpentineOpts, matrixList)
 	return lipgloss.NewStyle().Padding(0, 1).Render(content)
 }
+
+func (m Model) Settings() (bool, bool, dither.ErrorDiffusionMatrix) {
+	return m.doDithering, m.doSerpentine, m.matrix
+}

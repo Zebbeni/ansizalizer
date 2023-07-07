@@ -3,7 +3,6 @@ package colors
 import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/makeworld-the-better-one/dither/v2"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors/loader"
@@ -108,18 +107,6 @@ func (m Model) View() string {
 
 func (m Model) IsLimited() bool {
 	return m.selected != NoPalette
-}
-
-func (m Model) IsDithered() bool {
-	return false
-}
-
-func (m Model) IsSerpentine() bool {
-	return true
-}
-
-func (m Model) Matrix() dither.ErrorDiffusionMatrix {
-	return dither.FloydSteinberg
 }
 
 func (m Model) IsAdaptive() bool {
