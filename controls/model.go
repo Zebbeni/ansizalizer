@@ -81,7 +81,8 @@ func (m Model) View() string {
 
 	switch m.active {
 	case Browse:
-		controls = m.FileBrowser.View()
+		browserTitle := m.drawBrowserTitle()
+		controls = lipgloss.JoinVertical(lipgloss.Left, browserTitle, m.FileBrowser.View())
 	case Settings:
 		controls = m.Settings.View()
 	case Export:

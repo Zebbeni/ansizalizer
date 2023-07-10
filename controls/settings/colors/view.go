@@ -5,8 +5,8 @@ import "github.com/charmbracelet/lipgloss"
 var (
 	stateOrder = []State{NoPalette, Load, Adapt, Lospec}
 	stateNames = map[State]string{
-		NoPalette: "None",
-		Load:      "Open",
+		NoPalette: "True",
+		Load:      "Load",
 		Adapt:     "Adapt",
 		Lospec:    "Lospec",
 	}
@@ -28,7 +28,7 @@ var (
 )
 
 func (m Model) drawTitle() string {
-	return titleStyle.Copy().Width(m.width).Align(lipgloss.Center).Render("Colors")
+	return titleStyle.Copy().Italic(true).Width(m.width).Align(lipgloss.Center).Render("Colors")
 }
 
 func (m Model) drawButtons() string {

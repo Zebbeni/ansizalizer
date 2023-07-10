@@ -20,7 +20,7 @@ var States = []State{
 var stateOrder = []State{Colors, Characters, Size, Advanced}
 
 var stateTitles = map[State]string{
-	Colors:     "Color",
+	Colors:     "Colors",
 	Characters: "Characters",
 	Size:       "Size",
 	Advanced:   "Advanced",

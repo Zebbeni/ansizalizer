@@ -33,6 +33,7 @@ func (m Model) drawButtons() string {
 	return buttonRow
 }
 
-func drawBrowserTitle() string {
-	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Search .png or .jpg files")
+func (m Model) drawBrowserTitle() string {
+	title := style.DimmedTitle.Copy().Italic(true).Render("Search Images")
+	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }

@@ -7,6 +7,7 @@ var (
 	NormalColor2   = lipgloss.AdaptiveColor{Light: "#3a3a3a", Dark: "#888888"}
 	SelectedColor1 = lipgloss.AdaptiveColor{Light: "#444444", Dark: "#ffffff"}
 	SelectedColor2 = lipgloss.AdaptiveColor{Light: "#666666", Dark: "#dddddd"}
+	ExtraDimColor  = lipgloss.AdaptiveColor{Light: "#bbbbbb", Dark: "#444444"}
 	DimmedColor1   = lipgloss.AdaptiveColor{Light: "#999999", Dark: "#777777"}
 	DimmedColor2   = lipgloss.AdaptiveColor{Light: "#aaaaaa", Dark: "#666666"}
 
@@ -17,6 +18,7 @@ var (
 	SelectedParagraph = lipgloss.NewStyle().Foreground(SelectedColor2)
 
 	DimmedTitle     = lipgloss.NewStyle().Foreground(DimmedColor1)
+	ExtraDimTitle   = lipgloss.NewStyle().Foreground(ExtraDimColor)
 	DimmedParagraph = lipgloss.NewStyle().Foreground(DimmedColor2)
 
 	ActiveButton = lipgloss.NewStyle().

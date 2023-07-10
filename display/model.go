@@ -2,13 +2,15 @@ package display
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type Model struct {
-	msg string
+	msg   string
+	width int
 }
 
 func New() Model {
@@ -29,6 +31,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	// TODO: Switch style based on event type (warning, info, etc.)
-	displayStyle := style.DimmedTitle.Copy().PaddingTop(1).Width(100)
-	return displayStyle.Render(m.msg)
+	displayStyle := style.ExtraDimTitle.Copy().Width(m.width - 2)
+	return displayStyle.Border(lipgloss.RoundedBorder()).BorderForeground(style.ExtraDimColor).Render(m.msg)
+}
+
+func (m Model) SetWidth(w int) Model {
+	m.width = w
+	return m
 }

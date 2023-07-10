@@ -1,14 +1,11 @@
 package browser
 
 import (
-	"path/filepath"
-
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/controls/menu"
 	"github.com/Zebbeni/ansizalizer/event"
-	"github.com/Zebbeni/ansizalizer/style"
 )
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
@@ -77,12 +74,13 @@ func (m Model) updateSelected() (Model, tea.Cmd) {
 func (m Model) addListForDirectory(dir string) Model {
 	newList := menu.New(getItems(m.fileExtensions, dir), m.width)
 
-	newList.SetShowTitle(true)
+	newList.SetShowTitle(false)
 
-	title := filepath.Join(filepath.Base(filepath.Dir(dir)), filepath.Base(dir))
+	//title := filepath.Join(filepath.Base(filepath.Dir(dir)), filepath.Base(dir))
 
-	newList.Title = fitString(title, m.width-10)
-	newList.Styles.Title = newList.Styles.Title.Copy().Foreground(style.DimmedColor2).UnsetBackground()
+	//newList.Title = fitString(title, m.width-10)
+	//newList.Styles.Title = newList.Styles.Title.Copy().Foreground(style.DimmedColor2).UnsetBackground()
+	//newList.Styles.TitleBar = newList.Styles.TitleBar.Copy().Padding(0).Height(2)
 	newList.SetShowStatusBar(false)
 	newList.SetFilteringEnabled(false)
 	newList.SetShowFilter(false)
@@ -103,7 +101,8 @@ func fitString(value string, width int) string {
 	}
 
 	if len(valueRunes) > width {
-		value = ".." + string(valueRunes[start:])
+		value = "\n.." + string(valueRunes[start:])
 	}
+
 	return value
 }

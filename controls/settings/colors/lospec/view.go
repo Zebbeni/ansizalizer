@@ -37,7 +37,7 @@ func (m Model) drawInputs() string {
 }
 
 func (m Model) drawTitle() string {
-	title := style.DimmedTitle.Copy().Render("Search Lospec.com")
+	title := style.DimmedTitle.Copy().Italic(true).Render("Search Lospec.com")
 	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }
 

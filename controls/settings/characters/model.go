@@ -46,13 +46,13 @@ type Model struct {
 
 func New(w int) Model {
 	return Model{
-		focus:        Ascii,
-		active:       Ascii,
-		mode:         Ascii,
-		charControls: Ascii,
-		asciiMode:    AsciiAll,
-		unicodeMode:  UnicodeFull,
-		useFgBg:      OneColor,
+		focus:        Unicode,
+		active:       Unicode,
+		mode:         Unicode,
+		charControls: Unicode,
+		asciiMode:    AsciiAz,
+		unicodeMode:  UnicodeHalf,
+		useFgBg:      TwoColor,
 		customInput:  newInput("Symbols", "/%A"),
 		ShouldClose:  false,
 		IsActive:     false,

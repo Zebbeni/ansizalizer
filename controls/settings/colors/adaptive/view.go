@@ -24,7 +24,7 @@ var (
 )
 
 func (m Model) drawTitle() string {
-	title := style.DimmedTitle.Copy().Render("Adapt Palette to Image")
+	title := style.DimmedTitle.Copy().Italic(true).Render("Adapt Palette to Image")
 	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }
 

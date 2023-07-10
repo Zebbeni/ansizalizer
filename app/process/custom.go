@@ -43,6 +43,9 @@ func (m Renderer) processCustom(input image.Image) string {
 	}
 
 	_, _, useFgBg, chars := m.Settings.Characters.Selected()
+	if len(chars) == 0 {
+		return "Enter at least one custom character"
+	}
 
 	content := ""
 	rows := make([]string, height)
