@@ -30,10 +30,11 @@ func (m Renderer) processCustom(input image.Image) string {
 	resizeFunc := m.Settings.Advanced.SamplingFunction()
 	refImg := resize.Resize(uint(width)*2, uint(height)*2, input, resizeFunc)
 
-	palette := m.Settings.Colors.GetCurrentPalette()
+	isTrueColor, _, palette := m.Settings.Colors.GetSelected()
+	isPaletted := !isTrueColor
 
 	doDither, doSerpentine, matrix := m.Settings.Advanced.Dithering()
-	if doDither && m.Settings.Colors.IsLimited() {
+	if doDither && isPaletted {
 		ditherer := dither.NewDitherer(palette.Colors())
 		ditherer.Matrix = matrix
 		if doSerpentine {
@@ -73,7 +74,7 @@ func (m Renderer) processCustom(input image.Image) string {
 			} else {
 				fg := m.avgColTrue(r1, r2, r3, r4)
 				brightness := math.Min(1.0, math.Abs(fg.DistanceLuv(black)))
-				if m.Settings.Colors.IsLimited() {
+				if isPaletted {
 					fg, _ = colorful.MakeColor(palette.Colors().Convert(fg))
 				}
 				lipFg := lipgloss.Color(fg.Hex())

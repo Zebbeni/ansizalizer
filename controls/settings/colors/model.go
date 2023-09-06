@@ -1,70 +1,42 @@
 package colors
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/adaptive"
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/loader"
-	"github.com/Zebbeni/ansizalizer/controls/settings/colors/lospec"
+	"github.com/Zebbeni/ansizalizer/controls/settings/palettes"
+	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
 
 type State int
 
-// None consists of a few different components that are shown or hidden
-// depending on which toggles have been set on / off. The Model state indicates
-// which component is currently focused. From top to bottom the components are:
-
-// 1) Limited (on/off)
-// 2) Loader (Name) (if Limited) -> [Enter] displays Loader menu
-// 3) Dithering (on/off) (if Limited)
-// 4) Serpentine (on/off) (if Dithering)
-// 5) Matrix (Name) (if Dithering) -> [Enter] displays to Matrix menu
-
-// These can all be part of a single list, but we need to onSelect the list items
-
 const (
-	NoPalette State = iota
-	Adapt
-	Load
-	Lospec
-	AdaptiveControls
-	LoadControls
-	LospecControls
+	UsePalette State = iota
+	UseTrueColor
+	Palette
 )
 
 type Model struct {
-	selected State
-	focus    State // the component taking input
-	controls State
+	focus           State
+	mode            State
+	width           int
+	PaletteControls palettes.Model
 
-	Adapter adaptive.Model
-	Loader  loader.Model
-	Lospec  lospec.Model
-
-	ShouldClose      bool
-	ShouldDeactivate bool
-
-	IsActive bool
-
-	width int
+	IsActive    bool
+	ShouldClose bool
 }
 
 func New(w int) Model {
-	m := Model{
-		selected:         NoPalette,
-		focus:            NoPalette,
-		controls:         NoPalette,
-		Adapter:          adaptive.New(w),
-		Loader:           loader.New(w),
-		Lospec:           lospec.New(w),
-		ShouldClose:      false,
-		ShouldDeactivate: false,
-		IsActive:         false,
-		width:            w,
+	return Model{
+		focus:           UseTrueColor,
+		mode:            UseTrueColor,
+		width:           w,
+		PaletteControls: palettes.New(w),
+		IsActive:        false,
+		ShouldClose:     false,
 	}
-	return m
 }
 
 func (m Model) Init() tea.Cmd {
@@ -73,58 +45,49 @@ func (m Model) Init() tea.Cmd {
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.focus {
-	case AdaptiveControls:
-		return m.handleAdaptiveUpdate(msg)
-	case LoadControls:
-		return m.handleLoaderUpdate(msg)
-	case LospecControls:
-		return m.handleLospecUpdate(msg)
+	case Palette:
+		return m.handlePaletteUpdate(msg)
 	}
-	return m.handleMenuUpdate(msg)
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, event.KeyMap.Enter):
+			return m.handleEnter()
+		case key.Matches(msg, event.KeyMap.Nav):
+			return m.handleNav(msg)
+		case key.Matches(msg, event.KeyMap.Esc):
+			return m.handleEsc()
+		}
+	}
+	return m, nil
 }
 
 func (m Model) View() string {
-	buttons := m.drawButtons()
-	if m.IsActive == false {
-		return buttons
+	paletteToggles := m.drawPaletteToggles()
+	if m.mode == UseTrueColor {
+		return paletteToggles
 	}
 
-	var controls string
-	switch m.controls {
-	case Adapt:
-		controls = m.Adapter.View()
-	case Load:
-		controls = m.Loader.View()
-	case Lospec:
-		controls = m.Lospec.View()
+	paletteTabs := m.PaletteControls.View()
+	return lipgloss.JoinVertical(lipgloss.Left, paletteToggles, paletteTabs)
+}
+
+// GetSelected returns isPaletted, isAdaptive, and the palette (if applicable)
+func (m Model) GetSelected() (bool, bool, palette.Model) {
+	colorPalette := m.PaletteControls.GetCurrentPalette()
+
+	if m.mode == UseTrueColor {
+		return true, false, colorPalette
 	}
-	if len(controls) == 0 {
-		return buttons
-	}
 
-	return lipgloss.JoinVertical(lipgloss.Top, buttons, controls)
-}
-
-func (m Model) IsLimited() bool {
-	return m.selected != NoPalette
-}
-
-func (m Model) IsAdaptive() bool {
-	return m.selected == Adapt
-}
-
-func (m Model) IsPaletted() bool {
-	return m.selected == Load
+	return false, m.PaletteControls.IsAdaptive(), colorPalette
 }
 
 func (m Model) GetCurrentPalette() palette.Model {
-	switch m.selected {
-	case Load:
-		return m.Loader.GetCurrent()
-	case Adapt:
-		return m.Adapter.GetCurrent()
-	case Lospec:
-		return m.Lospec.GetCurrent()
-	}
-	return palette.Model{}
+	return m.PaletteControls.GetCurrentPalette()
+}
+
+func (m Model) IsLimited() bool {
+	return m.mode == UsePalette
 }

@@ -75,15 +75,16 @@ func (m Renderer) createShadeHeavyFuncs() map[rune]blockFunc {
 }
 
 func (m Renderer) getLightDarkPaletted(light, dark colorful.Color) (colorful.Color, colorful.Color) {
-	colorPalette := m.Settings.Colors.GetCurrentPalette().Colors()
+	_, _, p := m.Settings.Colors.GetSelected()
+	colors := p.Colors()
 
-	index := colorPalette.Index(dark)
-	paletteDark := colorPalette.Convert(dark)
+	index := colors.Index(dark)
+	paletteDark := colors.Convert(dark)
 
-	palette := make([]color.Color, len(colorPalette))
-	copy(palette, colorPalette)
+	palette := make([]color.Color, len(colors))
+	copy(palette, colors)
 
-	paletteMinusDarkest := color.Palette(append(palette[:index], palette[index+1:]...))
+	paletteMinusDarkest := append(colors[:index], colors[index+1:]...)
 	paletteLight := paletteMinusDarkest.Convert(light)
 
 	light, _ = colorful.MakeColor(paletteLight)

@@ -119,7 +119,7 @@ func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
 }
 
 func (m Model) handleFinishAdaptingMsg(msg event.FinishAdaptingMsg) (Model, tea.Cmd) {
-	m.controls.Settings.Colors.Adapter = m.controls.Settings.Colors.Adapter.SetPalette(msg.Colors, msg.Name)
+	m.controls.Settings.Colors.PaletteControls.Adapter = m.controls.Settings.Colors.PaletteControls.Adapter.SetPalette(msg.Colors, msg.Name)
 	return m, tea.Batch(event.StartRenderToViewCmd, event.BuildDisplayCmd("rendering..."))
 }
 
@@ -157,12 +157,12 @@ func (m Model) handleLospecRequestMsg(msg event.LospecRequestMsg) (Model, tea.Cm
 
 func (m Model) handleLospecResponseMsg(msg event.LospecResponseMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
-	m.controls.Settings.Colors.Lospec, cmd = m.controls.Settings.Colors.Lospec.Update(msg)
+	m.controls.Settings.Colors.PaletteControls.Lospec, cmd = m.controls.Settings.Colors.PaletteControls.Lospec.Update(msg)
 	return m, cmd
 }
 
 func (m Model) processAdaptingCmd() tea.Msg {
-	colors, name := adapt.GeneratePalette(m.controls.Settings.Colors.Adapter, m.controls.FileBrowser.ActiveFile)
+	colors, name := adapt.GeneratePalette(m.controls.Settings.Colors.PaletteControls.Adapter, m.controls.FileBrowser.ActiveFile)
 	return event.FinishAdaptingMsg{
 		Name:   name,
 		Colors: colors,
