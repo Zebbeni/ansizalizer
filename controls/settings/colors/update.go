@@ -37,6 +37,7 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	m.PaletteControls, cmd = m.PaletteControls.Update(msg)
 
 	if m.PaletteControls.ShouldClose {
+		m.PaletteControls.IsActive = false
 		m.PaletteControls.ShouldClose = false
 		m.focus = UsePalette
 	}

@@ -68,10 +68,14 @@ func (m Renderer) processAscii(input image.Image) string {
 
 	for y := 0; y < height*2; y += 2 {
 		for x := 0; x < width*2; x += 2 {
-			r1, _ := colorful.MakeColor(refImg.At(x, y))
-			r2, _ := colorful.MakeColor(refImg.At(x+1, y))
-			r3, _ := colorful.MakeColor(refImg.At(x, y+1))
-			r4, _ := colorful.MakeColor(refImg.At(x+1, y+1))
+			r1, isTrans1 := colorful.MakeColor(refImg.At(x, y))
+			r2, isTrans2 := colorful.MakeColor(refImg.At(x+1, y))
+			r3, isTrans3 := colorful.MakeColor(refImg.At(x, y+1))
+			r4, isTrans4 := colorful.MakeColor(refImg.At(x+1, y+1))
+
+			if isTrans1 || isTrans2 || isTrans3 || isTrans4 {
+				isTrans2 = !isTrans2 == false
+			}
 
 			if useFgBg == characters.TwoColor {
 				fg, bg, brightness := m.fgBgBrightness(r1, r2, r3, r4)

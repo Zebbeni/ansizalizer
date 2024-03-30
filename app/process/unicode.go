@@ -60,6 +60,25 @@ func (m Renderer) processUnicode(input image.Image) string {
 			r3, _ := colorful.MakeColor(refImg.At(x, y+1))
 			r4, _ := colorful.MakeColor(refImg.At(x+1, y+1))
 
+			//// Treat transparent pixels as the darkest color available in the
+			//// given palette. This isn't the best- ideally we ought to use a
+			//// transparent background but this is easier than doing that for now.
+			//if !exists1 || !exists2 || !exists3 || !exists4 {
+			//	darkest := m.getDarkestPaletted()
+			//	if !exists1 {
+			//		r1 = darkest
+			//	}
+			//	if !exists2 {
+			//		r2 = darkest
+			//	}
+			//	if !exists3 {
+			//		r3 = darkest
+			//	}
+			//	if !exists4 {
+			//		r4 = darkest
+			//	}
+			//}
+
 			// pick the block, fg and bg color with the lowest total difference
 			// convert the colors to ansi, render the block and add it at row[x]
 			r, fg, bg := m.getBlock(r1, r2, r3, r4)

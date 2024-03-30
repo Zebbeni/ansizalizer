@@ -102,6 +102,17 @@ func (m Renderer) getLightDarkPaletted(light, dark colorful.Color) (colorful.Col
 	return light, dark
 }
 
+func (m Renderer) getDarkestPaletted() colorful.Color {
+	if !m.Settings.Colors.IsLimited() {
+		return black
+	}
+	_, _, p := m.Settings.Colors.GetSelected()
+	colors := p.Colors()
+	darkest := colors.Convert(black)
+	darkestConverted, _ := colorful.MakeColor(darkest)
+	return darkestConverted
+}
+
 func (m Renderer) calcLight(r1, r2, r3, r4 colorful.Color) (colorful.Color, colorful.Color, float64) {
 	if _, _, fgBg, _ := m.Settings.Characters.Selected(); fgBg == characters.OneColor {
 		avg, dist := m.avgCol(r1, r2, r3, r4)
@@ -171,6 +182,9 @@ func (m Renderer) calcFull(r1, r2, r3, r4 colorful.Color) (colorful.Color, color
 }
 
 func (m Renderer) calcTop(r1, r2, r3, r4 colorful.Color) (colorful.Color, colorful.Color, float64) {
+	if r1.R == 0 && r1.G == 0 && r1.B == 0 && (r3.R != 0 || r3.G != 0 || r3.B != 0) {
+		r1.R = r1.G
+	}
 	fg, fDist := m.avgCol(r1, r2)
 	bg, bDist := m.avgCol(r3, r4)
 	return fg, bg, fDist + bDist

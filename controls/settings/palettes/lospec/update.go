@@ -51,6 +51,7 @@ var (
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
 	m.IsSelected = false
+	m.ShouldUnfocus = true
 	return m, nil
 }
 
