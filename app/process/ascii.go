@@ -36,10 +36,11 @@ func (m Renderer) processAscii(input image.Image) string {
 	resizeFunc := m.Settings.Advanced.SamplingFunction()
 	refImg := resize.Resize(uint(width)*2, uint(height)*2, input, resizeFunc)
 
-	palette := m.Settings.Colors.GetCurrentPalette()
+	isTrueColor, _, palette := m.Settings.Colors.GetSelected()
+	isPaletted := !isTrueColor
 
 	doDither, doSerpentine, matrix := m.Settings.Advanced.Dithering()
-	if doDither && m.Settings.Colors.IsLimited() {
+	if doDither && isPaletted {
 		ditherer := dither.NewDitherer(palette.Colors())
 		ditherer.Matrix = matrix
 		if doSerpentine {
@@ -67,10 +68,14 @@ func (m Renderer) processAscii(input image.Image) string {
 
 	for y := 0; y < height*2; y += 2 {
 		for x := 0; x < width*2; x += 2 {
-			r1, _ := colorful.MakeColor(refImg.At(x, y))
-			r2, _ := colorful.MakeColor(refImg.At(x+1, y))
-			r3, _ := colorful.MakeColor(refImg.At(x, y+1))
-			r4, _ := colorful.MakeColor(refImg.At(x+1, y+1))
+			r1, isTrans1 := colorful.MakeColor(refImg.At(x, y))
+			r2, isTrans2 := colorful.MakeColor(refImg.At(x+1, y))
+			r3, isTrans3 := colorful.MakeColor(refImg.At(x, y+1))
+			r4, isTrans4 := colorful.MakeColor(refImg.At(x+1, y+1))
+
+			if isTrans1 || isTrans2 || isTrans3 || isTrans4 {
+				isTrans2 = !isTrans2 == false
+			}
 
 			if useFgBg == characters.TwoColor {
 				fg, bg, brightness := m.fgBgBrightness(r1, r2, r3, r4)
@@ -87,7 +92,7 @@ func (m Renderer) processAscii(input image.Image) string {
 			} else {
 				fg := m.avgColTrue(r1, r2, r3, r4)
 				brightness := math.Min(1.0, math.Abs(fg.DistanceLuv(black)))
-				if m.Settings.Colors.IsLimited() {
+				if !isTrueColor {
 					fg, _ = colorful.MakeColor(palette.Colors().Convert(fg))
 				}
 				lipFg := lipgloss.Color(fg.Hex())

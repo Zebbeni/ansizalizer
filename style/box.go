@@ -30,10 +30,13 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 	var (
 		// Query the box style for some of its border properties so we can
 		// essentially take the top border apart and put it around the label.
-		border          lipgloss.Border     = b.BoxStyle.GetBorderStyle()
-		topBorderStyler func(string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
-		topLeft         string              = topBorderStyler(border.TopLeft)
-		topRight        string              = topBorderStyler(border.TopRight)
+		border             lipgloss.Border     = b.BoxStyle.GetBorderStyle()
+		topBorderStyler    func(string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
+		bottomBorderStyler func(string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
+		topLeft            string              = topBorderStyler(border.TopLeft)
+		topRight           string              = topBorderStyler(border.TopRight)
+		botLeft            string              = bottomBorderStyler(border.BottomLeft)
+		botRight           string              = bottomBorderStyler(border.BottomRight)
 
 		renderedLabel string = b.LabelStyle.Render(label)
 	)
@@ -53,15 +56,25 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 		gapLeft = strings.Repeat(border.Top, cellsShort/2)
 		gapRight = strings.Repeat(border.Top, cellsShort-(cellsShort/2))
 	}
-	strings.Repeat(border.Top, cellsShort)
 
-	top := topLeft + topBorderStyler(gapLeft) + renderedLabel + topBorderStyler(gapRight) + topRight
+	var top, bottom string
 
-	// Render the rest of the box
-	bottom := b.BoxStyle.Copy().
-		BorderTop(false).
-		Width(width).
-		Render(content)
+	switch b.LabelStyle.GetAlignVertical() {
+	case lipgloss.Top:
+		strings.Repeat(border.Top, cellsShort)
+		top = topLeft + topBorderStyler(gapLeft) + renderedLabel + topBorderStyler(gapRight) + topRight
+		bottom = b.BoxStyle.Copy().
+			BorderTop(false).
+			Width(width).
+			Render(content)
+	case lipgloss.Bottom:
+		strings.Repeat(border.Bottom, cellsShort)
+		bottom = botLeft + bottomBorderStyler(gapLeft) + renderedLabel + bottomBorderStyler(gapRight) + botRight
+		top = b.BoxStyle.Copy().
+			BorderBottom(false).
+			Width(width).
+			Render(content)
+	}
 
 	// Stack the pieces
 	return top + "\n" + bottom

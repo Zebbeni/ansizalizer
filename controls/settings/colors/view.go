@@ -1,46 +1,31 @@
 package colors
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
 
-var (
-	stateOrder = []State{NoPalette, Load, Adapt, Lospec}
-	stateNames = map[State]string{
-		NoPalette: "None",
-		Load:      "Open",
-		Adapt:     "Adapt",
-		Lospec:    "Lospec",
-	}
-
-	activeStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#aaaaaa")).
-			Foreground(lipgloss.Color("#aaaaaa"))
-	focusStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#ffffff")).
-			Foreground(lipgloss.Color("#ffffff"))
-	normalStyle = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#555555")).
-			Foreground(lipgloss.Color("#555555"))
-	titleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#888888"))
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
-func (m Model) drawTitle() string {
-	return titleStyle.Copy().Width(m.width).Align(lipgloss.Center).Render("Colors")
-}
+func (m Model) drawPaletteToggles() string {
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Mode:")
 
-func (m Model) drawButtons() string {
-	buttons := make([]string, len(stateOrder))
-	for i, state := range stateOrder {
-		style := normalStyle
-		if m.IsActive && state == m.focus {
-			style = focusStyle
-		} else if state == m.selected {
-			style = activeStyle
-		}
-		buttons[i] = style.Copy().AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+	trueColorStyle := style.NormalButtonNode
+	if m.IsActive && m.focus == UseTrueColor {
+		trueColorStyle = style.FocusButtonNode
+	} else if m.mode == UseTrueColor {
+		trueColorStyle = style.ActiveButtonNode
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	trueColorNode := trueColorStyle.Render("True Color")
+	trueColorNode = lipgloss.NewStyle().PaddingLeft(1).Render(trueColorNode)
+
+	palettedStyle := style.NormalButtonNode
+	if m.IsActive && m.focus == UsePalette {
+		palettedStyle = style.FocusButtonNode
+	} else if m.mode == UsePalette {
+		palettedStyle = style.ActiveButtonNode
+	}
+	palettedNode := palettedStyle.Render("Palette")
+	palettedNode = lipgloss.NewStyle().PaddingLeft(1).Render(palettedNode)
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, title, trueColorNode, palettedNode)
 }

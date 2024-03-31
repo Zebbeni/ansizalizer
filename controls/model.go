@@ -46,7 +46,7 @@ func New(w int) Model {
 		active: Menu,
 		focus:  Browse,
 
-		FileBrowser: browser.New(global.ImgExtensions, drawBrowserTitle(), w),
+		FileBrowser: browser.New(global.ImgExtensions, w),
 		Settings:    settings.New(w),
 		Export:      export.New(w),
 
@@ -81,7 +81,8 @@ func (m Model) View() string {
 
 	switch m.active {
 	case Browse:
-		controls = m.FileBrowser.View()
+		browserTitle := m.drawBrowserTitle()
+		controls = lipgloss.JoinVertical(lipgloss.Left, browserTitle, m.FileBrowser.View())
 	case Settings:
 		controls = m.Settings.View()
 	case Export:

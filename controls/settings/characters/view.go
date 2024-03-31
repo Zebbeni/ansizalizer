@@ -37,7 +37,7 @@ var (
 )
 
 func (m Model) drawCharControls() string {
-	if m.mode == Custom {
+	if m.charControls == Custom {
 		content := m.drawCustomControls()
 		return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
 	}
@@ -45,7 +45,7 @@ func (m Model) drawCharControls() string {
 	whitespace := 0
 
 	var buttonOrder []State
-	switch m.charButtons {
+	switch m.charControls {
 	case Ascii:
 		buttonOrder = asciiButtonOrder
 	case Unicode:

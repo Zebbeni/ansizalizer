@@ -3,6 +3,8 @@ package adaptive
 import (
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
@@ -20,6 +22,11 @@ var (
 	titleStyle  = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#888888"))
 )
+
+func (m Model) drawTitle() string {
+	title := style.DimmedTitle.Copy().Italic(true).Render("Adapt Palette to Image")
+	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
+}
 
 func (m Model) drawInputs() string {
 	prompt, placeholder := m.getInputColors(CountForm)
@@ -62,7 +69,7 @@ func (m Model) drawGenerateButton() string {
 		BorderForeground(styleColor).
 		Foreground(styleColor)
 
-	button := style.Render("Generate Adaptive Colors")
+	button := style.Render("Generate New")
 	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
 }
 
@@ -78,9 +85,10 @@ func (m Model) drawSaveButton() string {
 	style := lipgloss.NewStyle().
 		Width(m.width - 4).
 		AlignHorizontal(lipgloss.Center).
+		PaddingTop(1).
 		Foreground(styleColor)
 
-	button := style.Render("Save Palette to .hex File")
+	button := style.Render("Save to .hex File")
 	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
 }
 

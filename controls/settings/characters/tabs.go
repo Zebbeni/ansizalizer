@@ -30,7 +30,11 @@ func (m Model) drawCharTabs() string {
 
 	for i, t := range tabs {
 		var tabStyle lipgloss.Style
-		isFirst, isLast, isActive, isMode := i == 0, i == len(tabs)-1, m.focus == t, m.mode == t
+
+		isFirst := i == 0
+		isLast := i == len(tabs)-1
+		isActive := m.focus == t
+		showControls := m.charControls == t
 
 		fgColor := style.DimmedColor2
 		if m.IsActive {
@@ -45,20 +49,20 @@ func (m Model) drawCharTabs() string {
 			}
 		}
 
-		if m.mode == t {
+		if showControls {
 			tabStyle = activeTabStyle.Copy()
 		} else {
 			tabStyle = inactiveTabStyle.Copy()
 		}
 
 		border, _, _, _, _ := tabStyle.GetBorder()
-		if isFirst && isMode {
+		if isFirst && showControls {
 			border.BottomLeft = "│"
-		} else if isFirst && !isMode {
+		} else if isFirst && !showControls {
 			border.BottomLeft = "├"
-		} else if isLast && isMode {
+		} else if isLast && showControls {
 			border.BottomRight = "└"
-		} else if isLast && !isMode {
+		} else if isLast && !showControls {
 			border.BottomRight = "┴"
 		}
 

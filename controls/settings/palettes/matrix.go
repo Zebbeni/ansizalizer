@@ -1,4 +1,4 @@
-package colors
+package palettes
 
 import (
 	"github.com/makeworld-the-better-one/dither/v2"

@@ -28,16 +28,18 @@ type Model struct {
 	paletteFilepath string
 	palette         palette.Model
 
+	IsSelected    bool // true if we've selected something (ie. render w/ loader)
 	ShouldUnfocus bool
 
 	width int
 }
 
 func New(w int) Model {
-	fileBrowser := browser.New(paletteExtensions, drawBrowserTitle(), w-2)
+	fileBrowser := browser.New(paletteExtensions, w-2)
 
 	return Model{
 		FileBrowser:   fileBrowser,
+		IsSelected:    false,
 		ShouldUnfocus: false,
 		width:         w,
 	}
@@ -62,10 +64,12 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		}
 		m.palette = palette.New(name, colors, m.width-5, 3)
 
+		m.IsSelected = true
 		return m, tea.Batch(cmd, event.StartRenderToViewCmd)
 	}
 
 	if m.FileBrowser.ShouldClose {
+		m.IsSelected = false
 		m.FileBrowser.ShouldClose = false
 		m.ShouldUnfocus = true
 	}
@@ -80,8 +84,9 @@ func (m Model) View() string {
 	}
 	activePreview = lipgloss.NewStyle().Padding(0, 0, 1, 2).Render(activePreview)
 
+	title := m.drawTitle()
 	browser := m.FileBrowser.View()
-	return lipgloss.JoinVertical(lipgloss.Top, browser, activePreview)
+	return lipgloss.JoinVertical(lipgloss.Top, title, browser, activePreview)
 }
 
 func (m Model) GetCurrent() palette.Model {

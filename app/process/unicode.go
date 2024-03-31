@@ -35,11 +35,12 @@ func (m Renderer) processUnicode(input image.Image) string {
 	resizeFunc := m.Settings.Advanced.SamplingFunction()
 	refImg := resize.Resize(uint(width)*2, uint(height)*2, input, resizeFunc)
 
-	palette := m.Settings.Colors.GetCurrentPalette().Colors()
+	isTrueColor, _, palette := m.Settings.Colors.GetSelected()
+	isPaletted := !isTrueColor
 
 	doDither, doSerpentine, matrix := m.Settings.Advanced.Dithering()
-	if doDither && m.Settings.Colors.IsLimited() {
-		ditherer := dither.NewDitherer(palette)
+	if doDither && isPaletted {
+		ditherer := dither.NewDitherer(palette.Colors())
 		ditherer.Matrix = matrix
 		if doSerpentine {
 			ditherer.Serpentine = true
@@ -58,6 +59,25 @@ func (m Renderer) processUnicode(input image.Image) string {
 			r2, _ := colorful.MakeColor(refImg.At(x+1, y))
 			r3, _ := colorful.MakeColor(refImg.At(x, y+1))
 			r4, _ := colorful.MakeColor(refImg.At(x+1, y+1))
+
+			//// Treat transparent pixels as the darkest color available in the
+			//// given palette. This isn't the best- ideally we ought to use a
+			//// transparent background but this is easier than doing that for now.
+			//if !exists1 || !exists2 || !exists3 || !exists4 {
+			//	darkest := m.getDarkestPaletted()
+			//	if !exists1 {
+			//		r1 = darkest
+			//	}
+			//	if !exists2 {
+			//		r2 = darkest
+			//	}
+			//	if !exists3 {
+			//		r3 = darkest
+			//	}
+			//	if !exists4 {
+			//		r4 = darkest
+			//	}
+			//}
 
 			// pick the block, fg and bg color with the lowest total difference
 			// convert the colors to ansi, render the block and add it at row[x]
@@ -123,7 +143,7 @@ func (m Renderer) avgCol(colors ...colorful.Color) (colorful.Color, float64) {
 	avg := colorful.Color{R: rSum / count, G: gSum / count, B: bSum / count}
 
 	if m.Settings.Colors.IsLimited() {
-		palette := m.Settings.Colors.GetCurrentPalette()
+		_, _, palette := m.Settings.Colors.GetSelected()
 
 		paletteAvg := palette.Colors().Convert(avg)
 		avg, _ = colorful.MakeColor(paletteAvg)

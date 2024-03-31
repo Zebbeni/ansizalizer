@@ -39,7 +39,7 @@ func New(w int) Model {
 	return Model{
 		focus: Input,
 
-		Browser: browser.New(nil, drawBrowserTitle(), w-2),
+		Browser: browser.New(nil, w-2),
 
 		selectedDir: filepath,
 

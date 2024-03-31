@@ -19,7 +19,6 @@ type Model struct {
 	ActiveDir    string
 	ActiveFile   string
 
-	title          string
 	lists          []list.Model
 	fileExtensions map[string]bool
 
@@ -28,7 +27,7 @@ type Model struct {
 	width int
 }
 
-func New(exts map[string]bool, title string, w int) Model {
+func New(exts map[string]bool, w int) Model {
 	dir, err := os.Getwd()
 	if err != nil {
 		fmt.Println("Error getting starting directory:", err)
@@ -37,7 +36,6 @@ func New(exts map[string]bool, title string, w int) Model {
 
 	m := Model{
 		width:          w,
-		title:          title,
 		fileExtensions: exts,
 	}
 	m = m.addListForDirectory(dir)
@@ -74,10 +72,7 @@ func (m Model) listIndex() int {
 
 func (m Model) View() string {
 	browser := m.currentList().View()
-	if len(m.title) == 0 {
-		return browser
-	}
-	return lipgloss.JoinVertical(lipgloss.Left, m.title, browser)
+	return lipgloss.JoinVertical(lipgloss.Left, browser)
 }
 
 func (m Model) ActiveFilename() string {

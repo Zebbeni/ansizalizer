@@ -86,5 +86,7 @@ func (m Model) Name() string {
 }
 
 func (m Model) Colors() color.Palette {
-	return m.colors
+	colorsCopy := make([]color.Color, len(m.colors))
+	copy(colorsCopy, m.colors)
+	return colorsCopy
 }

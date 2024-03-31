@@ -1,15 +1,18 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/viewport"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 const (
-	displayHeight = 2
+	displayHeight = 3
 	helpHeight    = 1
 
 	controlsWidth = 30
@@ -28,14 +31,29 @@ func (m Model) renderControls() string {
 }
 
 func (m Model) renderViewer() string {
-	viewer := m.viewer.View()
+	imgString := m.viewer.View()
+	imgWidth, imgHeight := lipgloss.Size(imgString)
 
-	renderViewport := viewport.New(m.rPanelWidth(), m.rPanelHeight()-displayHeight)
+	imgViewer := imgString
+
+	// only render box label border around content if big enough.
+	if imgHeight > 1 && imgWidth > 4 {
+		boxLabelRenderer := style.BoxWithLabel{
+			BoxStyle:   lipgloss.NewStyle().BorderForeground(style.ExtraDimColor).Border(lipgloss.RoundedBorder()),
+			LabelStyle: lipgloss.NewStyle().Foreground(style.ExtraDimColor).AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Bottom),
+		}
+		imgViewer = boxLabelRenderer.Render(fmt.Sprintf("%dx%d", imgWidth, imgHeight), imgString, imgWidth)
+	}
+
+	renderViewport := viewport.New(m.rPanelWidth()-2, m.rPanelHeight()-displayHeight-2)
 
 	vpRightStyle := lipgloss.NewStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
-	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth()).Height(m.rPanelHeight()).Render(viewer)
+	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth() - 2).Height(m.rPanelHeight() - 4).Render(imgViewer)
 	renderViewport.SetContent(rightContent)
-	return renderViewport.View()
+
+	content := renderViewport.View()
+
+	return style.NormalButton.Copy().BorderForeground(style.DimmedColor1).Render(content)
 }
 
 func (m Model) renderHelp() string {

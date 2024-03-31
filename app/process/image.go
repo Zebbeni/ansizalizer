@@ -19,7 +19,7 @@ var (
 
 func RenderImageFile(s settings.Model, imgFilePath string) string {
 	if imgFilePath == "" {
-		return "Choose an image to render"
+		return "Browse an image to render"
 	}
 
 	var img image.Image
@@ -40,7 +40,8 @@ func RenderImageFile(s settings.Model, imgFilePath string) string {
 }
 
 func (m Renderer) process(input image.Image) string {
-	if m.Settings.Colors.IsLimited() && len(m.Settings.Colors.GetCurrentPalette().Colors()) == 0 {
+	isTrueColor, _, palette := m.Settings.Colors.GetSelected()
+	if !isTrueColor && len(palette.Colors()) == 0 {
 		return "Choose a color palette"
 	}
 	mode, _, _, _ := m.Settings.Characters.Selected()

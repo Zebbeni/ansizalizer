@@ -1,3 +1,6 @@
+# Images test directory
+images/*
+
 # Binaries for programs and plugins
 *.exe
 *.exe~

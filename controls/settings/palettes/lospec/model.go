@@ -47,6 +47,7 @@ type Model struct {
 	ShouldClose   bool
 	ShouldUnfocus bool
 	IsActive      bool
+	IsSelected    bool // true if we've selected something (ie. render w/ lospec)
 
 	width             int
 	didInitializeList bool
@@ -68,6 +69,7 @@ func New(w int) Model {
 		ShouldClose:   false,
 		ShouldUnfocus: false,
 		IsActive:      false,
+		IsSelected:    false,
 
 		width: w,
 	}
@@ -122,19 +124,20 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 // <...>
 // ..
 func (m Model) View() string {
+	title := m.drawTitle()
 	colorsInput := m.drawColorsInput()
 	filters := m.drawFilterButtons()
 	colorFilters := lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, filters)
 	tagInput := m.drawTagInput()
 	sortButtons := m.drawSortButtons()
 
-	titleString := fmt.Sprintf("%d results found\npage %d of %d", len(m.paletteList.Items()), m.paletteList.Paginator.Page, m.paletteList.Paginator.TotalPages)
-	title := style.DimmedTitle.Copy().Width(m.width).Height(2).AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 0).Render(titleString)
+	results := fmt.Sprintf("%d results found\npage %d of %d", len(m.paletteList.Items()), m.paletteList.Paginator.Page, m.paletteList.Paginator.TotalPages)
+	results = style.DimmedTitle.Copy().Width(m.width).Height(2).AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 0).Render(results)
 	paletteList := m.paletteList.View()
 	if len(m.paletteList.Items()) == 0 {
 		paletteList = ""
 	}
-	return lipgloss.JoinVertical(lipgloss.Top, colorFilters, tagInput, sortButtons, title, paletteList)
+	return lipgloss.JoinVertical(lipgloss.Top, title, colorFilters, tagInput, sortButtons, results, paletteList)
 }
 
 func (m Model) LoadInitial() (Model, tea.Cmd) {

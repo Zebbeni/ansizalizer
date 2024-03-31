@@ -50,6 +50,8 @@ var (
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
 	m.ShouldClose = true
+	m.IsSelected = false
+	m.ShouldUnfocus = true
 	return m, nil
 }
 
@@ -70,6 +72,7 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		return m.searchLospec(0)
 	case List:
 		m.palette, _ = m.paletteList.SelectedItem().(palette.Model)
+		m.IsSelected = true
 		return m, event.StartRenderToViewCmd
 	}
 	return m, nil
@@ -93,6 +96,7 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			m.focus = next
 		} else {
+			m.IsSelected = false
 			m.ShouldUnfocus = true
 		}
 	}
