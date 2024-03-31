@@ -19,7 +19,7 @@ var (
 
 func RenderImageFile(s settings.Model, imgFilePath string) string {
 	if imgFilePath == "" {
-		return "Choose an image to render"
+		return "Browse an image to render"
 	}
 
 	var img image.Image
