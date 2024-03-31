@@ -51,6 +51,7 @@ func (m Renderer) createHalfBlockFuncs() map[rune]blockFunc {
 		'▀': m.calcTop,
 	}
 }
+
 func (m Renderer) createFullBlockFuncs() map[rune]blockFunc {
 	return map[rune]blockFunc{
 		'█': m.calcFull,
@@ -59,15 +60,16 @@ func (m Renderer) createFullBlockFuncs() map[rune]blockFunc {
 
 func (m Renderer) createShadeLightFuncs() map[rune]blockFunc {
 	return map[rune]blockFunc{
-		'░': m.calcLight,
+		'░': m.calcHeavy,
 	}
 }
 
 func (m Renderer) createShadeMedFuncs() map[rune]blockFunc {
 	return map[rune]blockFunc{
-		'▒': m.calcMed,
+		'▒': m.calcHeavy,
 	}
 }
+
 func (m Renderer) createShadeHeavyFuncs() map[rune]blockFunc {
 	return map[rune]blockFunc{
 		'▓': m.calcHeavy,
