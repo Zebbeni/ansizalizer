@@ -12,6 +12,7 @@ var (
 		StretchButton: "Stretch",
 		WidthForm:     "Width",
 		HeightForm:    "Height",
+		CharRatioForm: "Width/Height Ratio",
 	}
 
 	inputStyle = lipgloss.NewStyle().Width(14).AlignHorizontal(lipgloss.Left)
@@ -20,7 +21,7 @@ var (
 	focusColor  = lipgloss.Color("#ffffff")
 	normalColor = lipgloss.Color("#555555")
 	titleStyle  = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#888888"))
+			Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawButtons() string {
@@ -43,7 +44,7 @@ func (m Model) drawButtons() string {
 	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }
 
-func (m Model) drawInputs() string {
+func (m Model) drawSizeForms() string {
 	prompt, placeholder := m.getInputColors(WidthForm)
 	m.widthInput.Width = 3
 	m.widthInput.PromptStyle = m.widthInput.PromptStyle.Copy().Foreground(prompt)
@@ -67,6 +68,21 @@ func (m Model) drawInputs() string {
 	height := inputStyle.Render(m.heightInput.View())
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, width, height)
+}
+
+func (m Model) drawCharRatioForm() string {
+	prompt, placeholder := m.getInputColors(CharRatioForm)
+	m.charRatioInput.Width = 30
+	m.charRatioInput.PromptStyle = m.charRatioInput.PromptStyle.Copy().Width(20).Foreground(prompt)
+	m.charRatioInput.PlaceholderStyle = m.charRatioInput.PlaceholderStyle.Copy().Width(4).Foreground(placeholder)
+	if m.charRatioInput.Focused() {
+		m.charRatioInput.Cursor.SetMode(cursor.CursorBlink)
+	} else {
+		m.charRatioInput.Cursor.SetMode(cursor.CursorHide)
+	}
+	tipString := lipgloss.NewStyle().Width(28).AlignHorizontal(lipgloss.Center).Italic(true).Padding(1, 1).Foreground(lipgloss.Color("#444444")).Render("Character Proportions")
+	formString := inputStyle.Copy().Width(28).AlignHorizontal(lipgloss.Center).Render(m.charRatioInput.View())
+	return lipgloss.JoinVertical(lipgloss.Left, tipString, formString)
 }
 
 func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {

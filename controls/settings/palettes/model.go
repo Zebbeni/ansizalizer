@@ -25,8 +25,7 @@ type State int
 // These can all be part of a single list, but we need to onSelect the list items
 
 const (
-	NoPalette State = iota
-	Adapt
+	Adapt State = iota
 	Load
 	Lospec
 	AdaptiveControls
@@ -52,9 +51,9 @@ type Model struct {
 
 func New(w int) Model {
 	m := Model{
-		selected:    NoPalette,
-		focus:       NoPalette,
-		controls:    NoPalette,
+		selected:    Load,
+		focus:       Load,
+		controls:    Load,
 		Adapter:     adaptive.New(w),
 		Loader:      loader.New(w),
 		Lospec:      lospec.New(w),

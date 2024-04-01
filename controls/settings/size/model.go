@@ -11,6 +11,8 @@ import (
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
+const DEFAULT_CHAR_W_TO_H_RATIO = 0.5
+
 type State int
 type Mode int
 
@@ -24,6 +26,7 @@ const (
 	StretchButton
 	WidthForm
 	HeightForm
+	CharRatioForm
 )
 
 type Model struct {
@@ -31,8 +34,9 @@ type Model struct {
 	active State
 	mode   Mode
 
-	widthInput  textinput.Model
-	heightInput textinput.Model
+	widthInput     textinput.Model
+	heightInput    textinput.Model
+	charRatioInput textinput.Model
 
 	ShouldUnfocus bool
 	ShouldClose   bool
@@ -41,11 +45,12 @@ type Model struct {
 
 func New() Model {
 	return Model{
-		focus:       FitButton,
-		active:      FitButton,
-		mode:        Fit,
-		widthInput:  newInput(WidthForm, 50),
-		heightInput: newInput(HeightForm, 40),
+		focus:          FitButton,
+		active:         FitButton,
+		mode:           Fit,
+		widthInput:     newInput(WidthForm, 50),
+		heightInput:    newInput(HeightForm, 40),
+		charRatioInput: newFloatInput(CharRatioForm, DEFAULT_CHAR_W_TO_H_RATIO),
 
 		ShouldUnfocus: false,
 		ShouldClose:   false,
@@ -67,6 +72,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		if m.heightInput.Focused() {
 			return m.handleHeightUpdate(msg)
 		}
+	case CharRatioForm:
+		if m.charRatioInput.Focused() {
+			return m.handleCharRatioUpdate(msg)
+		}
 	}
 
 	switch msg := msg.(type) {
@@ -85,13 +94,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	buttonRow := m.drawButtons()
-	forms := m.drawInputs()
-	return lipgloss.JoinVertical(lipgloss.Left, buttonRow, forms)
+	forms := m.drawSizeForms()
+	ratioForm := m.drawCharRatioForm()
+	return lipgloss.JoinVertical(lipgloss.Left, buttonRow, forms, ratioForm)
 }
 
-func (m Model) Info() (Mode, int, int) {
+func (m Model) Info() (Mode, int, int, float64) {
 	var width, height int
 	width, _ = strconv.Atoi(m.widthInput.Value())
 	height, _ = strconv.Atoi(m.heightInput.Value())
-	return m.mode, width, height
+	charRatio, err := strconv.ParseFloat(m.charRatioInput.Value(), 64)
+	if err != nil {
+		charRatio = DEFAULT_CHAR_W_TO_H_RATIO
+	}
+	return m.mode, width, height, charRatio
 }

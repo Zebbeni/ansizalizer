@@ -22,7 +22,7 @@ func InitKeyMap() {
 	KeyMap = Map{
 		Enter: key.NewBinding(
 			key.WithKeys("return", "enter"),
-			key.WithHelp("↲/enter", "select"),
+			key.WithHelp("↲/enter", "select/focus menu"),
 		),
 		Nav: key.NewBinding(
 			key.WithKeys("up", "down", "right", "left"),
@@ -48,7 +48,7 @@ func InitKeyMap() {
 			key.WithHelp("ctrl+s", "save to file")),
 		Esc: key.NewBinding(
 			key.WithKeys("esc"),
-			key.WithHelp("esc", "back / exit current menu"),
+			key.WithHelp("esc", "back/exit menu"),
 		),
 	}
 }

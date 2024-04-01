@@ -19,8 +19,8 @@ const (
 var navMap = map[Direction]map[State]State{
 	Right: {FitButton: StretchButton, WidthForm: HeightForm},
 	Left:  {StretchButton: FitButton, HeightForm: WidthForm},
-	Up:    {WidthForm: FitButton, HeightForm: StretchButton},
-	Down:  {FitButton: WidthForm, StretchButton: HeightForm},
+	Up:    {WidthForm: FitButton, HeightForm: StretchButton, CharRatioForm: HeightForm},
+	Down:  {FitButton: WidthForm, StretchButton: HeightForm, WidthForm: CharRatioForm, HeightForm: CharRatioForm},
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
@@ -44,6 +44,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.widthInput.Focus()
 	case HeightForm:
 		m.heightInput.Focus()
+	case CharRatioForm:
+		m.charRatioInput.Focus()
 	}
 	return m, event.StartRenderToViewCmd
 }
@@ -75,6 +77,21 @@ func (m Model) handleHeightUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	}
 	var cmd tea.Cmd
 	m.heightInput, cmd = m.heightInput.Update(msg)
+	return m, cmd
+}
+
+func (m Model) handleCharRatioUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.charRatioInput.Blur()
+			return m, event.StartRenderToViewCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.charRatioInput.Blur()
+		}
+	}
+	var cmd tea.Cmd
+	m.charRatioInput, cmd = m.charRatioInput.Update(msg)
 	return m, cmd
 }
 

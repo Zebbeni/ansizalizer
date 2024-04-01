@@ -22,10 +22,10 @@ var asciiSpecChars = []rune(" `.-':_,^=;><+!*/?)(|{}[]#$%&@")
 func (m Renderer) processAscii(input image.Image) string {
 	imgW, imgH := float32(input.Bounds().Dx()), float32(input.Bounds().Dy())
 
-	dimensionType, width, height := m.Settings.Size.Info()
+	dimensionType, width, height, charRatio := m.Settings.Size.Info()
 	if dimensionType == size.Fit {
-		fitHeight := float32(width) * (imgH / imgW) * PROPORTION
-		fitWidth := (float32(height) * (imgW / imgH)) / PROPORTION
+		fitHeight := float32(width) * (imgH / imgW) * float32(charRatio)
+		fitWidth := (float32(height) * (imgW / imgH)) / float32(charRatio)
 		if fitHeight > float32(height) {
 			width = int(fitWidth)
 		} else {
