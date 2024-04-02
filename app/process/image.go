@@ -11,8 +11,6 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 )
 
-const PROPORTION = 0.44
-
 var (
 	black = colorful.Color{}
 )

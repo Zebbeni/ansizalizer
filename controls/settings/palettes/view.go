@@ -3,12 +3,11 @@ package palettes
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	stateOrder = []State{NoPalette, Load, Adapt, Lospec}
+	stateOrder = []State{Load, Adapt, Lospec}
 	stateNames = map[State]string{
-		NoPalette: "True",
-		Load:      "Load",
-		Adapt:     "Adapt",
-		Lospec:    "Lospec",
+		Load:   "Load",
+		Adapt:  "Sample",
+		Lospec: "Lospec",
 	}
 
 	activeStyle = lipgloss.NewStyle().
@@ -40,7 +39,7 @@ func (m Model) drawButtons() string {
 		} else if state == m.selected {
 			style = activeStyle
 		}
-		buttons[i] = style.Copy().AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+		buttons[i] = style.Copy().AlignHorizontal(lipgloss.Center).Padding(0, 1).Render(stateNames[state])
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }

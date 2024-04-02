@@ -36,9 +36,7 @@ var (
 
 	ActiveButtonNode = lipgloss.NewStyle().
 				PaddingLeft(1).
-		//Border(lipgloss.RoundedBorder(), false, false, false, true).
-		//BorderForeground(NormalColor1).
-		Foreground(NormalColor1)
+				Foreground(NormalColor1)
 	FocusButtonNode = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder(), false, false, false, true).
 			BorderForeground(SelectedColor1).

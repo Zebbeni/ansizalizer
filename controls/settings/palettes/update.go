@@ -17,8 +17,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {NoPalette: Load, Load: Adapt, Adapt: Lospec},
-	Left:  {Lospec: Adapt, Adapt: Load, Load: NoPalette},
+	Right: {Load: Adapt, Adapt: Lospec},
+	Left:  {Lospec: Adapt, Adapt: Load},
 	Down:  {Adapt: AdaptiveControls, Load: LoadControls, Lospec: LospecControls},
 	Up:    {AdaptiveControls: Adapt, LoadControls: Load, LospecControls: Lospec},
 }
@@ -141,8 +141,6 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 		m.controls = Load
 	case Lospec:
 		m.controls = Lospec
-	case NoPalette:
-		m.controls = NoPalette
 	case AdaptiveControls:
 		m.Adapter.IsActive = true
 	case LoadControls:

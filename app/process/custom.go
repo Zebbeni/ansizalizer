@@ -16,10 +16,10 @@ import (
 func (m Renderer) processCustom(input image.Image) string {
 	imgW, imgH := float32(input.Bounds().Dx()), float32(input.Bounds().Dy())
 
-	dimensionType, width, height := m.Settings.Size.Info()
+	dimensionType, width, height, charRatio := m.Settings.Size.Info()
 	if dimensionType == size.Fit {
-		fitHeight := float32(width) * (imgH / imgW) * PROPORTION
-		fitWidth := (float32(height) * (imgW / imgH)) / PROPORTION
+		fitHeight := float32(width) * (imgH / imgW) * float32(charRatio)
+		fitWidth := (float32(height) * (imgW / imgH)) / float32(charRatio)
 		if fitHeight > float32(height) {
 			width = int(fitWidth)
 		} else {
@@ -64,7 +64,7 @@ func (m Renderer) processCustom(input image.Image) string {
 
 				lipFg := lipgloss.Color(fg.Hex())
 				lipBg := lipgloss.Color(bg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg).Background(lipBg)
+				style := lipgloss.NewStyle().Foreground(lipFg).Background(lipBg).Bold(true)
 
 				index := min(int(brightness*float64(len(chars))), len(chars)-1)
 				char := chars[index]
@@ -78,7 +78,7 @@ func (m Renderer) processCustom(input image.Image) string {
 					fg, _ = colorful.MakeColor(palette.Colors().Convert(fg))
 				}
 				lipFg := lipgloss.Color(fg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg)
+				style := lipgloss.NewStyle().Foreground(lipFg).Bold(true)
 				index := min(int(brightness*float64(len(chars))), len(chars)-1)
 				char := chars[index]
 				charString := string(char)
