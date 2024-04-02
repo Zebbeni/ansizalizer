@@ -82,7 +82,7 @@ func (m Renderer) processAscii(input image.Image) string {
 
 				lipFg := lipgloss.Color(fg.Hex())
 				lipBg := lipgloss.Color(bg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg).Background(lipBg)
+				style := lipgloss.NewStyle().Foreground(lipFg).Background(lipBg).Bold(true)
 
 				index := min(int(brightness*float64(len(chars))), len(chars)-1)
 				char := chars[index]
@@ -96,7 +96,8 @@ func (m Renderer) processAscii(input image.Image) string {
 					fg, _ = colorful.MakeColor(palette.Colors().Convert(fg))
 				}
 				lipFg := lipgloss.Color(fg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg)
+				style := lipgloss.NewStyle().Foreground(lipFg).Bold(true)
+
 				index := min(int(brightness*float64(len(chars))), len(chars)-1)
 				char := chars[index]
 				charString := string(char)

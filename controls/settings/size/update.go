@@ -29,9 +29,24 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
-	if m.active == m.focus && (m.active == FitButton || m.active == StretchButton) {
-		m.ShouldClose = true
-		return m, nil
+	if m.active == m.focus {
+		if m.active == FitButton || m.active == StretchButton {
+			m.ShouldClose = true
+			return m, nil
+		} else {
+			switch m.active {
+			case WidthForm:
+				m.widthInput.Blur()
+				m.active = None
+			case HeightForm:
+				m.heightInput.Blur()
+				m.active = None
+			case CharRatioForm:
+				m.charRatioInput.Blur()
+				m.active = None
+			}
+			return m, event.StartRenderToViewCmd
+		}
 	}
 
 	m.active = m.focus

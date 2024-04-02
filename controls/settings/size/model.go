@@ -27,6 +27,7 @@ const (
 	WidthForm
 	HeightForm
 	CharRatioForm
+	None
 )
 
 type Model struct {
@@ -46,7 +47,7 @@ type Model struct {
 func New() Model {
 	return Model{
 		focus:          FitButton,
-		active:         FitButton,
+		active:         None,
 		mode:           Fit,
 		widthInput:     newInput(WidthForm, 50),
 		heightInput:    newInput(HeightForm, 40),
@@ -63,18 +64,21 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd1, cmd2 tea.Cmd
+	newM := m
+
 	switch m.active {
 	case WidthForm:
 		if m.widthInput.Focused() {
-			return m.handleWidthUpdate(msg)
+			newM, cmd1 = newM.handleWidthUpdate(msg)
 		}
 	case HeightForm:
 		if m.heightInput.Focused() {
-			return m.handleHeightUpdate(msg)
+			newM, cmd1 = newM.handleHeightUpdate(msg)
 		}
 	case CharRatioForm:
 		if m.charRatioInput.Focused() {
-			return m.handleCharRatioUpdate(msg)
+			newM, cmd1 = newM.handleCharRatioUpdate(msg)
 		}
 	}
 
@@ -82,14 +86,14 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, event.KeyMap.Enter):
-			return m.handleEnter()
+			newM, cmd2 = newM.handleEnter()
 		case key.Matches(msg, event.KeyMap.Nav):
-			return m.handleNav(msg)
+			newM, cmd2 = newM.handleNav(msg)
 		case key.Matches(msg, event.KeyMap.Esc):
-			return m.handleEsc()
+			newM, cmd2 = newM.handleEsc()
 		}
 	}
-	return m, nil
+	return newM, tea.Batch(cmd1, cmd2)
 }
 
 func (m Model) View() string {
