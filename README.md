@@ -1,4 +1,4 @@
-# ansizalizer
+# ANSIZALIZER
 A TUI to convert Images to ANSI strings using bubbletea
 
 ![Screenshot 2024-04-02 150412](https://github.com/Zebbeni/ansizalizer/assets/3377325/141c3662-7e70-4e82-ac0c-5db77adbf1c7)
