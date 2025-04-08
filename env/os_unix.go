@@ -2,4 +2,4 @@
 
 package env
 
-const PollForSizeChange = false
+const PollForSizeChange2 = false
