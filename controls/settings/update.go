@@ -80,6 +80,7 @@ func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	m.Alpha, cmd = m.Alpha.Update(msg)
 
 	if m.Alpha.ShouldUnfocus {
+		m.active = None
 		return m.handleSettingsUpdate(msg)
 	}
 	return m, cmd
