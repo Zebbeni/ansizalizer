@@ -14,11 +14,15 @@ const (
 	AlphaYes
 	AlphaNo
 	UseAlpha
+	TrimAlpha
+	TrimAlphaYes
+	TrimAlphaNo
 )
 
 type Model struct {
 	focus State
 	useAlpha bool
+	trimAlpha bool
 	ShouldUnfocus bool
 	IsActive bool
 	width int
@@ -29,6 +33,7 @@ func New(w int) Model {
 	return Model{
 		focus: AlphaYes,
 		useAlpha: true,
+		trimAlpha: false,
 		IsActive: false,
 		width: w,
 	}
@@ -56,10 +61,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	content := make([]string, 0, 5)
 	content = append(content, m.drawAlphaOptions())
+	content = append(content, m.drawAlphaTrimOptions())
 
 	return lipgloss.JoinVertical(lipgloss.Left, content...)
 }
 
 func (m Model) ShouldOutputAlpha() bool {
 	return m.useAlpha
+}
+
+func (m Model) TrimAlpha() bool {
+	return m.trimAlpha
 }

@@ -19,6 +19,7 @@ type Model struct {
 	ActiveDir    string
 	ActiveFile   string
 	UseAlpha     bool
+	TrimAlpha    bool
 
 	lists          []list.Model
 	fileExtensions map[string]bool
