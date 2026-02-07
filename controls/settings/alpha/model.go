@@ -26,6 +26,7 @@ type Model struct {
 	ShouldUnfocus bool
 	IsActive bool
 	width int
+	AlphaImage bool
 }
 
 func New(w int) Model {
@@ -36,6 +37,7 @@ func New(w int) Model {
 		trimAlpha: false,
 		IsActive: false,
 		width: w,
+		AlphaImage: true,
 	}
 }
 

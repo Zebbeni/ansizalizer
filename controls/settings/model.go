@@ -82,7 +82,10 @@ func (m Model) View() string {
 	char := m.renderWithBorder(charCtrls, Characters)
 	siz := m.renderWithBorder(sizeCtrls, Size)
 	sam := m.renderWithBorder(sampCtrls, Advanced)
-	alf := m.renderWithBorder(alfCtrls, Alpha)
+	alf := ""
+	if m.Alpha.AlphaImage {
+		alf = m.renderWithBorder(alfCtrls, Alpha)
+	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, sam, alf)
 }

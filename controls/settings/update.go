@@ -15,6 +15,11 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
+	Down: {Colors: Characters, Characters: Size, Size: Advanced},
+	Up:   {Advanced: Size, Size: Characters, Characters: Colors},
+}
+
+var navMapAlpha = map[Direction]map[State]State{
 	Down: {Colors: Characters, Characters: Size, Size: Advanced, Advanced: Alpha},
 	Up:   {Alpha: Advanced, Advanced: Size, Size: Characters, Characters: Colors},
 }
@@ -112,14 +117,28 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, event.KeyMap.Down):
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
-			m.focus = next
+		if m.Alpha.AlphaImage {
+			if next, hasNext := navMapAlpha[Down][m.focus]; hasNext {
+				m.focus = next
+			}
+		} else {
+			if next, hasNext := navMap[Down][m.focus]; hasNext {
+				m.focus = next
+			}
 		}
 	case key.Matches(msg, event.KeyMap.Up):
-		if next, hasNext := navMap[Up][m.focus]; hasNext {
-			m.focus = next
+		if m.Alpha.AlphaImage {
+			if next, hasNext := navMapAlpha[Up][m.focus]; hasNext {
+				m.focus = next
+			} else {
+				m.ShouldClose = true
+			}
 		} else {
-			m.ShouldClose = true
+			if next, hasNext := navMap[Up][m.focus]; hasNext {
+				m.focus = next
+			} else {
+				m.ShouldClose = true
+			}
 		}
 	}
 	return m, nil

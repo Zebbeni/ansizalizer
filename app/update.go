@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"regexp"
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
@@ -28,11 +29,17 @@ func (m Model) handleFinishRenderToViewMsg(msg event.FinishRenderToViewMsg) (Mod
 		return m, nil
 	}
 	var cmd tea.Cmd
+	m.controls.Settings.Alpha.AlphaImage = false
+	re := regexp.MustCompile(`(?i)\.(png|gif)$`)
+	if re.Match([]byte(m.controls.FileBrowser.ActiveFile)) {
+		m.controls.Settings.Alpha.AlphaImage = true
+	}
 	m.viewer, cmd = m.viewer.Update(msg)
 	return m, cmd
 }
 
 func (m Model) processRenderToViewCmd() tea.Msg {
+	re := regexp.MustCompile(`(?i)\.(png|gif)$`)
 	imgString := process.RenderImageFile(m.controls.Settings, m.controls.FileBrowser.ActiveFile)
 	colorsString := "true color"
 	alphaString := "no alpha channel"
@@ -40,7 +47,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 		palette := m.controls.Settings.Colors.GetCurrentPalette()
 		colorsString = palette.Title()
 	}
-	if m.controls.Settings.Alpha.ShouldOutputAlpha() {
+	if m.controls.Settings.Alpha.ShouldOutputAlpha() && re.Match([]byte(m.controls.FileBrowser.ActiveFile)) {
 		alphaString = "alpha channel"
 	}
 	return event.FinishRenderToViewMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString, ColorsString: colorsString, AlphaString: alphaString}
