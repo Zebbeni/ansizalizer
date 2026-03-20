@@ -9,7 +9,7 @@ import (
 // ▛▜▐▜▐▀▐▝▜▐▜▐ ▐▝▜▐▛▐▀▌
 // ▛▜▐▐▗▟▐▐▄▐▜▐▄▐▐▄▐▄▐▜
 func (m Model) drawTitle() string {
-	title1Runes := []rune{' ', ' ', '▛', '▜', '▐', '▜', '▐', '▀', '▐', '▝', '▜', '▐', '▜', '▐', ' ', '▐', '▝', '▜', '▐', '▛', '▐', '▀', '▌', ' '}
+	title1Runes := []rune{' ', '▛', '▜', '▐', '▜', '▐', '▀', '▐', '▝', '▜', '▐', '▜', '▐', ' ', '▐', '▝', '▜', '▐', '▛', '▐', '▀', '▌'}
 	title2Runes := []rune{' ', '▛', '▜', '▐', '▐', '▗', '▟', '▐', '▐', '▄', '▐', '▜', '▐', '▄', '▐', '▐', '▄', '▐', '▄', '▐', '▀', '▖'}
 	title1 := lipgloss.JoinHorizontal(lipgloss.Left, string(title1Runes))
 	title2 := lipgloss.JoinHorizontal(lipgloss.Left, string(title2Runes))

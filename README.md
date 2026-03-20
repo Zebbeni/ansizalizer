@@ -9,6 +9,7 @@ A TUI to convert Images to ANSI strings using bubbletea
 - Export ANSI image strings to '.ansi' text files or copy directly to your Clipboard
 - Save files individually or Batch Process All Images in a chosen directory
 - Browse Lospec.com for cool color palettes
+- Supports transparent "pixel" ANSI output
 
 ## Render Options
 - Set output Width and Height of rendered text images (in characters)
@@ -16,6 +17,7 @@ A TUI to convert Images to ANSI strings using bubbletea
 - Render images with "true" colors or convert using Limited Color Palettes
 - Generate new color palettes by sampling previewed image files
 - Use Advanced settings to tweak pixel Sampling mode and Dithering options
+- Alpha transparency is enabled by default, but can be changed under Setting -> Alpha Channel 
 
 ![Screenshot 2024-04-02 155820](https://github.com/Zebbeni/ansizalizer/assets/3377325/24095f45-5c73-4654-a5e1-b491cda9dc66)
 

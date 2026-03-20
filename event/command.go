@@ -17,6 +17,7 @@ type FinishRenderToViewMsg struct {
 	FilePath     string
 	ImgString    string
 	ColorsString string
+	AlphaString  string
 }
 
 type StartRenderToExportMsg bool
@@ -29,6 +30,7 @@ type FinishRenderToExportMsg struct {
 	FilePath     string
 	ImgString    string
 	ColorsString string
+	AlphaString  string
 }
 
 func BuildFinishRenderToExportCmd(msg FinishRenderToExportMsg) tea.Cmd {

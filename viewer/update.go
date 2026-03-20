@@ -13,6 +13,6 @@ func (m Model) handleFinishRenderMsg(msg event.FinishRenderToViewMsg) (Model, te
 	m.WaitingOnRender = false
 	m.imgString = msg.ImgString
 
-	displayMsg := fmt.Sprintf("viewing %s/%s with %s palette", filepath.Base(filepath.Dir(msg.FilePath)), filepath.Base(msg.FilePath), msg.ColorsString)
+	displayMsg := fmt.Sprintf("viewing %s/%s with %s palette and %s", filepath.Base(filepath.Dir(msg.FilePath)), filepath.Base(msg.FilePath), msg.ColorsString, msg.AlphaString)
 	return m, event.BuildDisplayCmd(displayMsg)
 }

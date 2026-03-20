@@ -31,8 +31,8 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 		// Query the box style for some of its border properties so we can
 		// essentially take the top border apart and put it around the label.
 		border             lipgloss.Border     = b.BoxStyle.GetBorderStyle()
-		topBorderStyler    func(string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
-		bottomBorderStyler func(string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
+		topBorderStyler    func(string ...string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
+		bottomBorderStyler func(string ...string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
 		topLeft            string              = topBorderStyler(border.TopLeft)
 		topRight           string              = topBorderStyler(border.TopRight)
 		botLeft            string              = bottomBorderStyler(border.BottomLeft)

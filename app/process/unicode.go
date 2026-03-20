@@ -48,17 +48,23 @@ func (m Renderer) processUnicode(input image.Image) string {
 		refImg = ditherer.Dither(refImg)
 	}
 
-	content := ""
 	rows := make([]string, height)
 	row := make([]string, width)
 	for y := 0; y < height*2; y += 2 {
 		for x := 0; x < width*2; x += 2 {
 			// r1 r2
 			// r3 r4
-			r1, _ := colorful.MakeColor(refImg.At(x, y))
-			r2, _ := colorful.MakeColor(refImg.At(x+1, y))
-			r3, _ := colorful.MakeColor(refImg.At(x, y+1))
-			r4, _ := colorful.MakeColor(refImg.At(x+1, y+1))
+			r1, r1Alpha := colorful.MakeColor(refImg.At(x, y))
+			r2, r2Alpha := colorful.MakeColor(refImg.At(x+1, y))
+			r3, r3Alpha := colorful.MakeColor(refImg.At(x, y+1))
+			r4, r4Alpha := colorful.MakeColor(refImg.At(x+1, y+1))
+
+			// if the fourth argument (a [for alpha]) returned from MakeColor is false, this is a transparent pixel
+			if m.Settings.Alpha.ShouldOutputAlpha() && (!r1Alpha || !r2Alpha || !r3Alpha || !r4Alpha) {
+				// use a placeholder to designate the transparent "pixel"
+				row[x/2] = AlphaPlaceholder
+				continue
+			}
 
 			// pick the block, fg and bg color with the lowest total difference
 			// convert the colors to ansi, render the block and add it at row[x]
@@ -79,8 +85,7 @@ func (m Renderer) processUnicode(input image.Image) string {
 		}
 		rows[y/2] = lipgloss.JoinHorizontal(lipgloss.Top, row...)
 	}
-	content += lipgloss.JoinVertical(lipgloss.Left, rows...)
-	return content
+	return m.outputStrings(rows...)
 }
 
 // find the best block character and foreground and background colors to match

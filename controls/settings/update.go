@@ -19,6 +19,11 @@ var navMap = map[Direction]map[State]State{
 	Up:   {Advanced: Size, Size: Characters, Characters: Colors},
 }
 
+var navMapAlpha = map[Direction]map[State]State{
+	Down: {Colors: Characters, Characters: Size, Size: Advanced, Advanced: Alpha},
+	Up:   {Alpha: Advanced, Advanced: Size, Size: Characters, Characters: Colors},
+}
+
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
 		return m.handleKeyMsg(keyMsg)
@@ -75,6 +80,18 @@ func (m Model) handleAdvancedUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Alpha, cmd = m.Alpha.Update(msg)
+
+	if m.Alpha.ShouldUnfocus {
+		m.active = None
+		return m.handleSettingsUpdate(msg)
+	}
+	return m, cmd
+}
+
+
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.active = m.focus
 	switch m.active {
@@ -86,6 +103,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Size.IsActive = true
 	case Advanced:
 		m.Advanced.IsActive = true
+	case Alpha:
+		m.Alpha.IsActive = true
 	}
 	return m, nil
 }
@@ -98,14 +117,28 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, event.KeyMap.Down):
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
-			m.focus = next
+		if m.Alpha.AlphaImage {
+			if next, hasNext := navMapAlpha[Down][m.focus]; hasNext {
+				m.focus = next
+			}
+		} else {
+			if next, hasNext := navMap[Down][m.focus]; hasNext {
+				m.focus = next
+			}
 		}
 	case key.Matches(msg, event.KeyMap.Up):
-		if next, hasNext := navMap[Up][m.focus]; hasNext {
-			m.focus = next
+		if m.Alpha.AlphaImage {
+			if next, hasNext := navMapAlpha[Up][m.focus]; hasNext {
+				m.focus = next
+			} else {
+				m.ShouldClose = true
+			}
 		} else {
-			m.ShouldClose = true
+			if next, hasNext := navMap[Up][m.focus]; hasNext {
+				m.focus = next
+			} else {
+				m.ShouldClose = true
+			}
 		}
 	}
 	return m, nil

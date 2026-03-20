@@ -1,6 +1,7 @@
 package browser
 
 import (
+	"strings"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -61,7 +62,7 @@ func getItems(extensions map[string]bool, dir string) []list.Item {
 		}
 
 		ext := filepath.Ext(e.Name())
-		if _, ok := extensions[ext]; ok {
+		if _, ok := extensions[strings.ToLower(ext)]; ok {
 			fileItem := item{name: e.Name(), path: path, isDir: false, isTop: false}
 			fileItems = append(fileItems, fileItem)
 		}

@@ -8,6 +8,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
+	"github.com/Zebbeni/ansizalizer/controls/settings/alpha"
 )
 
 type Model struct {
@@ -18,6 +19,7 @@ type Model struct {
 	Characters characters.Model
 	Size       size.Model
 	Advanced   advanced.Model
+	Alpha      alpha.Model
 
 	ShouldUnfocus bool
 	ShouldClose   bool
@@ -34,6 +36,7 @@ func New(w int) Model {
 		Characters: characters.New(w - 2),
 		Size:       size.New(),
 		Advanced:   advanced.New(w - 2),
+		Alpha:      alpha.New(w - 2),
 
 		ShouldUnfocus: false,
 		ShouldClose:   false,
@@ -56,6 +59,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m.handleSizeUpdate(msg)
 	case Advanced:
 		return m.handleAdvancedUpdate(msg)
+	case Alpha:
+		return m.handleAlphaUpdate(msg)
 	}
 
 	keyMsg, ok := msg.(tea.KeyMsg)
@@ -71,11 +76,16 @@ func (m Model) View() string {
 	charCtrls := m.Characters.View()
 	sizeCtrls := m.Size.View()
 	sampCtrls := m.Advanced.View()
+	alfCtrls := m.Alpha.View()
 
 	col := m.renderWithBorder(colorCtrls, Colors)
 	char := m.renderWithBorder(charCtrls, Characters)
 	siz := m.renderWithBorder(sizeCtrls, Size)
 	sam := m.renderWithBorder(sampCtrls, Advanced)
+	alf := ""
+	if m.Alpha.AlphaImage {
+		alf = m.renderWithBorder(alfCtrls, Alpha)
+	}
 
-	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, sam)
+	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, sam, alf)
 }
