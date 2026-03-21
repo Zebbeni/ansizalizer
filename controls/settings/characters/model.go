@@ -26,6 +26,9 @@ const (
 	UnicodeShadeMed
 	UnicodeShadeHeavy
 	SymbolsForm
+	DarkToLight
+	Sequence
+	Random
 	OneColor
 	TwoColor
 )
@@ -37,8 +40,9 @@ type Model struct {
 	charControls State
 	unicodeMode  State
 	asciiMode    State
-	useFgBg      State
-	customInput  textinput.Model
+	useFgBg       State
+	selectionMode State
+	customInput   textinput.Model
 	ShouldClose  bool
 	IsActive     bool
 	width        int
@@ -52,7 +56,8 @@ func New(w int) Model {
 		charControls: Unicode,
 		asciiMode:    AsciiAz,
 		unicodeMode:  UnicodeHalf,
-		useFgBg:      TwoColor,
+		useFgBg:       TwoColor,
+		selectionMode: DarkToLight,
 		customInput:  newInput("Symbols", "/%A"),
 		ShouldClose:  false,
 		IsActive:     false,
@@ -107,4 +112,8 @@ func (m Model) Selected() (State, State, State, []rune) {
 	}
 
 	return m.mode, charMode, m.useFgBg, []rune(m.customInput.Value())
+}
+
+func (m Model) SelectionMode() State {
+	return m.selectionMode
 }

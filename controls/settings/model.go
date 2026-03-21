@@ -37,7 +37,7 @@ func New(w int) Model {
 		Colors:     colors.New(w),
 		Characters: characters.New(w - 2),
 		Size:       size.New(),
-		Adjust:     adjust.New(),
+		Adjust:     adjust.New(w - 2),
 		Advanced:   advanced.New(w - 2),
 		Alpha:      alpha.New(w - 2),
 

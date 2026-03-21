@@ -1,6 +1,8 @@
 package adjust
 
 import (
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -15,8 +17,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Down: {BrightnessForm: ContrastForm},
-	Up:   {ContrastForm: BrightnessForm},
+	Down: {BrightnessForm: BrightnessSlider, BrightnessSlider: ContrastForm, ContrastForm: ContrastSlider},
+	Up:   {ContrastSlider: ContrastForm, ContrastForm: BrightnessSlider, BrightnessSlider: BrightnessForm},
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
@@ -43,6 +45,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.brightnessInput.Focus()
 	case ContrastForm:
 		m.contrastInput.Focus()
+	case BrightnessSlider, ContrastSlider:
+		m.active = None
 	}
 	return m, event.StartRenderToViewCmd
 }
@@ -87,6 +91,16 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		m.active = None
 	}
 
+	// Handle left/right on sliders
+	if m.focus == BrightnessSlider || m.focus == ContrastSlider {
+		switch {
+		case key.Matches(msg, event.KeyMap.Left):
+			return m.handleSliderAdjust(-1)
+		case key.Matches(msg, event.KeyMap.Right):
+			return m.handleSliderAdjust(1)
+		}
+	}
+
 	switch {
 	case key.Matches(msg, event.KeyMap.Up):
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
@@ -102,4 +116,28 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		}
 	}
 	return m, nil
+}
+
+func (m Model) handleSliderAdjust(delta int) (Model, tea.Cmd) {
+	switch m.focus {
+	case BrightnessSlider:
+		val := m.Brightness() + delta
+		if val < -100 {
+			val = -100
+		}
+		if val > 100 {
+			val = 100
+		}
+		m.brightnessInput.SetValue(strconv.Itoa(val))
+	case ContrastSlider:
+		val := m.Contrast() + delta
+		if val < -100 {
+			val = -100
+		}
+		if val > 100 {
+			val = 100
+		}
+		m.contrastInput.SetValue(strconv.Itoa(val))
+	}
+	return m, event.StartRenderToViewCmd
 }

@@ -3,6 +3,7 @@ package process
 import (
 	"image"
 	"math"
+	"math/rand"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/lucasb-eyer/go-colorful"
@@ -48,6 +49,9 @@ func (m Renderer) processCustom(input image.Image) string {
 		return "Enter at least one custom character"
 	}
 
+	selectionMode := m.Settings.Characters.SelectionMode()
+	pixelCount := 0
+
 	rows := make([]string, height)
 	row := make([]string, width)
 
@@ -62,6 +66,7 @@ func (m Renderer) processCustom(input image.Image) string {
 			if m.Settings.Alpha.ShouldOutputAlpha() && (!r1Alpha || !r2Alpha || !r3Alpha || !r4Alpha) {
 				// use a placeholder to designate the transparent "pixel"
 				row[x/2] = AlphaPlaceholder
+				pixelCount++
 				continue
 			}
 
@@ -72,11 +77,8 @@ func (m Renderer) processCustom(input image.Image) string {
 				lipBg := lipgloss.Color(bg.Hex())
 				style := lipgloss.NewStyle().Foreground(lipFg).Background(lipBg).Bold(true)
 
-				index := min(int(brightness*float64(len(chars))), len(chars)-1)
-				char := chars[index]
-				charString := string(char)
-
-				row[x/2] = style.Render(charString)
+				index := m.charIndex(selectionMode, brightness, pixelCount, len(chars))
+				row[x/2] = style.Render(string(chars[index]))
 			} else {
 				fg := m.avgColTrue(r1, r2, r3, r4)
 				brightness := math.Min(1.0, math.Abs(fg.DistanceLuv(black)))
@@ -85,15 +87,26 @@ func (m Renderer) processCustom(input image.Image) string {
 				}
 				lipFg := lipgloss.Color(fg.Hex())
 				style := lipgloss.NewStyle().Foreground(lipFg).Bold(true)
-				index := min(int(brightness*float64(len(chars))), len(chars)-1)
-				char := chars[index]
-				charString := string(char)
-				row[x/2] = style.Render(charString)
+
+				index := m.charIndex(selectionMode, brightness, pixelCount, len(chars))
+				row[x/2] = style.Render(string(chars[index]))
 			}
+			pixelCount++
 		}
 		rows[y/2] = lipgloss.JoinHorizontal(lipgloss.Top, row...)
 	}
 	return m.outputStrings(rows...)
+}
+
+func (m Renderer) charIndex(mode characters.State, brightness float64, pixelCount, charCount int) int {
+	switch mode {
+	case characters.Sequence:
+		return pixelCount % charCount
+	case characters.Random:
+		return rand.Intn(charCount)
+	default:
+		return min(int(brightness*float64(charCount)), charCount-1)
+	}
 }
 
 func min(a, b int) int {

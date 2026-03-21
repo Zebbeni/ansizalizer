@@ -29,6 +29,8 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeLight: UnicodeShadeMed,
 		UnicodeShadeMed:   UnicodeShadeHeavy,
 		OneColor:          TwoColor,
+		DarkToLight:       Sequence,
+		Sequence:          Random,
 	},
 	Left: {
 		Unicode:           Ascii,
@@ -42,6 +44,8 @@ var navMap = map[Direction]map[State]State{
 		UnicodeQuart:      UnicodeHalf,
 		UnicodeHalf:       UnicodeFull,
 		TwoColor:          OneColor,
+		Random:            Sequence,
+		Sequence:          DarkToLight,
 	},
 	Up: {
 		Ascii:             OneColor,
@@ -58,13 +62,17 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeMed:   Unicode,
 		UnicodeShadeHeavy: Unicode,
 		SymbolsForm:       Custom,
+		DarkToLight:       SymbolsForm,
+		Sequence:          SymbolsForm,
+		Random:            SymbolsForm,
 	},
 	Down: {
-		OneColor: Custom,
-		TwoColor: Custom,
-		Ascii:    AsciiAz,
-		Unicode:  UnicodeShadeMed,
-		Custom:   SymbolsForm,
+		OneColor:    Custom,
+		TwoColor:    Custom,
+		Ascii:       AsciiAz,
+		Unicode:     UnicodeShadeMed,
+		Custom:      SymbolsForm,
+		SymbolsForm: DarkToLight,
 	},
 }
 
@@ -107,6 +115,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case SymbolsForm:
 		m.mode = Custom
 		m.customInput.Focus()
+	case DarkToLight, Sequence, Random:
+		m.selectionMode = m.active
 	case OneColor, TwoColor:
 		m.useFgBg = m.active
 	default:

@@ -15,7 +15,9 @@ type State int
 
 const (
 	BrightnessForm State = iota
+	BrightnessSlider
 	ContrastForm
+	ContrastSlider
 	None
 )
 
@@ -28,9 +30,10 @@ type Model struct {
 
 	ShouldClose bool
 	IsActive    bool
+	width       int
 }
 
-func New() Model {
+func New(w int) Model {
 	return Model{
 		focus:           BrightnessForm,
 		active:          None,
@@ -38,6 +41,7 @@ func New() Model {
 		contrastInput:   newInput("Contrast", 0),
 		ShouldClose:     false,
 		IsActive:        false,
+		width:           w,
 	}
 }
 
@@ -76,8 +80,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	brightness := m.drawBrightnessForm()
+	brightnessSlider := m.drawSlider(BrightnessSlider, m.Brightness())
 	contrast := m.drawContrastForm()
-	return lipgloss.JoinVertical(lipgloss.Left, brightness, contrast)
+	contrastSlider := m.drawSlider(ContrastSlider, m.Contrast())
+	return lipgloss.JoinVertical(lipgloss.Left, brightness, brightnessSlider, contrast, contrastSlider)
 }
 
 func (m Model) Brightness() int {

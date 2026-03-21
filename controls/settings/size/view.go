@@ -85,12 +85,11 @@ func (m Model) drawCharRatioForm() string {
 }
 
 func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {
-	if m.focus == state {
+	if m.IsActive && m.focus == state {
 		if m.active == state {
 			return activeColor, focusColor
-		} else {
-			return focusColor, activeColor
 		}
+		return focusColor, activeColor
 	}
 	return normalColor, normalColor
 }

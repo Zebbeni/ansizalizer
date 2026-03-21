@@ -12,6 +12,8 @@ var (
 	asciiButtonOrder   = []State{AsciiAz, AsciiNums, AsciiSpec, AsciiAll}
 	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy}
 
+	selectionModeOrder = []State{DarkToLight, Sequence, Random}
+
 	stateNames = map[State]string{
 		Ascii:             "Ascii",
 		Unicode:           "Unicode",
@@ -28,6 +30,9 @@ var (
 		UnicodeShadeHeavy: "▓",
 		OneColor:          "1 Color",
 		TwoColor:          "2 Colors",
+		DarkToLight:       "Brightness",
+		Sequence:          "Repeat",
+		Random:            "Random",
 	}
 
 	activeColor = lipgloss.Color("#aaaaaa")
@@ -92,7 +97,25 @@ func (m Model) drawCustomControls() string {
 	}
 	m.customInput.PromptStyle = nodeStyle.Copy()
 	m.customInput.TextStyle = textStyle
-	return m.customInput.View()
+
+	symbolsRow := m.customInput.View()
+	selectionRow := lipgloss.NewStyle().PaddingTop(1).Render(m.drawSelectionMode())
+	return lipgloss.JoinVertical(lipgloss.Left, symbolsRow, selectionRow)
+}
+
+func (m Model) drawSelectionMode() string {
+	buttons := make([]string, len(selectionModeOrder))
+	for i, state := range selectionModeOrder {
+		buttonStyle := style.NormalButtonNode
+		if m.IsActive && state == m.focus {
+			buttonStyle = style.FocusButtonNode
+		} else if state == m.selectionMode {
+			buttonStyle = style.ActiveButtonNode
+		}
+		buttons[i] = buttonStyle.Render(stateNames[state])
+	}
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }
 
 func (m Model) drawColorsButtons() string {
