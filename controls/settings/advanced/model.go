@@ -82,3 +82,9 @@ func (m Model) SamplingFunction() resize.InterpolationFunction {
 func (m Model) Dithering() (bool, bool, dither.ErrorDiffusionMatrix) {
 	return m.dithering.Settings()
 }
+
+func (m *Model) ResetFocus() {
+	m.focus = Sampling
+	m.active = Menu
+	m.activeTab = Sampling
+}

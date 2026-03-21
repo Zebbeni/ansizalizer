@@ -94,6 +94,13 @@ func (m Model) Contrast() int {
 	return clampInput(m.contrastInput.Value())
 }
 
+func (m *Model) ResetFocus() {
+	m.focus = BrightnessForm
+	m.active = None
+	m.brightnessInput.Blur()
+	m.contrastInput.Blur()
+}
+
 func clampInput(s string) int {
 	val, err := strconv.Atoi(s)
 	if err != nil {

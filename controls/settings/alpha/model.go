@@ -75,3 +75,7 @@ func (m Model) ShouldOutputAlpha() bool {
 func (m Model) TrimAlpha() bool {
 	return m.trimAlpha
 }
+
+func (m *Model) ResetFocus() {
+	m.focus = AlphaYes
+}

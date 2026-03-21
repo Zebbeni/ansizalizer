@@ -43,8 +43,10 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	switch m.active {
 	case BrightnessForm:
 		m.brightnessInput.Focus()
+		m.brightnessInput.CursorEnd()
 	case ContrastForm:
 		m.contrastInput.Focus()
+		m.contrastInput.CursorEnd()
 	case BrightnessSlider, ContrastSlider:
 		m.active = None
 	}

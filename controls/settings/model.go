@@ -77,22 +77,22 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	colorCtrls := m.Colors.View()
-	charCtrls := m.Characters.View()
-	sizeCtrls := m.Size.View()
-	adjCtrls := m.Adjust.View()
-	sampCtrls := m.Advanced.View()
-	alfCtrls := m.Alpha.View()
-
-	col := m.renderWithBorder(colorCtrls, Colors)
-	char := m.renderWithBorder(charCtrls, Characters)
-	siz := m.renderWithBorder(sizeCtrls, Size)
-	adj := m.renderWithBorder(adjCtrls, Adjust)
-	sam := m.renderWithBorder(sampCtrls, Advanced)
+	col := m.renderCollapsible(m.Colors.View(), Colors)
+	char := m.renderCollapsible(m.Characters.View(), Characters)
+	siz := m.renderCollapsible(m.Size.View(), Size)
+	adj := m.renderCollapsible(m.Adjust.View(), Adjust)
+	sam := m.renderCollapsible(m.Advanced.View(), Advanced)
 	alf := ""
 	if m.Alpha.AlphaImage {
-		alf = m.renderWithBorder(alfCtrls, Alpha)
+		alf = m.renderCollapsible(m.Alpha.View(), Alpha)
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, adj, sam, alf)
+}
+
+func (m Model) renderCollapsible(content string, state State) string {
+	if m.focus != state && m.active != state {
+		return m.renderCollapsed(state)
+	}
+	return m.renderWithBorder(content, state)
 }

@@ -117,3 +117,9 @@ func (m Model) Selected() (State, State, State, []rune) {
 func (m Model) SelectionMode() State {
 	return m.selectionMode
 }
+
+func (m *Model) ResetFocus() {
+	m.focus = Unicode
+	m.active = Unicode
+	m.charControls = m.mode
+}

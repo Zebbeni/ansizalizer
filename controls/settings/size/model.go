@@ -113,3 +113,11 @@ func (m Model) Info() (Mode, int, int, float64) {
 	}
 	return m.mode, width, height, charRatio
 }
+
+func (m *Model) ResetFocus() {
+	m.focus = FitButton
+	m.active = None
+	m.widthInput.Blur()
+	m.heightInput.Blur()
+	m.charRatioInput.Blur()
+}

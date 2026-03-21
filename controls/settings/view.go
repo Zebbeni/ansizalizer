@@ -1,6 +1,8 @@
 package settings
 
 import (
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/style"
@@ -33,5 +35,33 @@ func (m Model) renderWithBorder(content string, state State) string {
 		LabelStyle: textStyle,
 	}
 
-	return renderer.Render(stateTitles[state], content, m.width-2)
+	return renderer.Render(stateTitles[state]+" (-)", content, m.width-2)
+}
+
+func (m Model) renderCollapsed(state State) string {
+	renderColor := normalColor
+	if m.focus == state {
+		renderColor = focusColor
+	}
+
+	border := lipgloss.RoundedBorder()
+	styler := lipgloss.NewStyle().Foreground(renderColor).Render
+
+	label := lipgloss.NewStyle().
+		Padding(0, 1, 0, 1).
+		Foreground(renderColor).
+		Render(stateTitles[state] + " (+)")
+
+	labelWidth := lipgloss.Width(label)
+	gapTotal := m.width - 2 - labelWidth
+	if gapTotal < 0 {
+		gapTotal = 0
+	}
+	gapLeft := strings.Repeat(border.Top, gapTotal/2)
+	gapRight := strings.Repeat(border.Top, gapTotal-gapTotal/2)
+
+	topLine := styler(border.TopLeft) + styler(gapLeft) + label + styler(gapRight) + styler(border.TopRight)
+	botLine := styler(border.BottomLeft + strings.Repeat(border.Bottom, m.width-2) + border.BottomRight)
+
+	return topLine + "\n" + botLine
 }

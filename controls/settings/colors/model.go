@@ -91,3 +91,7 @@ func (m Model) GetCurrentPalette() palette.Model {
 func (m Model) IsLimited() bool {
 	return m.mode == UsePalette
 }
+
+func (m *Model) ResetFocus() {
+	m.focus = UseTrueColor
+}

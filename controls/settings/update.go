@@ -128,6 +128,7 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
+	prev := m.focus
 	switch {
 	case key.Matches(msg, event.KeyMap.Down):
 		if m.Alpha.AlphaImage {
@@ -154,7 +155,27 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			}
 		}
 	}
+	if m.focus != prev {
+		m.resetSubMenu(prev)
+	}
 	return m, nil
+}
+
+func (m *Model) resetSubMenu(state State) {
+	switch state {
+	case Colors:
+		m.Colors.ResetFocus()
+	case Characters:
+		m.Characters.ResetFocus()
+	case Size:
+		m.Size.ResetFocus()
+	case Adjust:
+		m.Adjust.ResetFocus()
+	case Advanced:
+		m.Advanced.ResetFocus()
+	case Alpha:
+		m.Alpha.ResetFocus()
+	}
 }
 
 func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
