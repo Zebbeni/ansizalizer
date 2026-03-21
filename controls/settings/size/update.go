@@ -112,6 +112,19 @@ func (m Model) handleCharRatioUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
+
+	switch m.active {
+	case WidthForm:
+		m.widthInput.Blur()
+		m.active = None
+	case HeightForm:
+		m.heightInput.Blur()
+		m.active = None
+	case CharRatioForm:
+		m.charRatioInput.Blur()
+		m.active = None
+	}
+
 	switch {
 	case key.Matches(msg, event.KeyMap.Right):
 		if next, hasNext := navMap[Right][m.focus]; hasNext {

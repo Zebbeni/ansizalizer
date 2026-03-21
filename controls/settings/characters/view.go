@@ -1,6 +1,7 @@
 package characters
 
 import (
+	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/style"
@@ -77,12 +78,20 @@ func (m Model) drawCharControls() string {
 
 func (m Model) drawCustomControls() string {
 	nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
+	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
 	if m.customInput.Focused() {
 		nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
+		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+		m.customInput.Cursor.SetMode(cursor.CursorBlink)
 	} else if m.focus == SymbolsForm {
 		nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
+		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
+		m.customInput.Cursor.SetMode(cursor.CursorHide)
+	} else {
+		m.customInput.Cursor.SetMode(cursor.CursorHide)
 	}
 	m.customInput.PromptStyle = nodeStyle.Copy()
+	m.customInput.TextStyle = textStyle
 	return m.customInput.View()
 }
 

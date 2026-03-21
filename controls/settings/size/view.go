@@ -48,7 +48,7 @@ func (m Model) drawSizeForms() string {
 	prompt, text := m.getInputColors(WidthForm)
 	m.widthInput.Width = 3
 	m.widthInput.PromptStyle = m.widthInput.PromptStyle.Copy().Foreground(prompt)
-	m.heightInput.TextStyle = m.heightInput.TextStyle.Copy().Foreground(text)
+	m.widthInput.TextStyle = m.widthInput.TextStyle.Copy().Foreground(text)
 	if m.widthInput.Focused() {
 		m.widthInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
