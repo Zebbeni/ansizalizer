@@ -1,3 +1,6 @@
+# Go files
+go.work.sum
+
 # Images test directory
 images/*
 
@@ -16,6 +19,9 @@ images/*
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Claude
+.claude/*
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
