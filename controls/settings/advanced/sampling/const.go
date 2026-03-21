@@ -11,7 +11,7 @@ var Functions = []resize.InterpolationFunction{
 	resize.MitchellNetravali,
 }
 
-var nameMap = map[resize.InterpolationFunction]string{
+var NameMap = map[resize.InterpolationFunction]string{
 	resize.NearestNeighbor:   "Nearest Neighbor",
 	resize.Bicubic:           "Bicubic",
 	resize.Bilinear:          "Bilinear",

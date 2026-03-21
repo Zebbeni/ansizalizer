@@ -88,3 +88,12 @@ func (m *Model) ResetFocus() {
 	m.active = Menu
 	m.activeTab = Sampling
 }
+
+func (m Model) Summary() string {
+	name := "Sample: " + m.sampling.FunctionName()
+	doDither, _, _ := m.dithering.Settings()
+	if doDither {
+		return name + " | Dither"
+	}
+	return name
+}

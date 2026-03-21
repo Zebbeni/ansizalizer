@@ -13,8 +13,9 @@ import (
 )
 
 type Model struct {
-	active State
-	focus  State
+	active   State
+	focus    State
+	expanded map[State]bool
 
 	Colors     colors.Model
 	Characters characters.Model
@@ -31,8 +32,9 @@ type Model struct {
 
 func New(w int) Model {
 	return Model{
-		active: None,
-		focus:  Colors,
+		active:   None,
+		focus:    Colors,
+		expanded: make(map[State]bool),
 
 		Colors:     colors.New(w),
 		Characters: characters.New(w - 2),
@@ -77,22 +79,23 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	col := m.renderCollapsible(m.Colors.View(), Colors)
-	char := m.renderCollapsible(m.Characters.View(), Characters)
-	siz := m.renderCollapsible(m.Size.View(), Size)
-	adj := m.renderCollapsible(m.Adjust.View(), Adjust)
-	sam := m.renderCollapsible(m.Advanced.View(), Advanced)
+	col := m.renderCollapsible(m.Colors.View(), m.Colors.Summary(), Colors)
+	char := m.renderCollapsible(m.Characters.View(), m.Characters.Summary(), Characters)
+	siz := m.renderCollapsible(m.Size.View(), m.Size.Summary(), Size)
+	adj := m.renderCollapsible(m.Adjust.View(), m.Adjust.Summary(), Adjust)
+	sam := m.renderCollapsible(m.Advanced.View(), m.Advanced.Summary(), Advanced)
 	alf := ""
 	if m.Alpha.AlphaImage {
-		alf = m.renderCollapsible(m.Alpha.View(), Alpha)
+		alf = m.renderCollapsible(m.Alpha.View(), m.Alpha.Summary(), Alpha)
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, adj, sam, alf)
 }
 
-func (m Model) renderCollapsible(content string, state State) string {
-	if m.focus != state && m.active != state {
-		return m.renderCollapsed(state)
+func (m Model) renderCollapsible(content, summary string, state State) string {
+	if m.active == state || m.expanded[state] {
+		return m.renderWithBorder(content, state, false)
 	}
-	return m.renderWithBorder(content, state)
+	dimSummary := lipgloss.NewStyle().Foreground(normalColor).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(summary)
+	return m.renderWithBorder(dimSummary, state, true)
 }

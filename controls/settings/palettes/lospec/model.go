@@ -147,3 +147,11 @@ func (m Model) LoadInitial() (Model, tea.Cmd) {
 func (m Model) GetCurrent() palette.Model {
 	return m.palette
 }
+
+func (m *Model) SetListActive(active bool) {
+	delegate := NewDelegate()
+	if !active {
+		delegate.Styles = InactiveItemStyles()
+	}
+	m.paletteList.SetDelegate(delegate)
+}

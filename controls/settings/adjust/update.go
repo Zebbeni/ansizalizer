@@ -93,8 +93,9 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		m.active = None
 	}
 
-	// Handle left/right on sliders
-	if m.focus == BrightnessSlider || m.focus == ContrastSlider {
+	// Handle left/right on sliders and their corresponding forms
+	if m.focus == BrightnessForm || m.focus == BrightnessSlider ||
+		m.focus == ContrastForm || m.focus == ContrastSlider {
 		switch {
 		case key.Matches(msg, event.KeyMap.Left):
 			return m.handleSliderAdjust(-1)
@@ -122,7 +123,7 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 func (m Model) handleSliderAdjust(delta int) (Model, tea.Cmd) {
 	switch m.focus {
-	case BrightnessSlider:
+	case BrightnessForm, BrightnessSlider:
 		val := m.Brightness() + delta
 		if val < -100 {
 			val = -100
@@ -131,7 +132,7 @@ func (m Model) handleSliderAdjust(delta int) (Model, tea.Cmd) {
 			val = 100
 		}
 		m.brightnessInput.SetValue(strconv.Itoa(val))
-	case ContrastSlider:
+	case ContrastForm, ContrastSlider:
 		val := m.Contrast() + delta
 		if val < -100 {
 			val = -100

@@ -44,3 +44,16 @@ func ItemStyles() (s list.DefaultItemStyles) {
 
 	return s
 }
+
+func InactiveItemStyles() (s list.DefaultItemStyles) {
+	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
+	s.NormalDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+
+	s.SelectedTitle = style.NormalTitle.Copy().Padding(0, 1, 0, 2)
+	s.SelectedDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+
+	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
+	s.DimmedDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+
+	return s
+}

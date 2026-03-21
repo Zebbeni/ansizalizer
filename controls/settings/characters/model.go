@@ -34,34 +34,34 @@ const (
 )
 
 type Model struct {
-	focus        State
-	active       State
-	mode         State
-	charControls State
-	unicodeMode  State
-	asciiMode    State
+	focus         State
+	active        State
+	mode          State
+	charControls  State
+	unicodeMode   State
+	asciiMode     State
 	useFgBg       State
 	selectionMode State
 	customInput   textinput.Model
-	ShouldClose  bool
-	IsActive     bool
-	width        int
+	ShouldClose   bool
+	IsActive      bool
+	width         int
 }
 
 func New(w int) Model {
 	return Model{
-		focus:        Unicode,
-		active:       Unicode,
-		mode:         Unicode,
-		charControls: Unicode,
-		asciiMode:    AsciiAz,
-		unicodeMode:  UnicodeHalf,
+		focus:         Unicode,
+		active:        Unicode,
+		mode:          Unicode,
+		charControls:  Unicode,
+		asciiMode:     AsciiAz,
+		unicodeMode:   UnicodeHalf,
 		useFgBg:       TwoColor,
 		selectionMode: DarkToLight,
-		customInput:  newInput("Symbols", "/%A"),
-		ShouldClose:  false,
-		IsActive:     false,
-		width:        w,
+		customInput:   newInput("Symbols", "/%A"),
+		ShouldClose:   false,
+		IsActive:      false,
+		width:         w,
 	}
 }
 
@@ -122,4 +122,30 @@ func (m *Model) ResetFocus() {
 	m.focus = Unicode
 	m.active = Unicode
 	m.charControls = m.mode
+}
+
+func (m Model) Summary() string {
+	colors := "1"
+	if m.useFgBg == TwoColor {
+		colors = "2"
+	}
+
+	var chars string
+	switch m.mode {
+	case Ascii:
+		chars = stateNames[m.asciiMode]
+	case Unicode:
+		chars = stateNames[m.unicodeMode]
+	case Custom:
+		chars = m.customInput.Value()
+		if len(chars) > 6 {
+			chars = chars[:6] + ".."
+		}
+	}
+
+	summary := "Colors: " + colors + " | Chars: " + chars
+	if m.mode == Custom {
+		summary += " | " + stateNames[m.selectionMode]
+	}
+	return summary
 }

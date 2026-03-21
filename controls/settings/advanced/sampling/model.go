@@ -52,6 +52,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m Model) FunctionName() string {
+	if name, ok := NameMap[m.Function]; ok {
+		return name
+	}
+	return "Unknown"
+}
+
 func (m Model) View() string {
 	prompt := style.DimmedTitle.Copy().Render("Select Method")
 	menu := m.list.View()

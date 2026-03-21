@@ -55,6 +55,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
+	m.IsActive = false
+	m.ShouldClose = true
 	return m, nil
 }
 
@@ -93,9 +95,10 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	}
 
 	m.focus = focus
-	switch m.focus {
-	case Palette:
+	if m.focus == Palette {
 		m.PaletteControls.IsActive = true
+	} else {
+		m.PaletteControls.IsActive = false
 	}
 
 	return m, nil

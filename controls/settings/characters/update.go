@@ -171,10 +171,13 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	switch m.focus {
 	case Ascii:
 		m.charControls = Ascii
+		m.mode = Ascii
 	case Unicode:
 		m.charControls = Unicode
+		m.mode = Unicode
 	case Custom:
 		m.charControls = Custom
+		m.mode = Custom
 	}
-	return m, nil
+	return m, event.StartRenderToViewCmd
 }

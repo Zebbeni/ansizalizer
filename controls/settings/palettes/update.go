@@ -44,11 +44,11 @@ func (m Model) handleAdaptiveUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.Adapter.IsSelected {
 		m.selected = Adapt
 	} else if m.Adapter.ShouldUnfocus {
-		m.Adapter.IsActive = true
+		m.Adapter.IsActive = false
 		m.Adapter.ShouldUnfocus = false
 		m.focus = Adapt
 	} else if m.Adapter.ShouldClose {
-		m.Adapter.IsActive = true
+		m.Adapter.IsActive = false
 		m.Adapter.ShouldClose = false
 		m.ShouldClose = true
 	}
@@ -63,6 +63,7 @@ func (m Model) handleLoaderUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	}
 	if m.Loader.ShouldUnfocus {
 		m.Loader.ShouldUnfocus = false
+		m.Loader.FileBrowser.SetActive(false)
 		m.focus = Load
 	}
 	return m, cmd
@@ -74,12 +75,14 @@ func (m Model) handleLospecUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.Lospec.IsSelected {
 		m.selected = Lospec
 	} else if m.Lospec.ShouldUnfocus {
-		m.Lospec.IsActive = true
+		m.Lospec.IsActive = false
 		m.Lospec.ShouldUnfocus = false
+		m.Lospec.SetListActive(false)
 		m.focus = Lospec
 	} else if m.Lospec.ShouldClose {
-		m.Lospec.IsActive = true
+		m.Lospec.IsActive = false
 		m.Lospec.ShouldClose = false
+		m.Lospec.SetListActive(false)
 		m.ShouldClose = true
 	}
 	return m, cmd
@@ -145,8 +148,10 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 		m.Adapter.IsActive = true
 	case LoadControls:
 		m.controls = Load
+		m.Loader.FileBrowser.SetActive(true)
 	case LospecControls:
 		m.Lospec.IsActive = true
+		m.Lospec.SetListActive(true)
 	}
 
 	if m.controls == Lospec && !m.Lospec.DidInitializeList() {

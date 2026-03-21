@@ -105,6 +105,7 @@ func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.active = m.focus
+	m.expanded[m.focus] = true
 	switch m.active {
 	case Colors:
 		m.Colors.IsActive = true
@@ -119,6 +120,16 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case Alpha:
 		m.Alpha.IsActive = true
 	}
+	return m, nil
+}
+
+func (m Model) handleExpand() (Model, tea.Cmd) {
+	m.expanded[m.focus] = true
+	return m, nil
+}
+
+func (m Model) handleCollapse() (Model, tea.Cmd) {
+	delete(m.expanded, m.focus)
 	return m, nil
 }
 
@@ -183,6 +194,10 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, event.KeyMap.Enter):
 		return m.handleEnter()
+	case key.Matches(msg, event.KeyMap.Expand):
+		return m.handleExpand()
+	case key.Matches(msg, event.KeyMap.Collapse):
+		return m.handleCollapse()
 	case key.Matches(msg, event.KeyMap.Nav):
 		return m.handleNav(msg)
 	case key.Matches(msg, event.KeyMap.Esc):

@@ -26,9 +26,9 @@ func (i item) Description() string {
 }
 
 func menuItems() []list.Item {
-	items := make([]list.Item, len(nameMap))
+	items := make([]list.Item, len(NameMap))
 	for i, f := range Functions {
-		items[i] = item{name: nameMap[f], Function: f}
+		items[i] = item{name: NameMap[f], Function: f}
 	}
 	return items
 }

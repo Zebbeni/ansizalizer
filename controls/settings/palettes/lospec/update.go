@@ -90,6 +90,9 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		}
 	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			if next == List {
+				m.SetListActive(true)
+			}
 			m.focus = next
 		}
 	case key.Matches(msg, event.KeyMap.Up):
@@ -183,6 +186,7 @@ func (m Model) handleListUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		return m.handleNav(keyMsg)
 	case key.Matches(keyMsg, event.KeyMap.Esc):
 		m.focus = TagForm
+		m.SetListActive(false)
 	}
 
 	var cmd tea.Cmd

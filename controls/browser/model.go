@@ -10,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/Zebbeni/ansizalizer/controls/menu"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -79,4 +80,16 @@ func (m Model) View() string {
 
 func (m Model) ActiveFilename() string {
 	return filepath.Base(m.ActiveFile)
+}
+
+func (m *Model) SetActive(active bool) {
+	delegate := menu.NewDelegate()
+	if !active {
+		delegate.Styles = menu.InactiveItemStyles()
+		delegate.SetSpacing(0)
+		delegate.ShowDescription = false
+	}
+	for i := range m.lists {
+		m.lists[i].SetDelegate(delegate)
+	}
 }

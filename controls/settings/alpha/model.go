@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -20,23 +21,23 @@ const (
 )
 
 type Model struct {
-	focus State
-	useAlpha bool
-	trimAlpha bool
+	focus         State
+	useAlpha      bool
+	trimAlpha     bool
 	ShouldUnfocus bool
-	IsActive bool
-	width int
-	AlphaImage bool
+	IsActive      bool
+	width         int
+	AlphaImage    bool
 }
 
 func New(w int) Model {
 
 	return Model{
-		focus: AlphaYes,
-		useAlpha: true,
-		trimAlpha: false,
-		IsActive: false,
-		width: w,
+		focus:      AlphaYes,
+		useAlpha:   true,
+		trimAlpha:  false,
+		IsActive:   false,
+		width:      w,
 		AlphaImage: true,
 	}
 }
@@ -78,4 +79,14 @@ func (m Model) TrimAlpha() bool {
 
 func (m *Model) ResetFocus() {
 	m.focus = AlphaYes
+}
+
+func (m Model) Summary() string {
+	if !m.useAlpha {
+		return "Alpha: Off"
+	}
+	if m.trimAlpha {
+		return "Alpha: On | Trim: Yes"
+	}
+	return "Alpha: On | Trim: No"
 }

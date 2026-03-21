@@ -95,3 +95,18 @@ func (m Model) IsLimited() bool {
 func (m *Model) ResetFocus() {
 	m.focus = UseTrueColor
 }
+
+func (m Model) Summary() string {
+	if m.mode == UseTrueColor {
+		return "Mode: True Color"
+	}
+	p := m.PaletteControls.GetCurrentPalette()
+	summary := "Mode: Palette"
+	name := p.Name()
+	if name == "" {
+		summary += " | NONE"
+	} else {
+		summary += " | " + name
+	}
+	return summary
+}

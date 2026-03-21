@@ -11,7 +11,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
-const DEFAULT_CHAR_W_TO_H_RATIO = 0.5
+const DEFAULT_CHAR_W_TO_H_RATIO = 0.46
 
 type State int
 type Mode int
@@ -120,4 +120,14 @@ func (m *Model) ResetFocus() {
 	m.widthInput.Blur()
 	m.heightInput.Blur()
 	m.charRatioInput.Blur()
+}
+
+func (m Model) Summary() string {
+	summary := "Size: " + m.widthInput.Value() + "x" + m.heightInput.Value()
+	if m.mode == Stretch {
+		summary += " | Mode: Stretch"
+	} else {
+		summary += " | Mode: Fit"
+	}
+	return summary
 }
