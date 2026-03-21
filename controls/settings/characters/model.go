@@ -145,7 +145,7 @@ func (m Model) Summary() string {
 
 	summary := "Colors: " + colors + " | Chars: " + chars
 	if m.mode == Custom {
-		summary += " | " + stateNames[m.selectionMode]
+		summary += "\nMode: " + stateNames[m.selectionMode]
 	}
 	return summary
 }
