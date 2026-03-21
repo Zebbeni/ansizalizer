@@ -45,6 +45,14 @@ func New(w int) Model {
 	}
 }
 
+// NewWithPalette returns a Model with a pre-set palette for testing.
+func NewWithPalette(colors color.Palette, w int) Model {
+	m := New(w)
+	m.palette = palette.New("test", colors, w-5, 3)
+	m.IsSelected = true
+	return m
+}
+
 func (m Model) Init() tea.Cmd {
 	return nil
 }

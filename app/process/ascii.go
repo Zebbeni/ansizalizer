@@ -82,27 +82,16 @@ func (m Renderer) processAscii(input image.Image) string {
 			if useFgBg == characters.TwoColor {
 				fg, bg, brightness := m.fgBgBrightness(r1, r2, r3, r4)
 
-				lipFg := lipgloss.Color(fg.Hex())
-				lipBg := lipgloss.Color(bg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg).Background(lipBg).Bold(true)
-
 				index := min(int(brightness*float64(len(chars))), len(chars)-1)
-				char := chars[index]
-				charString := string(char)
-
-				row[x/2] = style.Render(charString)
+				row[x/2] = renderChar(string(chars[index]), fg, true, bg, true)
 			} else {
 				fg := m.avgColTrue(r1, r2, r3, r4)
 				brightness := math.Min(1.0, math.Abs(fg.DistanceLuv(black)))
 				if !isTrueColor {
 					fg, _ = colorful.MakeColor(palette.Colors().Convert(fg))
 				}
-				lipFg := lipgloss.Color(fg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg).Bold(true)
 				index := min(int(brightness*float64(len(chars))), len(chars)-1)
-				char := chars[index]
-				charString := string(char)
-				row[x/2] = style.Render(charString)
+				row[x/2] = renderChar(string(chars[index]), fg, false, colorful.Color{}, true)
 			}
 		}
 		rows[y/2] = lipgloss.JoinHorizontal(lipgloss.Top, row...)

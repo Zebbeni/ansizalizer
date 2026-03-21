@@ -209,12 +209,14 @@ func (m Model) handleSave() (Model, tea.Cmd) {
 	if err != nil {
 		return m, event.BuildDisplayCmd("error creating save file")
 	}
+	defer file.Close()
 
 	w := bufio.NewWriter(file)
 	_, err = w.WriteString(m.viewer.View())
 	if err != nil {
 		return m, event.BuildDisplayCmd("error writing to save file")
 	}
+	w.Flush()
 
 	return m, event.BuildDisplayCmd(fmt.Sprintf("saved to %s", filename))
 }

@@ -70,18 +70,8 @@ func (m Renderer) processUnicode(input image.Image) string {
 			// convert the colors to ansi, render the block and add it at row[x]
 			r, fg, bg := m.getBlock(r1, r2, r3, r4)
 
-			pFg, _ := colorful.MakeColor(fg)
-			pBg, _ := colorful.MakeColor(bg)
-
-			lipFg := lipgloss.Color(pFg.Hex())
-			lipBg := lipgloss.Color(pBg.Hex())
-
-			style := lipgloss.NewStyle().Foreground(lipFg)
-			if _, _, mode, _ := m.Settings.Characters.Selected(); mode == characters.TwoColor {
-				style = style.Copy().Background(lipBg)
-			}
-
-			row[x/2] = style.Render(string(r))
+			_, _, colorMode, _ := m.Settings.Characters.Selected()
+			row[x/2] = renderChar(string(r), fg, colorMode == characters.TwoColor, bg, false)
 		}
 		rows[y/2] = lipgloss.JoinHorizontal(lipgloss.Top, row...)
 	}

@@ -1,11 +1,14 @@
 package colors
 
 import (
+	"image/color"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/palettes"
+	"github.com/Zebbeni/ansizalizer/controls/settings/palettes/loader"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
@@ -90,6 +93,14 @@ func (m Model) GetCurrentPalette() palette.Model {
 
 func (m Model) IsLimited() bool {
 	return m.mode == UsePalette
+}
+
+// NewPaletteMode returns a Model configured to use the given palette.
+func NewPaletteMode(p color.Palette, w int) Model {
+	m := New(w)
+	m.mode = UsePalette
+	m.PaletteControls.Loader = loader.NewWithPalette(p, w)
+	return m
 }
 
 func (m *Model) ResetFocus() {

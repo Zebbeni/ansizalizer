@@ -1,16 +1,50 @@
 package process
 
 import (
-	"strings"
 	"bufio"
-	"regexp"
+	"fmt"
 	"math"
+	"regexp"
+	"strings"
+
 	"github.com/charmbracelet/lipgloss"
+	"github.com/lucasb-eyer/go-colorful"
 )
 
 const (
 	AlphaPlaceholder string = " "
 )
+
+// ansiColor formats ANSI true-color escape sequences with correct RGB values,
+// bypassing a bug in termenv where uint8(f.R*255) truncates instead of
+// rounding, making some RGB values (like 98) unreachable via hex input.
+func ansiFg(c colorful.Color) string {
+	r := uint8(c.R*255.0 + 0.5)
+	g := uint8(c.G*255.0 + 0.5)
+	b := uint8(c.B*255.0 + 0.5)
+	return fmt.Sprintf("\x1b[38;2;%d;%d;%dm", r, g, b)
+}
+
+func ansiBg(c colorful.Color) string {
+	r := uint8(c.R*255.0 + 0.5)
+	g := uint8(c.G*255.0 + 0.5)
+	b := uint8(c.B*255.0 + 0.5)
+	return fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r, g, b)
+}
+
+const ansiReset = "\x1b[0m"
+
+func renderChar(char string, fg colorful.Color, useBg bool, bg colorful.Color, bold bool) string {
+	s := ansiFg(fg)
+	if useBg {
+		s += ansiBg(bg)
+	}
+	if bold {
+		s += "\x1b[1m"
+	}
+	return s + char + ansiReset
+}
+
 
 func (m Renderer) outputStrings(rows ...string) (string) {
 	content := ""

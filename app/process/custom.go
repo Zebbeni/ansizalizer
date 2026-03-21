@@ -73,23 +73,17 @@ func (m Renderer) processCustom(input image.Image) string {
 			if useFgBg == characters.TwoColor {
 				fg, bg, brightness := m.fgBgBrightness(r1, r2, r3, r4)
 
-				lipFg := lipgloss.Color(fg.Hex())
-				lipBg := lipgloss.Color(bg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg).Background(lipBg).Bold(true)
-
 				index := m.charIndex(selectionMode, brightness, pixelCount, len(chars))
-				row[x/2] = style.Render(string(chars[index]))
+				row[x/2] = renderChar(string(chars[index]), fg, true, bg, true)
 			} else {
 				fg := m.avgColTrue(r1, r2, r3, r4)
 				brightness := math.Min(1.0, math.Abs(fg.DistanceLuv(black)))
 				if isPaletted {
 					fg, _ = colorful.MakeColor(palette.Colors().Convert(fg))
 				}
-				lipFg := lipgloss.Color(fg.Hex())
-				style := lipgloss.NewStyle().Foreground(lipFg).Bold(true)
 
 				index := m.charIndex(selectionMode, brightness, pixelCount, len(chars))
-				row[x/2] = style.Render(string(chars[index]))
+				row[x/2] = renderChar(string(chars[index]), fg, false, colorful.Color{}, true)
 			}
 			pixelCount++
 		}
