@@ -1,0 +1,103 @@
+package adjust
+
+import (
+	"strconv"
+
+	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/textinput"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/event"
+)
+
+type State int
+
+const (
+	BrightnessForm State = iota
+	ContrastForm
+	None
+)
+
+type Model struct {
+	focus  State
+	active State
+
+	brightnessInput textinput.Model
+	contrastInput   textinput.Model
+
+	ShouldClose bool
+	IsActive    bool
+}
+
+func New() Model {
+	return Model{
+		focus:           BrightnessForm,
+		active:          None,
+		brightnessInput: newInput("Brightness", 0),
+		contrastInput:   newInput("Contrast", 0),
+		ShouldClose:     false,
+		IsActive:        false,
+	}
+}
+
+func (m Model) Init() tea.Cmd {
+	return nil
+}
+
+func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd1, cmd2 tea.Cmd
+	newM := m
+
+	switch m.active {
+	case BrightnessForm:
+		if m.brightnessInput.Focused() {
+			newM, cmd1 = newM.handleBrightnessUpdate(msg)
+		}
+	case ContrastForm:
+		if m.contrastInput.Focused() {
+			newM, cmd1 = newM.handleContrastUpdate(msg)
+		}
+	}
+
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, event.KeyMap.Enter):
+			newM, cmd2 = newM.handleEnter()
+		case key.Matches(msg, event.KeyMap.Nav):
+			newM, cmd2 = newM.handleNav(msg)
+		case key.Matches(msg, event.KeyMap.Esc):
+			newM, cmd2 = newM.handleEsc()
+		}
+	}
+	return newM, tea.Batch(cmd1, cmd2)
+}
+
+func (m Model) View() string {
+	brightness := m.drawBrightnessForm()
+	contrast := m.drawContrastForm()
+	return lipgloss.JoinVertical(lipgloss.Left, brightness, contrast)
+}
+
+func (m Model) Brightness() int {
+	return clampInput(m.brightnessInput.Value())
+}
+
+func (m Model) Contrast() int {
+	return clampInput(m.contrastInput.Value())
+}
+
+func clampInput(s string) int {
+	val, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	if val < -100 {
+		return -100
+	}
+	if val > 100 {
+		return 100
+	}
+	return val
+}

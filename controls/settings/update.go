@@ -15,13 +15,13 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Down: {Colors: Characters, Characters: Size, Size: Advanced},
-	Up:   {Advanced: Size, Size: Characters, Characters: Colors},
+	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced},
+	Up:   {Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
 }
 
 var navMapAlpha = map[Direction]map[State]State{
-	Down: {Colors: Characters, Characters: Size, Size: Advanced, Advanced: Alpha},
-	Up:   {Alpha: Advanced, Advanced: Size, Size: Characters, Characters: Colors},
+	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced, Advanced: Alpha},
+	Up:   {Alpha: Advanced, Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
 }
 
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -69,6 +69,17 @@ func (m Model) handleSizeUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) handleAdjustUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Adjust, cmd = m.Adjust.Update(msg)
+	if m.Adjust.ShouldClose {
+		m.active = None
+		m.Adjust.IsActive = false
+		m.Adjust.ShouldClose = false
+	}
+	return m, cmd
+}
+
 func (m Model) handleAdvancedUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Advanced, cmd = m.Advanced.Update(msg)
@@ -101,6 +112,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Characters.IsActive = true
 	case Size:
 		m.Size.IsActive = true
+	case Adjust:
+		m.Adjust.IsActive = true
 	case Advanced:
 		m.Advanced.IsActive = true
 	case Alpha:

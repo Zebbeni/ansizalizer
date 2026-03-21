@@ -42,6 +42,10 @@ func (m Renderer) process(input image.Image) string {
 	if !isTrueColor && len(palette.Colors()) == 0 {
 		return "Choose a color palette"
 	}
+
+	input = adjustBrightness(input, m.Settings.Adjust.Brightness())
+	input = adjustContrast(input, m.Settings.Adjust.Contrast())
+
 	mode, _, _, _ := m.Settings.Characters.Selected()
 	switch mode {
 	case characters.Ascii:
