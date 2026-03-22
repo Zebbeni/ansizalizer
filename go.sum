@@ -1,3 +1,7 @@
+github.com/Zebbeni/ansiart v0.0.0-20260322002338-a986468c63ff h1:7MROUvWoFEWqveWbrxsAWTLMvXjI8zZbFoEs5ukHIAc=
+github.com/Zebbeni/ansiart v0.0.0-20260322002338-a986468c63ff/go.mod h1:Ovu+SQTvz6yg2j2cFLbgAWTRATQTFEWn4noqMjnfUV0=
+github.com/Zebbeni/ansiart v0.1.0 h1:2SbuJT2p8whvQscCzCqyzzwwfTZ+qa6qaH38GmhTtgk=
+github.com/Zebbeni/ansiart v0.1.0/go.mod h1:Ovu+SQTvz6yg2j2cFLbgAWTRATQTFEWn4noqMjnfUV0=
 github.com/atotto/clipboard v0.1.4 h1:EH0zSVneZPSuFR11BlR9YppQTVDbh5+16AmcJi4g1z4=
 github.com/atotto/clipboard v0.1.4/go.mod h1:ZY9tmq7sm5xIbd9bOK4onWV4S6X0u6GY7Vn0Yu86PYI=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
