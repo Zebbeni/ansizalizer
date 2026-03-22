@@ -7,8 +7,9 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
+	"path/filepath"
 	"regexp"
+	"strings"
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
@@ -108,10 +109,12 @@ func (m Model) handleStartExportMsg(msg event.StartExportMsg) (Model, tea.Cmd) {
 			return m, event.BuildDisplayCmd(fmt.Sprintf("error exporting: %s", err))
 		}
 	} else {
+		nameWithoutExt := strings.Split(filepath.Base(msg.SourcePath), ".")[0]
+		destFilePath := filepath.Join(msg.DestinationPath, fmt.Sprintf("%s.ansi", nameWithoutExt))
 		exportQueue = []exportJob{
 			{
 				sourcePath:      msg.SourcePath,
-				destinationPath: msg.DestinationPath,
+				destinationPath: destFilePath,
 			},
 		}
 	}
@@ -127,19 +130,31 @@ func (m Model) handleRenderToExportMsg() (Model, tea.Cmd) {
 
 	currentJob := m.exportQueue[m.exportIndex]
 
-	// render image
-	imgString := process.RenderImageFile(m.controls.Settings, currentJob.sourcePath)
-
-	// save file
-	file, err := os.Create(currentJob.destinationPath)
-	if err != nil {
-		return m, event.BuildDisplayCmd("error creating save file")
-	}
-
-	w := bufio.NewWriter(file)
-	_, err = w.WriteString(imgString)
-	if err != nil {
-		return m, event.BuildDisplayCmd("error writing to save file")
+	if process.IsGIFFile(currentJob.sourcePath) {
+		frames, _ := process.RenderGIFFile(m.controls.Settings, currentJob.sourcePath)
+		if len(frames) > 1 {
+			// create directory and save each frame
+			destDir := strings.TrimSuffix(currentJob.destinationPath, ".ansi")
+			if err := os.MkdirAll(destDir, 0755); err != nil {
+				return m, event.BuildDisplayCmd("error creating export directory")
+			}
+			baseName := strings.TrimSuffix(filepath.Base(currentJob.destinationPath), ".ansi")
+			for i, frame := range frames {
+				framePath := filepath.Join(destDir, fmt.Sprintf("%s_%03d.ansi", baseName, i+1))
+				if err := writeFile(framePath, frame); err != nil {
+					return m, event.BuildDisplayCmd(fmt.Sprintf("error writing frame %d", i+1))
+				}
+			}
+		} else {
+			if err := writeFile(currentJob.destinationPath, frames[0]); err != nil {
+				return m, event.BuildDisplayCmd("error writing to save file")
+			}
+		}
+	} else {
+		imgString := process.RenderImageFile(m.controls.Settings, currentJob.sourcePath)
+		if err := writeFile(currentJob.destinationPath, imgString); err != nil {
+			return m, event.BuildDisplayCmd("error writing to save file")
+		}
 	}
 
 	m.exportIndex += 1
@@ -152,6 +167,20 @@ func (m Model) handleRenderToExportMsg() (Model, tea.Cmd) {
 	}
 
 	return m, tea.Batch(event.StartRenderToExportCmd, displayCmd)
+}
+
+func writeFile(path, content string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	w := bufio.NewWriter(file)
+	if _, err = w.WriteString(content); err != nil {
+		return err
+	}
+	return w.Flush()
 }
 
 func (m Model) startExportingDir(msg event.StartExportMsg) (Model, tea.Cmd) {

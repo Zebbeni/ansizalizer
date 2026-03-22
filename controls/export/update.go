@@ -26,6 +26,7 @@ func (m Model) handleSourceUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.Source.ShouldClose {
 		m.active = None
 		m.Source.ShouldClose = false
+		m.Source.IsActive = false
 	}
 	if m.Source.ShouldUnfocus {
 		return m.handleMenuUpdate(msg)
@@ -40,6 +41,7 @@ func (m Model) handleDestinationUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.Destination.ShouldClose {
 		m.active = None
 		m.Destination.ShouldClose = false
+		m.Destination.IsActive = false
 	}
 	return m, cmd
 }

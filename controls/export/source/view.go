@@ -48,7 +48,7 @@ func (m Model) drawSubDirOptions() string {
 	if m.includeSubdirectories {
 		yesStyle = style.ActiveButtonNode.Copy()
 	}
-	if m.focus == SubDirsYes {
+	if m.focus == SubDirsYes && m.IsActive {
 		yesStyle = style.FocusButtonNode.Copy()
 	}
 	yesNode := nodeWidthStyle.Render(yesStyle.Render("Yes"))
@@ -57,7 +57,7 @@ func (m Model) drawSubDirOptions() string {
 	if !m.includeSubdirectories {
 		noStyle = style.ActiveButtonNode.Copy()
 	}
-	if m.focus == SubDirsNo {
+	if m.focus == SubDirsNo && m.IsActive {
 		noStyle = style.FocusButtonNode.Copy()
 	}
 
