@@ -3,7 +3,7 @@ module github.com/Zebbeni/ansizalizer
 go 1.25.2
 
 require (
-	github.com/Zebbeni/ansiart v0.1.0
+	github.com/Zebbeni/ansiart v0.1.2
 	github.com/atotto/clipboard v0.1.4
 	github.com/charmbracelet/bubbles v1.0.0
 	github.com/charmbracelet/bubbletea v1.3.10
