@@ -9,6 +9,7 @@ const (
 	Size
 	Adjust
 	Advanced
+	Animation
 	Alpha
 )
 
@@ -18,10 +19,11 @@ var States = []State{
 	Size,
 	Adjust,
 	Advanced,
+	Animation,
 	Alpha,
 }
 
-var stateOrder = []State{Colors, Characters, Size, Adjust, Advanced, Alpha}
+var stateOrder = []State{Colors, Characters, Size, Adjust, Advanced, Animation, Alpha}
 
 var stateTitles = map[State]string{
 	Colors:     "Colors",
@@ -29,5 +31,6 @@ var stateTitles = map[State]string{
 	Size:       "Size",
 	Adjust:     "Adjust",
 	Advanced:   "Advanced",
+	Animation:  "Animation",
 	Alpha:      "Alpha Channel",
 }

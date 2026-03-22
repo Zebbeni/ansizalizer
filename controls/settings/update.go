@@ -15,13 +15,13 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced},
-	Up:   {Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
+	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced, Advanced: Animation},
+	Up:   {Animation: Advanced, Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
 }
 
 var navMapAlpha = map[Direction]map[State]State{
-	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced, Advanced: Alpha},
-	Up:   {Alpha: Advanced, Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
+	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced, Advanced: Animation, Animation: Alpha},
+	Up:   {Alpha: Animation, Animation: Advanced, Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
 }
 
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -91,6 +91,17 @@ func (m Model) handleAdvancedUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) handleAnimationUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Animation, cmd = m.Animation.Update(msg)
+	if m.Animation.ShouldClose {
+		m.active = None
+		m.Animation.IsActive = false
+		m.Animation.ShouldClose = false
+	}
+	return m, cmd
+}
+
 func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Alpha, cmd = m.Alpha.Update(msg)
@@ -117,6 +128,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Adjust.IsActive = true
 	case Advanced:
 		m.Advanced.IsActive = true
+	case Animation:
+		m.Animation.IsActive = true
 	case Alpha:
 		m.Alpha.IsActive = true
 	}
@@ -184,6 +197,8 @@ func (m *Model) resetSubMenu(state State) {
 		m.Adjust.ResetFocus()
 	case Advanced:
 		m.Advanced.ResetFocus()
+	case Animation:
+		m.Animation.ResetFocus()
 	case Alpha:
 		m.Alpha.ResetFocus()
 	}

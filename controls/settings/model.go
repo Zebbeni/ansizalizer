@@ -7,6 +7,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/adjust"
 	"github.com/Zebbeni/ansizalizer/controls/settings/advanced"
 	"github.com/Zebbeni/ansizalizer/controls/settings/alpha"
+	"github.com/Zebbeni/ansizalizer/controls/settings/animation"
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
@@ -22,6 +23,7 @@ type Model struct {
 	Size       size.Model
 	Adjust     adjust.Model
 	Advanced   advanced.Model
+	Animation  animation.Model
 	Alpha      alpha.Model
 
 	ShouldUnfocus bool
@@ -41,6 +43,7 @@ func New(w int) Model {
 		Size:       size.New(),
 		Adjust:     adjust.New(w - 2),
 		Advanced:   advanced.New(w - 2),
+		Animation:  animation.New(),
 		Alpha:      alpha.New(w - 2),
 
 		ShouldUnfocus: false,
@@ -66,6 +69,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m.handleAdjustUpdate(msg)
 	case Advanced:
 		return m.handleAdvancedUpdate(msg)
+	case Animation:
+		return m.handleAnimationUpdate(msg)
 	case Alpha:
 		return m.handleAlphaUpdate(msg)
 	}
@@ -84,12 +89,13 @@ func (m Model) View() string {
 	siz := m.renderCollapsible(m.Size.View(), m.Size.Summary(), Size)
 	adj := m.renderCollapsible(m.Adjust.View(), m.Adjust.Summary(), Adjust)
 	sam := m.renderCollapsible(m.Advanced.View(), m.Advanced.Summary(), Advanced)
+	anim := m.renderCollapsible(m.Animation.View(), m.Animation.Summary(), Animation)
 	alf := ""
 	if m.Alpha.AlphaImage {
 		alf = m.renderCollapsible(m.Alpha.View(), m.Alpha.Summary(), Alpha)
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, adj, sam, alf)
+	return lipgloss.JoinVertical(lipgloss.Top, col, char, siz, adj, sam, anim, alf)
 }
 
 func (m Model) renderCollapsible(content, summary string, state State) string {

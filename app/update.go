@@ -40,17 +40,57 @@ func (m Model) handleFinishRenderToViewMsg(msg event.FinishRenderToViewMsg) (Mod
 
 func (m Model) processRenderToViewCmd() tea.Msg {
 	re := regexp.MustCompile(`(?i)\.(png|gif)$`)
-	imgString := process.RenderImageFile(m.controls.Settings, m.controls.FileBrowser.ActiveFile)
+	filePath := m.controls.FileBrowser.ActiveFile
+
 	colorsString := "true color"
 	alphaString := "no alpha channel"
 	if m.controls.Settings.Colors.IsLimited() {
 		palette := m.controls.Settings.Colors.GetCurrentPalette()
 		colorsString = palette.Title()
 	}
-	if m.controls.Settings.Alpha.ShouldOutputAlpha() && re.Match([]byte(m.controls.FileBrowser.ActiveFile)) {
+	if m.controls.Settings.Alpha.ShouldOutputAlpha() && re.Match([]byte(filePath)) {
 		alphaString = "alpha channel"
 	}
-	return event.FinishRenderToViewMsg{FilePath: m.controls.FileBrowser.ActiveFile, ImgString: imgString, ColorsString: colorsString, AlphaString: alphaString}
+
+	// Animated GIF path
+	if process.IsGIFFile(filePath) {
+		frames, _ := process.RenderGIFFile(m.controls.Settings, filePath)
+		if len(frames) > 1 {
+			return event.FinishRenderGIFToViewMsg{
+				FilePath:     filePath,
+				Frames:       frames,
+				Delay:        m.controls.Settings.Animation.Delay(),
+				ColorsString: colorsString,
+				AlphaString:  alphaString,
+			}
+		}
+		// Single-frame GIF: use normal path
+		return event.FinishRenderToViewMsg{
+			FilePath:     filePath,
+			ImgString:    frames[0],
+			ColorsString: colorsString,
+			AlphaString:  alphaString,
+		}
+	}
+
+	// Non-GIF: existing path
+	imgString := process.RenderImageFile(m.controls.Settings, filePath)
+	return event.FinishRenderToViewMsg{
+		FilePath:     filePath,
+		ImgString:    imgString,
+		ColorsString: colorsString,
+		AlphaString:  alphaString,
+	}
+}
+
+func (m Model) handleFinishRenderGIFToViewMsg(msg event.FinishRenderGIFToViewMsg) (Model, tea.Cmd) {
+	if msg.FilePath != m.controls.FileBrowser.ActiveFile {
+		return m, nil
+	}
+	m.controls.Settings.Alpha.AlphaImage = true
+	var cmd tea.Cmd
+	m.viewer, cmd = m.viewer.Update(msg)
+	return m, cmd
 }
 
 func (m Model) handleStartExportMsg(msg event.StartExportMsg) (Model, tea.Cmd) {
@@ -204,6 +244,31 @@ func (m Model) handleCopy() (Model, tea.Cmd) {
 
 func (m Model) handleSave() (Model, tea.Cmd) {
 	name := strings.Split(m.controls.FileBrowser.ActiveFilename(), ".")[0]
+
+	if m.viewer.IsAnimating() {
+		frames := m.viewer.Frames()
+		if err := os.MkdirAll(name, 0755); err != nil {
+			return m, event.BuildDisplayCmd("error creating save directory")
+		}
+		for i, frame := range frames {
+			filename := fmt.Sprintf("%s_%03d.ansi", name, i+1)
+			filePath := fmt.Sprintf("%s/%s", name, filename)
+			file, err := os.Create(filePath)
+			if err != nil {
+				return m, event.BuildDisplayCmd(fmt.Sprintf("error creating frame file %s", filename))
+			}
+			w := bufio.NewWriter(file)
+			_, err = w.WriteString(frame)
+			if err != nil {
+				file.Close()
+				return m, event.BuildDisplayCmd(fmt.Sprintf("error writing frame %s", filename))
+			}
+			w.Flush()
+			file.Close()
+		}
+		return m, event.BuildDisplayCmd(fmt.Sprintf("saved %d frames to %s/", len(frames), name))
+	}
+
 	filename := fmt.Sprintf("%s.ansi", name)
 	file, err := os.Create(filename)
 	if err != nil {

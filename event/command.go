@@ -3,6 +3,7 @@ package event
 import (
 	"fmt"
 	"image/color"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -18,6 +19,22 @@ type FinishRenderToViewMsg struct {
 	ImgString    string
 	ColorsString string
 	AlphaString  string
+}
+
+type FinishRenderGIFToViewMsg struct {
+	FilePath     string
+	Frames       []string
+	Delay        time.Duration
+	ColorsString string
+	AlphaString  string
+}
+
+type AnimationTickMsg time.Time
+
+func BuildAnimationTickCmd(delay time.Duration) tea.Cmd {
+	return tea.Tick(delay, func(t time.Time) tea.Msg {
+		return AnimationTickMsg(t)
+	})
 }
 
 type StartRenderToExportMsg bool

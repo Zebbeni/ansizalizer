@@ -67,6 +67,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleStartRenderToViewCmd()
 	case event.FinishRenderToViewMsg:
 		return m.handleFinishRenderToViewMsg(msg)
+	case event.FinishRenderGIFToViewMsg:
+		return m.handleFinishRenderGIFToViewMsg(msg)
+	case event.AnimationTickMsg:
+		var cmd tea.Cmd
+		m.viewer, cmd = m.viewer.Update(msg)
+		return m, cmd
 	case event.StartAdaptingMsg:
 		return m.handleStartAdaptingMsg()
 	case event.FinishAdaptingMsg:

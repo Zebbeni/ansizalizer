@@ -1,6 +1,8 @@
 package viewer
 
 import (
+	"time"
+
 	tea "github.com/charmbracelet/bubbletea"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings"
@@ -10,6 +12,12 @@ import (
 type Model struct {
 	imgString string
 	settings  settings.Model
+
+	// Animation state
+	frames       []string
+	delay        time.Duration
+	currentFrame int
+	isAnimating  bool
 
 	WaitingOnRender bool
 }
@@ -26,13 +34,25 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case event.FinishRenderToViewMsg:
 		return m.handleFinishRenderMsg(msg)
+	case event.FinishRenderGIFToViewMsg:
+		return m.handleFinishRenderGIFMsg(msg)
+	case event.AnimationTickMsg:
+		return m.handleAnimationTick()
 	}
 	return m, nil
 }
 
+func (m Model) IsAnimating() bool {
+	return m.isAnimating && len(m.frames) > 1
+}
+
+func (m Model) Frames() []string {
+	return m.frames
+}
+
 func (m Model) View() string {
-	if m.WaitingOnRender {
-		return ""
+	if m.isAnimating && len(m.frames) > 0 {
+		return m.frames[m.currentFrame]
 	}
 	return m.imgString
 }
