@@ -2,47 +2,52 @@ package style
 
 import "github.com/charmbracelet/lipgloss"
 
+// These are all set by Refresh() from the active theme.
+// They are kept as exported vars so existing code continues to work.
 var (
-	NormalColor1   = lipgloss.AdaptiveColor{Light: "#1a1a1a", Dark: "#aaaaaa"}
-	NormalColor2   = lipgloss.AdaptiveColor{Light: "#3a3a3a", Dark: "#888888"}
-	SelectedColor1 = lipgloss.AdaptiveColor{Light: "#444444", Dark: "#ffffff"}
-	SelectedColor2 = lipgloss.AdaptiveColor{Light: "#666666", Dark: "#dddddd"}
-	ExtraDimColor  = lipgloss.AdaptiveColor{Light: "#bbbbbb", Dark: "#444444"}
-	DimmedColor1   = lipgloss.AdaptiveColor{Light: "#999999", Dark: "#777777"}
-	DimmedColor2   = lipgloss.AdaptiveColor{Light: "#aaaaaa", Dark: "#666666"}
+	NormalColor1   lipgloss.TerminalColor
+	NormalColor2   lipgloss.TerminalColor
+	SelectedColor1 lipgloss.TerminalColor
+	SelectedColor2 lipgloss.TerminalColor
+	ExtraDimColor  lipgloss.TerminalColor
+	DimmedColor1   lipgloss.TerminalColor
+	DimmedColor2   lipgloss.TerminalColor
 
-	NormalTitle     = lipgloss.NewStyle().Foreground(NormalColor1)
-	NormalParagraph = lipgloss.NewStyle().Foreground(NormalColor2)
+	NormalTitle     lipgloss.Style
+	NormalParagraph lipgloss.Style
 
-	SelectedTitle     = lipgloss.NewStyle().Foreground(SelectedColor1)
-	SelectedParagraph = lipgloss.NewStyle().Foreground(SelectedColor2)
+	SelectedTitle     lipgloss.Style
+	SelectedParagraph lipgloss.Style
 
-	DimmedTitle     = lipgloss.NewStyle().Foreground(DimmedColor1)
-	ExtraDimTitle   = lipgloss.NewStyle().Foreground(ExtraDimColor)
-	DimmedParagraph = lipgloss.NewStyle().Foreground(DimmedColor2)
+	DimmedTitle     lipgloss.Style
+	ExtraDimTitle   lipgloss.Style
+	DimmedParagraph lipgloss.Style
 
-	ActiveButton = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(NormalColor1).
-			Foreground(NormalColor1)
-	FocusButton = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(SelectedColor1).
-			Foreground(SelectedColor1)
-	NormalButton = lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(DimmedColor1).
-			Foreground(DimmedColor1)
+	ActiveButton lipgloss.Style
+	FocusButton  lipgloss.Style
+	NormalButton lipgloss.Style
 
-	ActiveButtonNode = lipgloss.NewStyle().
-				PaddingLeft(1).
-				Foreground(NormalColor1)
-	FocusButtonNode = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder(), false, false, false, true).
-			BorderForeground(SelectedColor1).
-			Foreground(SelectedColor1).
-			Padding(0)
-	NormalButtonNode = lipgloss.NewStyle().
-				PaddingLeft(1).
-				Foreground(DimmedColor1)
+	ActiveButtonNode lipgloss.Style
+	FocusButtonNode  lipgloss.Style
+	NormalButtonNode lipgloss.Style
+
+	InactiveTabBorder lipgloss.Border
+	ActiveTabBorder   lipgloss.Border
+	InactiveTabStyle  lipgloss.Style
+	ActiveTabStyle    lipgloss.Style
+	TabWindowStyle    lipgloss.Style
 )
+
+func init() {
+	InactiveTabBorder = TabBorderWithBottom("┴", "─", "┴")
+	ActiveTabBorder = TabBorderWithBottom("┘", " ", "└")
+	Refresh()
+}
+
+func TabBorderWithBottom(left, middle, right string) lipgloss.Border {
+	border := lipgloss.RoundedBorder()
+	border.BottomLeft = left
+	border.Bottom = middle
+	border.BottomRight = right
+	return border
+}

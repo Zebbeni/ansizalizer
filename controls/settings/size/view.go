@@ -18,13 +18,7 @@ var (
 		CharRatioForm: "Char Size Ratio (Width/Height)",
 	}
 
-	inputStyle = lipgloss.NewStyle().Width(14).AlignHorizontal(lipgloss.Left)
-
-	activeColor = lipgloss.Color("#aaaaaa")
-	focusColor  = lipgloss.Color("#ffffff")
-	normalColor = lipgloss.Color("#555555")
-	titleStyle  = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#888888"))
+	inputStyle = style.BgStyle().Width(14).AlignHorizontal(lipgloss.Left)
 )
 
 func (m Model) drawModeButtons() string {
@@ -37,7 +31,7 @@ func (m Model) drawModeButtons() string {
 		fitStyle = style.ActiveButtonNode
 	}
 	fitButton := fitStyle.Render("Fit")
-	fitButton = lipgloss.NewStyle().Width(6).AlignHorizontal(lipgloss.Center).Render(fitButton)
+	fitButton = style.BgStyle().Width(6).AlignHorizontal(lipgloss.Center).Render(fitButton)
 
 	fillStyle := style.NormalButtonNode
 	if m.IsActive && FillButton == m.focus {
@@ -46,7 +40,7 @@ func (m Model) drawModeButtons() string {
 		fillStyle = style.ActiveButtonNode
 	}
 	fillButton := fillStyle.Render("Fill")
-	fillButton = lipgloss.NewStyle().Width(6).AlignHorizontal(lipgloss.Center).Render(fillButton)
+	fillButton = style.BgStyle().Width(6).AlignHorizontal(lipgloss.Center).Render(fillButton)
 
 	stretchStyle := style.NormalButtonNode
 	if m.IsActive && StretchButton == m.focus {
@@ -55,7 +49,7 @@ func (m Model) drawModeButtons() string {
 		stretchStyle = style.ActiveButtonNode
 	}
 	stretchButton := stretchStyle.Render("Stretch")
-	stretchButton = lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(stretchButton)
+	stretchButton = style.BgStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(stretchButton)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, fitButton, fillButton, stretchButton)
 }
@@ -100,12 +94,12 @@ func (m Model) drawCharRatioForm() string {
 	return inputStyle.Copy().Width(28).AlignHorizontal(lipgloss.Left).PaddingTop(1).Render(m.charRatioInput.View())
 }
 
-func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {
+func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
 	if m.IsActive && m.focus == state {
 		if m.active == state {
-			return activeColor, focusColor
+			return style.NormalColor1, style.SelectedColor1
 		}
-		return focusColor, activeColor
+		return style.SelectedColor1, style.NormalColor1
 	}
-	return normalColor, normalColor
+	return style.DimmedColor1, style.DimmedColor1
 }

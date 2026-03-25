@@ -18,9 +18,9 @@ var (
 
 	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
 	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
-	inactiveTabStyle  = lipgloss.NewStyle().Border(inactiveTabBorder, true)
-	activeTabStyle    = lipgloss.NewStyle().Border(activeTabBorder, true)
-	windowStyle       = lipgloss.NewStyle().Align(lipgloss.Center).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
+	inactiveTabStyle  = style.BgStyle().Border(inactiveTabBorder, true)
+	activeTabStyle    = style.BgStyle().Border(activeTabBorder, true)
+	windowStyle       = style.BgStyle().Align(lipgloss.Center).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
 )
 
 func (m Model) drawTabs() string {
@@ -55,9 +55,9 @@ func (m Model) drawTabs() string {
 
 		var tabStyle lipgloss.Style
 		if isActiveTab {
-			tabStyle = activeTabStyle.Copy()
+			tabStyle = style.ActiveTabStyle.Copy()
 		} else {
-			tabStyle = inactiveTabStyle.Copy()
+			tabStyle = style.InactiveTabStyle.Copy()
 		}
 
 		border, _, _, _, _ := tabStyle.GetBorder()
@@ -71,7 +71,7 @@ func (m Model) drawTabs() string {
 			border.BottomRight = "┴"
 		}
 
-		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).Foreground(fgColor).Padding(0, 1)
+		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Foreground(fgColor).Padding(0, 1)
 		renderedTabs = append(renderedTabs, tabStyle.Render(tabNames[t]))
 	}
 
@@ -79,7 +79,7 @@ func (m Model) drawTabs() string {
 	extW := max(m.width-lipgloss.Width(tabBlock)-2, 0)
 
 	border := lipgloss.Border{BottomLeft: "─", Bottom: "─", BottomRight: "┐"}
-	extendedStyle := windowStyle.Copy().Border(border).BorderForeground(borderColor).Padding(0)
+	extendedStyle := style.TabWindowStyle.Copy().Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
 	extended := extendedStyle.Copy().Width(extW).Height(1).Render("")
 	renderedTabs = append(renderedTabs, extended)
 
@@ -105,12 +105,12 @@ func (m Model) drawContent() string {
 		content = m.drawLoadContent()
 	}
 
-	body := windowStyle.Copy().BorderForeground(borderColor).Width(lipgloss.Width(tabRow) - windowStyle.GetHorizontalFrameSize()).Render(content)
+	body := style.TabWindowStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(tabRow) - style.TabWindowStyle.GetHorizontalFrameSize()).Render(content)
 	return tabRow + "\n" + body
 }
 
 func (m Model) drawSaveContent() string {
-	centeredStyle := lipgloss.NewStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center)
+	centeredStyle := style.BgStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center)
 	parts := make([]string, 0, 5)
 
 	// Save result message (shown after save attempt)
@@ -154,13 +154,13 @@ func (m Model) drawSaveContent() string {
 	// Filename input (only shown after directory chosen)
 	if m.dirChosen {
 		nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
-		textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+		textStyle := style.BgStyle().Foreground(style.DimmedColor1)
 		if m.filenameInput.Focused() {
 			nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
-			textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+			textStyle = style.BgStyle().Foreground(style.SelectedColor1)
 		} else if m.focus == FilenameForm && m.IsActive {
 			nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
-			textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
+			textStyle = style.BgStyle().Foreground(style.NormalColor1)
 		}
 		m.filenameInput.PromptStyle = nodeStyle
 		m.filenameInput.TextStyle = textStyle
@@ -195,7 +195,7 @@ func (m Model) drawLoadContent() string {
 	// Load result message (shown after load attempt)
 	if m.loadResultText != "" {
 		resultStyle := style.DimmedTitle.Copy()
-		result := lipgloss.NewStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(resultStyle.Render(m.loadResultText))
+		result := style.BgStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(resultStyle.Render(m.loadResultText))
 		parts = append(parts, result)
 	}
 
@@ -219,7 +219,7 @@ func (m Model) drawLoadContent() string {
 
 		filename := filepath.Base(m.selectedLoadFile)
 		prompt := style.DimmedTitle.Copy().Render(fmt.Sprintf("Load %s?", filename))
-		parts = append(parts, lipgloss.NewStyle().Width(m.width-4).AlignHorizontal(lipgloss.Center).PaddingTop(1).Render(prompt))
+		parts = append(parts, style.BgStyle().Width(m.width-4).AlignHorizontal(lipgloss.Center).PaddingTop(1).Render(prompt))
 
 		loadStyle := style.NormalButton
 		if m.focus == LoadConfirmButton && m.IsActive {
@@ -230,18 +230,18 @@ func (m Model) drawLoadContent() string {
 			cancelStyle = style.FocusButton
 		}
 		buttonRow := lipgloss.JoinHorizontal(lipgloss.Center, loadStyle.Render("  Load  "), "  ", cancelStyle.Render(" Cancel "))
-		buttons := lipgloss.NewStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(buttonRow)
+		buttons := style.BgStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(buttonRow)
 		parts = append(parts, buttons)
 	} else {
 		// Show browse prompt
 		browseText := inputValueStyle.Render("Browse Settings Files ↴")
-		parts = append(parts, lipgloss.NewStyle().Width(m.width-4).AlignHorizontal(lipgloss.Center).Render(browseText))
+		parts = append(parts, style.BgStyle().Width(m.width-4).AlignHorizontal(lipgloss.Center).Render(browseText))
 	}
 
 	// File browser (only shown when active)
 	if m.focus == LoadBrowser {
 		dir := filepath.Base(m.loadBrowser.SelectedDir)
-		centeredStyle := lipgloss.NewStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center)
+		centeredStyle := style.BgStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center)
 		title := style.DimmedTitle.Copy().Italic(true).Padding(1, 0).Render("Browsing " + dir + "/")
 		parts = append(parts, centeredStyle.Render(title))
 		parts = append(parts, m.loadBrowser.View())

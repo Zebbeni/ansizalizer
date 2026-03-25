@@ -11,6 +11,7 @@ const (
 	Advanced
 	Animation
 	Alpha
+	Theme
 	SaveLoad
 )
 
@@ -35,5 +36,6 @@ var stateTitles = map[State]string{
 	Advanced:   "Advanced",
 	Animation:  "Animation",
 	Alpha:      "Alpha Channel",
+	Theme:      "Theme",
 	SaveLoad:   "Import/Export",
 }

@@ -16,7 +16,7 @@ func (m Model) drawTitle() string {
 	title1 := lipgloss.JoinHorizontal(lipgloss.Left, string(title1Runes))
 	title2 := lipgloss.JoinHorizontal(lipgloss.Left, string(title2Runes))
 	title := lipgloss.JoinVertical(lipgloss.Left, title1, title2)
-	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Padding(1, 0, 0, 0).Render(title)
+	return style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Padding(1, 0, 0, 0).Render(title)
 }
 
 func (m Model) drawButtons() string {
@@ -38,5 +38,5 @@ func (m Model) drawButtons() string {
 func (m Model) drawBrowserTitle() string {
 	dir := filepath.Base(m.FileBrowser.SelectedDir)
 	title := style.DimmedTitle.Copy().Italic(true).Render(dir + "/")
-	return lipgloss.NewStyle().Width(m.width).Padding(1, 0).AlignHorizontal(lipgloss.Center).Render(title)
+	return style.BgStyle().Width(m.width).Padding(1, 0).AlignHorizontal(lipgloss.Center).Render(title)
 }

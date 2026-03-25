@@ -1,6 +1,8 @@
 package settings
 
 import (
+	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -12,7 +14,9 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors"
 	"github.com/Zebbeni/ansizalizer/controls/settings/saveload"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
+	"github.com/Zebbeni/ansizalizer/controls/settings/theme"
 	"github.com/Zebbeni/ansizalizer/prefs"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type Model struct {
@@ -27,6 +31,7 @@ type Model struct {
 	Advanced   advanced.Model
 	Animation  animation.Model
 	Alpha      alpha.Model
+	Theme      theme.Model
 	SaveLoad   saveload.Model
 
 	ShouldUnfocus bool
@@ -48,6 +53,7 @@ func New(w int, dirs prefs.Dirs) Model {
 		Advanced:   advanced.New(w - 2),
 		Animation:  animation.New(),
 		Alpha:      alpha.New(w - 2),
+		Theme:      theme.New(w - 2),
 		SaveLoad:   saveload.New(w-2, dirs.SaveDir, dirs.LoadFile),
 
 		ShouldUnfocus: false,
@@ -59,6 +65,20 @@ func New(w int, dirs prefs.Dirs) Model {
 
 func (m Model) Init() tea.Cmd {
 	return nil
+}
+
+func (m Model) DebugState() string {
+	expandedList := ""
+	for s := range m.expanded {
+		expandedList += " " + stateTitles[s]
+	}
+	return fmt.Sprintf("Settings: active=%s focus=%s expanded=[%s]\n  Theme: %s\n  Colors: trueColor=%v palette=%s adapt=%v\n  Animation: visible=%v\n  Alpha: visible=%v",
+		stateTitles[m.active], stateTitles[m.focus], expandedList,
+		m.Theme.ThemeName(),
+		!m.Colors.IsLimited(), m.Colors.GetCurrentPalette().Name(), m.Colors.AdaptToPalette(),
+		m.Animation.AnimatedImage,
+		m.Alpha.AlphaImage,
+	)
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
@@ -78,6 +98,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m.handleAnimationUpdate(msg)
 	case Alpha:
 		return m.handleAlphaUpdate(msg)
+	case Theme:
+		return m.handleThemeUpdate(msg)
 	case SaveLoad:
 		return m.handleSaveLoadUpdate(msg)
 	}
@@ -96,8 +118,9 @@ func (m Model) View() string {
 	siz := m.renderCollapsible(m.Size.View(), m.Size.Summary(), Size)
 	adj := m.renderCollapsible(m.Adjust.View(), m.Adjust.Summary(), Adjust)
 	sam := m.renderCollapsible(m.Advanced.View(), m.Advanced.Summary(), Advanced)
+	thm := m.renderCollapsible(m.Theme.View(), m.Theme.Summary(), Theme)
 	sl := m.renderCollapsible(m.SaveLoad.View(), m.SaveLoad.Summary(), SaveLoad)
-	parts := []string{sl, col, char, siz, adj, sam}
+	parts := []string{sl, thm, col, char, siz, adj, sam}
 	if m.Animation.AnimatedImage {
 		parts = append(parts, m.renderCollapsible(m.Animation.View(), m.Animation.Summary(), Animation))
 	}
@@ -112,6 +135,6 @@ func (m Model) renderCollapsible(content, summary string, state State) string {
 	if m.active == state || m.expanded[state] {
 		return m.renderWithBorder(content, state, false)
 	}
-	dimSummary := lipgloss.NewStyle().Foreground(lipgloss.Color("#444444")).Italic(true).Width(m.width - 2).AlignHorizontal(lipgloss.Center).Padding(0, 1).Render(summary)
+	dimSummary := style.BgStyle().Foreground(style.ExtraDimColor).Italic(true).Width(m.width - 2).AlignHorizontal(lipgloss.Center).Padding(0, 1).Render(summary)
 	return m.renderWithBorder(dimSummary, state, true)
 }

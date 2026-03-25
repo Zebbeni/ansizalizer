@@ -16,7 +16,7 @@ func (m Model) drawPaletteToggles() string {
 		trueColorStyle = style.ActiveButtonNode
 	}
 	trueColorNode := trueColorStyle.Render("True Color")
-	trueColorNode = lipgloss.NewStyle().PaddingLeft(1).Render(trueColorNode)
+	trueColorNode = style.BgStyle().PaddingLeft(1).Render(trueColorNode)
 
 	palettedStyle := style.NormalButtonNode
 	if m.IsActive && m.focus == UsePalette {
@@ -25,7 +25,7 @@ func (m Model) drawPaletteToggles() string {
 		palettedStyle = style.ActiveButtonNode
 	}
 	palettedNode := palettedStyle.Render("Palette")
-	palettedNode = lipgloss.NewStyle().PaddingLeft(1).Render(palettedNode)
+	palettedNode = style.BgStyle().PaddingLeft(1).Render(palettedNode)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, trueColorNode, palettedNode)
 }
@@ -39,7 +39,7 @@ func (m Model) drawAdaptToggle() string {
 	} else if m.adaptToPalette {
 		onStyle = style.ActiveButtonNode
 	}
-	onNode := lipgloss.NewStyle().Width(4).Render(onStyle.Render("On"))
+	onNode := style.BgStyle().Width(4).Render(onStyle.Render("On"))
 
 	offStyle := style.NormalButtonNode
 	if m.IsActive && m.focus == AdaptOff {

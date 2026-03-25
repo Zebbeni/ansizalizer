@@ -19,15 +19,16 @@ const (
 )
 
 func (m Model) renderControls() string {
-	viewport := viewport.New(controlsWidth, m.leftPanelHeight())
+	vp := viewport.New(controlsWidth, m.leftPanelHeight())
 
-	leftContent := m.controls.View()
+	leftContent := style.ApplyBg(m.controls.View(), controlsWidth)
 
-	viewport.SetContent(lipgloss.NewStyle().
+	vp.SetContent(style.BgStyle().
 		Width(controlsWidth).
 		Height(m.leftPanelHeight()).
 		Render(leftContent))
-	return viewport.View()
+	vp.Style = style.BgStyle()
+	return vp.View()
 }
 
 func (m Model) renderViewer() string {
@@ -39,25 +40,33 @@ func (m Model) renderViewer() string {
 	// only render box label border around content if big enough.
 	if imgHeight > 1 && imgWidth > 4 {
 		boxLabelRenderer := style.BoxWithLabel{
-			BoxStyle:   lipgloss.NewStyle().BorderForeground(style.ExtraDimColor).Border(lipgloss.RoundedBorder()),
-			LabelStyle: lipgloss.NewStyle().Foreground(style.ExtraDimColor).AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Bottom),
+			BoxStyle:   style.BgStyle().BorderForeground(style.ExtraDimColor).Border(lipgloss.RoundedBorder()).BorderBackground(style.ActiveTheme.Bg),
+			LabelStyle: style.BgStyle().Foreground(style.ExtraDimColor).AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Bottom),
 		}
 		imgViewer = boxLabelRenderer.Render(fmt.Sprintf("%dx%d", imgWidth, imgHeight), imgString, imgWidth)
 	}
 
 	renderViewport := viewport.New(m.rPanelWidth()-2, m.rPanelHeight()-displayHeight-2)
 
-	vpRightStyle := lipgloss.NewStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
+	vpRightStyle := style.BgStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
 	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth() - 2).Height(m.rPanelHeight() - 4).Render(imgViewer)
 	renderViewport.SetContent(rightContent)
+	renderViewport.Style = style.BgStyle()
 
-	content := renderViewport.View()
+	content := style.ApplyBg(renderViewport.View(), 0)
 
-	return style.NormalButton.Copy().BorderForeground(style.DimmedColor1).Render(content)
+	return style.NormalButton.Copy().BorderForeground(style.DimmedColor1).BorderBackground(style.ActiveTheme.Bg).Render(content)
 }
 
 func (m Model) renderHelp() string {
 	helpBar := help.New()
-	helpContent := helpBar.View(event.KeyMap)
-	return lipgloss.NewStyle().PaddingLeft(1).Render(helpContent)
+	helpBar.Styles.ShortKey = style.BgStyle().Foreground(style.DimmedColor1)
+	helpBar.Styles.ShortDesc = style.BgStyle().Foreground(style.ExtraDimColor)
+	helpBar.Styles.ShortSeparator = style.BgStyle().Foreground(style.ExtraDimColor)
+	helpBar.Styles.FullKey = style.BgStyle().Foreground(style.DimmedColor1)
+	helpBar.Styles.FullDesc = style.BgStyle().Foreground(style.ExtraDimColor)
+	helpBar.Styles.FullSeparator = style.BgStyle().Foreground(style.ExtraDimColor)
+	helpBar.Styles.Ellipsis = style.BgStyle().Foreground(style.ExtraDimColor)
+	helpContent := style.ApplyBg(helpBar.View(event.KeyMap), 0)
+	return style.BgStyle().PaddingLeft(1).Width(m.w).Render(helpContent)
 }

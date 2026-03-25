@@ -8,10 +8,10 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/controls/menu"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type Model struct {
@@ -83,7 +83,7 @@ func (m Model) listIndex() int {
 
 func (m Model) View() string {
 	browser := m.currentList().View()
-	return lipgloss.JoinVertical(lipgloss.Left, browser)
+	return style.ApplyBg(browser, m.width)
 }
 
 func (m Model) ActiveFilename() string {

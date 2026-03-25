@@ -16,6 +16,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/env"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/prefs"
+	"github.com/Zebbeni/ansizalizer/style"
 	"github.com/Zebbeni/ansizalizer/viewer"
 )
 
@@ -142,6 +143,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleCopy()
 		case key.Matches(msg, event.KeyMap.Save):
 			return m.handleSave()
+		case key.Matches(msg, event.KeyMap.Debug):
+			return m.handleDebug()
 		}
 	}
 	return m.handleControlsUpdate(msg)
@@ -172,7 +175,11 @@ func (m Model) View() string {
 
 	vp := viewport.New(m.w, m.h)
 	vp.SetContent(all)
-	vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h)
+	vpStyle := lipgloss.NewStyle().Width(m.w).Height(m.h)
+	if !style.ActiveTheme.Transparent {
+		vpStyle = vpStyle.Background(style.ActiveTheme.Bg)
+	}
+	vp.Style = vpStyle
 
 	return vp.View()
 }

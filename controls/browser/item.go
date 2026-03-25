@@ -7,7 +7,8 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type item struct {
@@ -23,7 +24,7 @@ func (i item) FilterValue() string {
 
 func (i item) Title() string {
 	if i.isTop {
-		return "⮤ 🗀  " + lipgloss.NewStyle().Italic(true).Render(fmt.Sprintf("%s/", i.name))
+		return "⮤ 🗀  " + style.BgStyle().Italic(true).Render(fmt.Sprintf("%s/", i.name))
 	}
 	if i.isDir {
 		return fmt.Sprintf("🗀  %s/", i.name)

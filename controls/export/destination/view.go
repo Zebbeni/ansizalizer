@@ -37,7 +37,7 @@ func (m Model) drawSelected() string {
 	valueContent := valueStyle.Render(value)
 
 	valueWidth := m.width
-	widthStyle := lipgloss.NewStyle().Width(valueWidth).AlignHorizontal(lipgloss.Center)
+	widthStyle := style.BgStyle().Width(valueWidth).AlignHorizontal(lipgloss.Center)
 	content := lipgloss.JoinVertical(lipgloss.Center, title, valueContent)
 
 	return widthStyle.Render(content)

@@ -9,6 +9,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type State int
@@ -81,7 +82,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	content := make([]string, 0, 5)
 
-	selected := lipgloss.NewStyle().PaddingTop(1).Render(m.drawSelected())
+	selected := style.BgStyle().PaddingTop(1).Render(m.drawSelected())
 	content = append(content, selected)
 
 	if m.focus == Browser {

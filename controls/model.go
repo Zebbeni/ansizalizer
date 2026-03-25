@@ -1,6 +1,8 @@
 package controls
 
 import (
+	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -58,6 +60,11 @@ func New(w int, dirs prefs.Dirs) Model {
 
 		width: w,
 	}
+}
+
+func (m Model) DebugState() string {
+	stateNames := map[State]string{Menu: "Menu", Browse: "Browse", Settings: "Settings", Export: "Export"}
+	return fmt.Sprintf("Controls: active=%s focus=%s", stateNames[m.active], stateNames[m.focus])
 }
 
 func (m Model) Init() tea.Cmd {

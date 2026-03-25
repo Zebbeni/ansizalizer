@@ -16,11 +16,6 @@ var (
 		Adapt:  "Sample",
 	}
 
-	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
-	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
-	inactiveTabStyle  = lipgloss.NewStyle().Border(inactiveTabBorder, true)
-	activeTabStyle    = lipgloss.NewStyle().Border(activeTabBorder, true)
-	windowStyle       = lipgloss.NewStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
 )
 
 func (m Model) drawTabs() string {
@@ -54,9 +49,9 @@ func (m Model) drawTabs() string {
 		}
 
 		if showControls {
-			tabStyle = activeTabStyle.Copy()
+			tabStyle = style.ActiveTabStyle.Copy()
 		} else {
-			tabStyle = inactiveTabStyle.Copy()
+			tabStyle = style.InactiveTabStyle.Copy()
 		}
 
 		border, _, _, _, _ := tabStyle.GetBorder()
@@ -70,7 +65,7 @@ func (m Model) drawTabs() string {
 			border.BottomRight = "┴"
 		}
 
-		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).Foreground(fgColor)
+		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Foreground(fgColor)
 		renderedTabs = append(renderedTabs, tabStyle.Render(stateNames[t]))
 	}
 
@@ -79,12 +74,12 @@ func (m Model) drawTabs() string {
 
 	if extW > 0 {
 		border := lipgloss.Border{BottomLeft: "─", Bottom: "─", BottomRight: "┐"}
-		extendedStyle := windowStyle.Copy().Border(border).BorderForeground(borderColor).Padding(0)
+		extendedStyle := style.TabWindowStyle.Copy().Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
 		extended := extendedStyle.Copy().Width(extW).Height(1).Render("")
 		renderedTabs = append(renderedTabs, extended)
 	} else {
 		// Just add the closing corner, aligned to the bottom of the tab row
-		corner := lipgloss.NewStyle().Foreground(borderColor).Render("┐")
+		corner := style.BgStyle().Foreground(borderColor).Render("┐")
 		renderedTabs = append(renderedTabs, corner)
 	}
 
@@ -93,7 +88,7 @@ func (m Model) drawTabs() string {
 	doc.WriteString("\n")
 
 	controls := m.drawTabContent()
-	doc.WriteString(windowStyle.Copy().BorderForeground(borderColor).Width(lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize()).Render(controls))
+	doc.WriteString(style.TabWindowStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - style.TabWindowStyle.GetHorizontalFrameSize()).Render(controls))
 	return doc.String()
 }
 
@@ -109,13 +104,6 @@ func (m Model) drawTabContent() string {
 	return ""
 }
 
-func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
-	border := lipgloss.RoundedBorder()
-	border.BottomLeft = left
-	border.Bottom = middle
-	border.BottomRight = right
-	return border
-}
 
 func max(a, b int) int {
 	if a > b {

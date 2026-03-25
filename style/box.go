@@ -15,7 +15,7 @@ func NewDefaultBoxWithLabel() BoxWithLabel {
 	return BoxWithLabel{
 		BoxStyle: lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")),
+			BorderForeground(DimmedColor1),
 
 		// You could, of course, also set background and foreground colors here
 		// as well.
@@ -31,8 +31,8 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 		// Query the box style for some of its border properties so we can
 		// essentially take the top border apart and put it around the label.
 		border             lipgloss.Border     = b.BoxStyle.GetBorderStyle()
-		topBorderStyler    func(string ...string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
-		bottomBorderStyler func(string ...string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
+		topBorderStyler    func(string ...string) string = BgStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
+		bottomBorderStyler func(string ...string) string = BgStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
 		topLeft            string              = topBorderStyler(border.TopLeft)
 		topRight           string              = topBorderStyler(border.TopRight)
 		botLeft            string              = bottomBorderStyler(border.BottomLeft)
@@ -59,24 +59,38 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 
 	var top, bottom string
 
-	switch b.LabelStyle.GetAlignVertical() {
-	case lipgloss.Top:
-		strings.Repeat(border.Top, cellsShort)
-		top = topLeft + topBorderStyler(gapLeft) + renderedLabel + topBorderStyler(gapRight) + topRight
-		bottom = b.BoxStyle.Copy().
-			BorderTop(false).
-			Width(width).
-			Render(content)
-	case lipgloss.Bottom:
-		strings.Repeat(border.Bottom, cellsShort)
-		bottom = botLeft + bottomBorderStyler(gapLeft) + renderedLabel + bottomBorderStyler(gapRight) + botRight
-		top = b.BoxStyle.Copy().
-			BorderBottom(false).
-			Width(width).
-			Render(content)
+	// Pre-pad content lines with theme bg to fill inner width
+	// Manually construct the box to ensure bg covers all cells
+	leftBorder := topBorderStyler(border.Left)
+	rightBorder := topBorderStyler(border.Right)
+	botBorderLine := botLeft + bottomBorderStyler(strings.Repeat(border.Bottom, width)) + botRight
+
+	bgFill := BgStyle()
+	contentLines := strings.Split(content, "\n")
+	innerWidth := width
+
+	var bodyLines []string
+	for _, line := range contentLines {
+		lineWidth := lipgloss.Width(line)
+		pad := ""
+		if lineWidth < innerWidth {
+			pad = bgFill.Render(strings.Repeat(" ", innerWidth-lineWidth))
+		}
+		bodyLines = append(bodyLines, leftBorder+line+pad+rightBorder)
 	}
 
-	// Stack the pieces
+	switch b.LabelStyle.GetAlignVertical() {
+	case lipgloss.Top:
+		top = topLeft + topBorderStyler(gapLeft) + renderedLabel + topBorderStyler(gapRight) + topRight
+		bottom = strings.Join(bodyLines, "\n") + "\n" + botBorderLine
+	case lipgloss.Bottom:
+		bottom = botLeft + bottomBorderStyler(gapLeft) + renderedLabel + bottomBorderStyler(gapRight) + botRight
+		top = strings.Join(bodyLines, "\n")
+		// Add top border
+		topBorderLine := topLeft + topBorderStyler(strings.Repeat(border.Top, width)) + topRight
+		top = topBorderLine + "\n" + top
+	}
+
 	return top + "\n" + bottom
 }
 

@@ -6,27 +6,22 @@ import (
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-var (
-	activeColor = lipgloss.Color("#aaaaaa")
-	focusColor  = lipgloss.Color("#ffffff")
-	normalColor = lipgloss.Color("#555555")
-)
-
 func (m Model) renderWithBorder(content string, state State, collapsed bool) string {
-	renderColor := normalColor
+	renderColor := style.DimmedColor1
 	if m.active == state {
-		renderColor = activeColor
+		renderColor = style.NormalColor1
 	} else if m.focus == state {
-		renderColor = focusColor
+		renderColor = style.SelectedColor1
 	}
 
-	textStyle := lipgloss.NewStyle().
+	textStyle := style.BgStyle().
 		AlignHorizontal(lipgloss.Center).
 		Padding(0, 1, 0, 1).
 		Foreground(renderColor)
-	borderStyle := lipgloss.NewStyle().
+	borderStyle := style.BgStyle().
 		Border(lipgloss.RoundedBorder()).
-		BorderForeground(renderColor)
+		BorderForeground(renderColor).
+		BorderBackground(style.ActiveTheme.Bg)
 
 	renderer := style.BoxWithLabel{
 		BoxStyle:   borderStyle,

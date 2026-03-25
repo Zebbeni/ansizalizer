@@ -19,6 +19,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/prefs"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 func (m Model) handleStartRenderToViewCmd() (Model, tea.Cmd) {
@@ -283,6 +284,34 @@ func (m Model) processAdaptingCmd() tea.Msg {
 		Name:   name,
 		Colors: colors,
 	}
+}
+
+func (m Model) handleDebug() (Model, tea.Cmd) {
+	var b strings.Builder
+	b.WriteString("=== DEBUG LOG ===\n\n")
+
+	// App state
+	b.WriteString(fmt.Sprintf("App: state=%d w=%d h=%d\n", m.state, m.w, m.h))
+	b.WriteString(fmt.Sprintf("Active file: %s\n", m.controls.FileBrowser.ActiveFile))
+	b.WriteString(fmt.Sprintf("Viewer: animating=%v waitingOnRender=%v\n\n", m.viewer.IsAnimating(), m.viewer.WaitingOnRender))
+
+	// Controls state
+	b.WriteString(m.controls.DebugState() + "\n")
+	b.WriteString(m.controls.Settings.DebugState() + "\n\n")
+
+	// Theme
+	b.WriteString(fmt.Sprintf("Theme: %s (transparent=%v bg=%s)\n\n",
+		style.ThemeNames[style.ActiveTheme.Name],
+		style.ActiveTheme.Transparent,
+		string(style.ActiveTheme.Bg)))
+
+	// Full ANSI output
+	b.WriteString("=== FULL ANSI OUTPUT ===\n")
+	b.WriteString(m.View())
+	b.WriteString("\n=== END ===\n")
+
+	_ = os.WriteFile("debug.log", []byte(b.String()), 0644)
+	return m, event.BuildDisplayCmd("debug.log written")
 }
 
 func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {

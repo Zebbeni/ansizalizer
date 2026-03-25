@@ -11,11 +11,11 @@ import (
 var (
 	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
 	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
-	docStyle          = lipgloss.NewStyle().Padding(0)
-	inactiveTabStyle  = lipgloss.NewStyle().Border(inactiveTabBorder, true)
-	activeTabStyle    = lipgloss.NewStyle().Border(activeTabBorder, true)
-	focusTabStyle     = activeTabStyle.Copy().BorderForeground(style.SelectedColor1)
-	windowStyle       = lipgloss.NewStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
+	docStyle          = style.BgStyle().Padding(0)
+	inactiveTabStyle  = style.BgStyle().Border(inactiveTabBorder, true)
+	activeTabStyle    = style.BgStyle().Border(activeTabBorder, true)
+	focusTabStyle     = style.ActiveTabStyle.Copy().BorderForeground(style.SelectedColor1)
+	windowStyle       = style.BgStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
 	stateNames        = map[State]string{Sampling: "Sampling", Dithering: "Dithering"}
 )
 
@@ -51,9 +51,9 @@ func (m Model) drawTabs() string {
 		}
 
 		if m.activeTab == t {
-			tabStyle = activeTabStyle.Copy()
+			tabStyle = style.ActiveTabStyle.Copy()
 		} else {
-			tabStyle = inactiveTabStyle.Copy()
+			tabStyle = style.InactiveTabStyle.Copy()
 		}
 
 		border, _, _, _, _ := tabStyle.GetBorder()
@@ -67,7 +67,7 @@ func (m Model) drawTabs() string {
 			border.BottomRight = "┴"
 		}
 
-		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).Foreground(fgColor)
+		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Foreground(fgColor)
 		renderedTabs = append(renderedTabs, tabStyle.Render(stateNames[t]))
 	}
 
@@ -76,7 +76,7 @@ func (m Model) drawTabs() string {
 
 	border := lipgloss.Border{BottomLeft: "─", Bottom: "─", BottomRight: "┐"}
 
-	extendedStyle := windowStyle.Copy().Border(border).BorderForeground(borderColor).Padding(0)
+	extendedStyle := style.TabWindowStyle.Copy().Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
 	extended := extendedStyle.Copy().Width(extW).Height(extH).Render("")
 	renderedTabs = append(renderedTabs, extended)
 
@@ -85,7 +85,7 @@ func (m Model) drawTabs() string {
 	doc.WriteString("\n")
 
 	content := m.drawTabContent()
-	doc.WriteString(windowStyle.Copy().BorderForeground(borderColor).Width(lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize()).Render(content))
+	doc.WriteString(style.TabWindowStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - style.TabWindowStyle.GetHorizontalFrameSize()).Render(content))
 	return docStyle.Render(doc.String())
 }
 

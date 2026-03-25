@@ -17,7 +17,7 @@ var (
 )
 
 func (m Model) drawExportTypeOptions() string {
-	widthStyle := lipgloss.NewStyle().Width((m.width / 2) - 2).AlignHorizontal(lipgloss.Center)
+	widthStyle := style.BgStyle().Width((m.width / 2) - 2).AlignHorizontal(lipgloss.Center)
 	optionStyle := style.NormalButton
 	if ExpFile == m.focus && m.IsActive {
 		optionStyle = style.FocusButton
@@ -42,7 +42,7 @@ func (m Model) drawExportTypeOptions() string {
 func (m Model) drawSubDirOptions() string {
 	title := style.DimmedTitle.Copy().Render("Include Subdirectories")
 
-	nodeWidthStyle := lipgloss.NewStyle().Width(m.width / 2).AlignHorizontal(lipgloss.Center)
+	nodeWidthStyle := style.BgStyle().Width(m.width / 2).AlignHorizontal(lipgloss.Center)
 
 	yesStyle := style.NormalButtonNode.Copy()
 	if m.includeSubdirectories {
@@ -66,7 +66,7 @@ func (m Model) drawSubDirOptions() string {
 
 	options := lipgloss.JoinHorizontal(lipgloss.Center, yesNode, noNode)
 
-	widthStyle := lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).PaddingBottom(1)
+	widthStyle := style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Left).PaddingBottom(1)
 	content := lipgloss.JoinVertical(lipgloss.Center, title, options)
 
 	return widthStyle.Render(content)
@@ -105,7 +105,7 @@ func (m Model) drawSelected() string {
 
 	valueContent := valueStyle.Render(value)
 
-	widthStyle := lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center)
+	widthStyle := style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Center)
 	content := lipgloss.JoinVertical(lipgloss.Center, title, valueContent)
 
 	return widthStyle.Render(content)

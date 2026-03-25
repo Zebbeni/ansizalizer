@@ -15,6 +15,7 @@ import (
 
 // Config is the JSON-serializable representation of all user-configurable settings.
 type Config struct {
+	Theme      string           `json:"theme,omitempty"`
 	Colors     ColorsConfig     `json:"colors"`
 	Characters CharactersConfig `json:"characters"`
 	Size       SizeConfig       `json:"size"`
@@ -168,6 +169,7 @@ func (m Model) ExportConfig() Config {
 	}
 
 	return Config{
+		Theme: m.Theme.ThemeName(),
 		Colors: ColorsConfig{
 			UseTrueColor:   !m.Colors.IsLimited(),
 			AdaptToPalette: m.Colors.AdaptToPalette(),
@@ -213,6 +215,9 @@ func (m Model) ExportConfig() Config {
 }
 
 func (m *Model) ApplyConfig(cfg Config) {
+	if cfg.Theme != "" {
+		m.Theme.SetThemeByName(cfg.Theme)
+	}
 	m.Colors.SetMode(cfg.Colors.UseTrueColor)
 	m.Colors.SetAdaptToPalette(cfg.Colors.AdaptToPalette)
 	if !cfg.Colors.UseTrueColor && len(cfg.Colors.PaletteColors) > 0 {
@@ -249,6 +254,7 @@ func (m *Model) ApplyConfig(cfg Config) {
 // DefaultConfig returns the default settings matching the app's initial state.
 func DefaultConfig() Config {
 	return Config{
+		Theme: "Light on Transparent",
 		Colors: ColorsConfig{
 			UseTrueColor: false,
 			PaletteName:  "teal_orange",

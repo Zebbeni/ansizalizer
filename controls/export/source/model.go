@@ -7,6 +7,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type State int
@@ -89,7 +90,7 @@ func (m Model) View() string {
 	content := make([]string, 0, 5)
 	content = append(content, m.drawExportTypeOptions())
 
-	selected := lipgloss.NewStyle().PaddingTop(1).Render(m.drawSelected())
+	selected := style.BgStyle().PaddingTop(1).Render(m.drawSelected())
 	content = append(content, selected)
 
 	if m.focus == Browser {
