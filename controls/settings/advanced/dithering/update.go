@@ -18,41 +18,108 @@ const (
 
 var navMap = map[Direction]map[State]State{
 	Right: {
-		DitherOn:     DitherOff,
-		SerpentineOn: SerpentineOff,
+		DitherOn:         DitherOff,
+		SerpentineOn:     SerpentineOff,
+		ModeMatrix:       ModeBayer,
+		ModeBayer:        ModeClusteredDot,
+		MatrixList:       MatrixList,
+		BayerSize2:       BayerSize4,
+		BayerSize4:       BayerSize8,
+		BayerSize8:       BayerSize16,
+		ClusteredDotList: ClusteredDotList,
 	},
 	Left: {
-		DitherOff:     DitherOn,
-		SerpentineOff: SerpentineOn,
-	},
-	Down: {
-		DitherOn:      SerpentineOn,
-		DitherOff:     SerpentineOff,
-		SerpentineOn:  Matrix,
-		SerpentineOff: Matrix,
+		DitherOff:         DitherOn,
+		SerpentineOff:     SerpentineOn,
+		ModeClusteredDot:  ModeBayer,
+		ModeBayer:         ModeMatrix,
+		MatrixList:        MatrixList,
+		BayerSize16:       BayerSize8,
+		BayerSize8:        BayerSize4,
+		BayerSize4:        BayerSize2,
+		ClusteredDotList:  ClusteredDotList,
 	},
 	Up: {
-		SerpentineOn:  DitherOn,
-		SerpentineOff: DitherOff,
-		Matrix:        SerpentineOn,
+		SerpentineOn:     DitherOn,
+		SerpentineOff:    DitherOff,
+		StrengthForm:     SerpentineOn,
+		ModeMatrix:       StrengthForm,
+		ModeBayer:        StrengthForm,
+		ModeClusteredDot: StrengthForm,
+		MatrixList:       ModeMatrix,
+		BayerSize2:       ModeBayer,
+		BayerSize4:       ModeBayer,
+		BayerSize8:       ModeBayer,
+		BayerSize16:      ModeBayer,
+		ClusteredDotList: ModeClusteredDot,
+	},
+	Down: {
+		DitherOn:         SerpentineOn,
+		DitherOff:        SerpentineOff,
+		SerpentineOn:     StrengthForm,
+		SerpentineOff:    StrengthForm,
+		StrengthForm:     ModeMatrix,
+		ModeMatrix:       MatrixList,
+		ModeBayer:        BayerSize2,
+		ModeClusteredDot: ClusteredDotList,
 	},
 }
 
-func (m Model) handleMatrixListUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	if keyMsg, ok := msg.(tea.KeyMsg); ok {
-		switch {
-		case key.Matches(keyMsg, event.KeyMap.Up) && m.list.Index() == 0:
-			return m.handleNav(keyMsg)
-		case key.Matches(keyMsg, event.KeyMap.Esc):
-		case key.Matches(keyMsg, event.KeyMap.Enter):
-			var cmd tea.Cmd
-			m, cmd = m.setFocus(navMap[Up][Matrix])
-			return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+func (m Model) handleMatrixListUpdate(msg tea.KeyMsg) (Model, tea.Cmd) {
+	switch {
+	case key.Matches(msg, event.KeyMap.Up) && m.matrixList.Index() == 0:
+		return m.setFocus(ModeMatrix)
+	case key.Matches(msg, event.KeyMap.Esc):
+		return m.setFocus(ModeMatrix)
+	case key.Matches(msg, event.KeyMap.Enter):
+		m, _ = m.setFocus(ModeMatrix)
+		return m, nil
+	}
+	var cmd tea.Cmd
+	m.matrixList, cmd = m.matrixList.Update(msg)
+	if it, ok := m.matrixList.SelectedItem().(matrixItem); ok {
+		if mat, ok := errorDiffMatrixMap[it.Type]; ok {
+			m.matrix = mat
 		}
 	}
+	return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+}
 
+func (m Model) handleClusteredDotListUpdate(msg tea.KeyMsg) (Model, tea.Cmd) {
+	switch {
+	case key.Matches(msg, event.KeyMap.Up) && m.clusteredDotList.Index() == 0:
+		return m.setFocus(ModeClusteredDot)
+	case key.Matches(msg, event.KeyMap.Esc):
+		return m.setFocus(ModeClusteredDot)
+	case key.Matches(msg, event.KeyMap.Enter):
+		m, _ = m.setFocus(ModeClusteredDot)
+		return m, nil
+	}
 	var cmd tea.Cmd
-	m.list, cmd = m.list.Update(msg)
+	m.clusteredDotList, cmd = m.clusteredDotList.Update(msg)
+	if it, ok := m.clusteredDotList.SelectedItem().(clusteredDotItem); ok {
+		if cdm, ok := clusteredDotMatrixMap[it.Type]; ok {
+			m.clusteredDot = cdm
+		}
+	}
+	return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+}
+
+func (m Model) handleStrengthUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.strengthInput.Blur()
+			m.active = m.focus
+			return m, event.StartRenderToViewCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.strengthInput.Blur()
+			m.active = m.focus
+			return m, nil
+		}
+	}
+	var cmd tea.Cmd
+	m.strengthInput, cmd = m.strengthInput.Update(msg)
 	return m, cmd
 }
 
@@ -62,7 +129,8 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
-	switch m.focus {
+	m.active = m.focus
+	switch m.active {
 	case DitherOn:
 		m.doDithering = true
 	case DitherOff:
@@ -71,12 +139,31 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.doSerpentine = true
 	case SerpentineOff:
 		m.doSerpentine = false
+	case ModeMatrix:
+		m.ditherMode = Matrix
+	case ModeBayer:
+		m.ditherMode = Bayer
+	case ModeClusteredDot:
+		m.ditherMode = ClusteredDot
+	case BayerSize2:
+		m.bayerSize = 2
+	case BayerSize4:
+		m.bayerSize = 4
+	case BayerSize8:
+		m.bayerSize = 8
+	case BayerSize16:
+		m.bayerSize = 16
+	case StrengthForm:
+		m.strengthInput.Focus()
+		return m, nil
+	default:
+		// Items within a tab's content (list selections) are handled
+		// by the list update handlers above
 	}
 	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
 	switch {
 	case key.Matches(msg, event.KeyMap.Right):
 		if next, hasNext := navMap[Right][m.focus]; hasNext {
@@ -87,23 +174,30 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Up):
+		if !m.doDithering && (m.focus == DitherOn || m.focus == DitherOff) {
+			m.ShouldClose = true
+			return m, nil
+		}
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		if !m.doDithering {
+			m.ShouldClose = true
+			return m, nil
+		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.ShouldClose = true
 		}
 	}
-	return m, cmd
+	return m, nil
 }
 
 func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
-	var cmd tea.Cmd
 	switch {
 	case key.Matches(msg, event.KeyMap.Enter):
 		return m.handleEnter()
@@ -112,16 +206,35 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 	case key.Matches(msg, event.KeyMap.Esc):
 		return m.handleEsc()
 	}
-	return m, cmd
+	return m, nil
 }
 
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
-	if focus != Matrix {
-		m.list.SetDelegate(NewDelegate(false))
-	} else {
-		m.list.SetDelegate(NewDelegate(true))
+	m.strengthInput.Blur()
+	m.matrixList.SetDelegate(NewDelegate(false))
+	m.clusteredDotList.SetDelegate(NewDelegate(false))
+
+	// Switch tab content when focusing a tab
+	switch m.focus {
+	case ModeMatrix:
+		m.modeControls = ModeMatrix
+		m.ditherMode = Matrix
+	case ModeBayer:
+		m.modeControls = ModeBayer
+		m.ditherMode = Bayer
+	case ModeClusteredDot:
+		m.modeControls = ModeClusteredDot
+		m.ditherMode = ClusteredDot
+	case MatrixList:
+		m.matrixList.SetDelegate(NewDelegate(true))
+	case ClusteredDotList:
+		m.clusteredDotList.SetDelegate(NewDelegate(true))
 	}
 
+	// Re-render when switching dither modes
+	if focus == ModeMatrix || focus == ModeBayer || focus == ModeClusteredDot {
+		return m, event.StartRenderToViewCmd
+	}
 	return m, nil
 }

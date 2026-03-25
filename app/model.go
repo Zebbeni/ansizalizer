@@ -6,10 +6,16 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"encoding/json"
+	"os"
+	"path/filepath"
+
 	"github.com/Zebbeni/ansizalizer/controls"
+	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/display"
 	"github.com/Zebbeni/ansizalizer/env"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/prefs"
 	"github.com/Zebbeni/ansizalizer/viewer"
 )
 
@@ -32,20 +38,63 @@ type Model struct {
 	exportQueue     []exportJob
 	exportIndex     int
 
+	prefs prefs.Prefs
+
 	w, h int
 }
 
 func New() Model {
-	return Model{
+	firstRun := prefs.Init()
+	if firstRun {
+		defaultCfg := settings.DefaultConfig()
+		data, _ := json.MarshalIndent(defaultCfg, "", "  ")
+		prefs.WriteDefaultSettings(data)
+	}
+
+	p := prefs.Load()
+
+	// Set default dirs
+	if p.Dirs.Browse == "" {
+		if home, err := os.UserHomeDir(); err == nil {
+			docs := filepath.Join(home, "Documents")
+			if info, err := os.Stat(docs); err == nil && info.IsDir() {
+				p.Dirs.Browse = docs
+			}
+		}
+	}
+	if p.Dirs.SaveDir == "" {
+		p.Dirs.SaveDir = prefs.SettingsDir()
+	}
+	if p.Dirs.LoadFile == "" {
+		p.Dirs.LoadFile = prefs.SettingsDir()
+	}
+	if p.Dirs.PaletteLoad == "" {
+		p.Dirs.PaletteLoad = prefs.PalettesDir()
+	}
+	p.Save()
+
+	m := Model{
 		state:    Main,
-		controls: controls.New(controlsWidth),
+		controls: controls.New(controlsWidth, p.Dirs),
 		display:  display.New(),
 		viewer:   viewer.New(),
 		w:        100,
 		h:        100,
 
+		prefs: p,
+
 		waitingOnExport: false,
 	}
+
+	// Restore settings from latest.json (or default.json on first run)
+	if firstRun {
+		m.controls.Settings.SaveLoad.SetStatus("Loaded default.json")
+	} else if cfg, err := settings.LoadConfig(prefs.LatestSettingsPath()); err == nil {
+		m.controls.Settings.ApplyConfig(cfg)
+		m.controls.Settings.SaveLoad.SetStatus("Loaded latest.json")
+	}
+
+	return m
 }
 
 func (m Model) Init() tea.Cmd {
@@ -67,6 +116,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleStartRenderToViewCmd()
 	case event.FinishRenderToViewMsg:
 		return m.handleFinishRenderToViewMsg(msg)
+	case event.FinishRenderGIFToViewMsg:
+		return m.handleFinishRenderGIFToViewMsg(msg)
+	case event.AnimationTickMsg:
+		var cmd tea.Cmd
+		m.viewer, cmd = m.viewer.Update(msg)
+		return m, cmd
 	case event.StartAdaptingMsg:
 		return m.handleStartAdaptingMsg()
 	case event.FinishAdaptingMsg:

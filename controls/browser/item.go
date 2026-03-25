@@ -1,12 +1,13 @@
 package browser
 
 import (
-	"strings"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type item struct {
@@ -22,10 +23,10 @@ func (i item) FilterValue() string {
 
 func (i item) Title() string {
 	if i.isTop {
-		return "↑"
+		return "⮤ 🗀  " + lipgloss.NewStyle().Italic(true).Render(fmt.Sprintf("%s/", i.name))
 	}
 	if i.isDir {
-		return fmt.Sprintf("%s/", i.name)
+		return fmt.Sprintf("🗀  %s/", i.name)
 	}
 	return i.name
 }

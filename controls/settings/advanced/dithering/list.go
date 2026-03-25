@@ -11,100 +11,138 @@ import (
 type MatrixType int
 
 const (
-	Atkinson MatrixType = iota
-	Burkes
-	FloydSteinberg
-	FalseFloydSteinberg
-	JarvisJudiceNinke
-	Sierra
-	Sierra2
-	Sierra3
-	SierraLite
-	TwoRowSierra
-	Sierra2_4A
-	Simple2D
-	StevenPigeon
-	Stucki
+	MatAtkinson MatrixType = iota
+	MatBurkes
+	MatFloydSteinberg
+	MatFalseFloydSteinberg
+	MatJarvisJudiceNinke
+	MatSierra
+	MatSierra2
+	MatSierra3
+	MatSierraLite
+	MatTwoRowSierra
+	MatSierra2_4A
+	MatSimple2D
+	MatStevenPigeon
+	MatStucki
 )
 
-var Matrices = []MatrixType{
-	Atkinson,
-	Burkes,
-	FloydSteinberg,
-	FalseFloydSteinberg,
-	JarvisJudiceNinke,
-	Sierra,
-	Sierra2,
-	Sierra3,
-	SierraLite,
-	TwoRowSierra,
-	Sierra2_4A,
-	Simple2D,
-	Stucki,
-	StevenPigeon,
-}
-
-var nameMap = map[MatrixType]string{
-	Atkinson:            "Atkinson",
-	Burkes:              "Burkes",
-	FloydSteinberg:      "FloydSteinberg",
-	FalseFloydSteinberg: "FalseFloydSteinberg",
-	JarvisJudiceNinke:   "JarvisJudiceNinke",
-	Sierra:              "Sierra",
-	Sierra2:             "Sierra2",
-	Sierra3:             "Sierra3",
-	SierraLite:          "SierraLite",
-	TwoRowSierra:        "TwoRowSierra",
-	Sierra2_4A:          "Sierra2_4A",
-	Simple2D:            "Simple2D",
-	Stucki:              "Stucki",
-	StevenPigeon:        "StevenPigeon",
+var matrixNameMap = map[MatrixType]string{
+	MatAtkinson:            "Atkinson",
+	MatBurkes:              "Burkes",
+	MatFloydSteinberg:      "FloydSteinberg",
+	MatFalseFloydSteinberg: "FalseFloydSteinberg",
+	MatJarvisJudiceNinke:   "JarvisJudiceNinke",
+	MatSierra:              "Sierra",
+	MatSierra2:             "Sierra2",
+	MatSierra3:             "Sierra3",
+	MatSierraLite:          "SierraLite",
+	MatTwoRowSierra:        "TwoRowSierra",
+	MatSierra2_4A:          "Sierra2_4A",
+	MatSimple2D:            "Simple2D",
+	MatStucki:              "Stucki",
+	MatStevenPigeon:        "StevenPigeon",
 }
 
 var errorDiffMatrixMap = map[MatrixType]dither.ErrorDiffusionMatrix{
-	Atkinson:            dither.Atkinson,
-	Burkes:              dither.Burkes,
-	FloydSteinberg:      dither.FloydSteinberg,
-	FalseFloydSteinberg: dither.FalseFloydSteinberg,
-	JarvisJudiceNinke:   dither.JarvisJudiceNinke,
-	Sierra:              dither.Sierra,
-	Sierra2:             dither.Sierra2,
-	Sierra3:             dither.Sierra3,
-	SierraLite:          dither.SierraLite,
-	TwoRowSierra:        dither.TwoRowSierra,
-	Sierra2_4A:          dither.Sierra2_4A,
-	Simple2D:            dither.Simple2D,
-	Stucki:              dither.Stucki,
-	StevenPigeon:        dither.StevenPigeon,
+	MatAtkinson:            dither.Atkinson,
+	MatBurkes:              dither.Burkes,
+	MatFloydSteinberg:      dither.FloydSteinberg,
+	MatFalseFloydSteinberg: dither.FalseFloydSteinberg,
+	MatJarvisJudiceNinke:   dither.JarvisJudiceNinke,
+	MatSierra:              dither.Sierra,
+	MatSierra2:             dither.Sierra2,
+	MatSierra3:             dither.Sierra3,
+	MatSierraLite:          dither.SierraLite,
+	MatTwoRowSierra:        dither.TwoRowSierra,
+	MatSierra2_4A:          dither.Sierra2_4A,
+	MatSimple2D:            dither.Simple2D,
+	MatStucki:              dither.Stucki,
+	MatStevenPigeon:        dither.StevenPigeon,
 }
 
-func newMatrixMenu(width int) list.Model {
-	items := menuItems()
-	return newMenu(items, width, len(items))
+type ClusteredDotType int
+
+const (
+	CDClusteredDot4x4 ClusteredDotType = iota
+	CDClusteredDot6x6
+	CDClusteredDot6x6_2
+	CDClusteredDot6x6_3
+	CDClusteredDot8x8
+	CDClusteredDotDiagonal6x6
+	CDClusteredDotDiagonal8x8
+	CDClusteredDotDiagonal8x8_2
+	CDClusteredDotDiagonal8x8_3
+	CDClusteredDotDiagonal16x16
+	CDClusteredDotHorizontalLine
+	CDClusteredDotVerticalLine
+	CDClusteredDotSpiral5x5
+)
+
+var clusteredDotNameMap = map[ClusteredDotType]string{
+	CDClusteredDot4x4:            "ClusteredDot4x4",
+	CDClusteredDot6x6:            "ClusteredDot6x6",
+	CDClusteredDot6x6_2:          "ClusteredDot6x6_2",
+	CDClusteredDot6x6_3:          "ClusteredDot6x6_3",
+	CDClusteredDot8x8:            "ClusteredDot8x8",
+	CDClusteredDotDiagonal6x6:    "Diagonal6x6",
+	CDClusteredDotDiagonal8x8:    "Diagonal8x8",
+	CDClusteredDotDiagonal8x8_2:  "Diagonal8x8_2",
+	CDClusteredDotDiagonal8x8_3:  "Diagonal8x8_3",
+	CDClusteredDotDiagonal16x16:  "Diagonal16x16",
+	CDClusteredDotHorizontalLine: "HorizontalLine",
+	CDClusteredDotVerticalLine:   "VerticalLine",
+	CDClusteredDotSpiral5x5:      "Spiral5x5",
 }
 
-type item struct {
+var clusteredDotMatrixMap = map[ClusteredDotType]dither.OrderedDitherMatrix{
+	CDClusteredDot4x4:            dither.ClusteredDot4x4,
+	CDClusteredDot6x6:            dither.ClusteredDot6x6,
+	CDClusteredDot6x6_2:          dither.ClusteredDot6x6_2,
+	CDClusteredDot6x6_3:          dither.ClusteredDot6x6_3,
+	CDClusteredDot8x8:            dither.ClusteredDot8x8,
+	CDClusteredDotDiagonal6x6:    dither.ClusteredDotDiagonal6x6,
+	CDClusteredDotDiagonal8x8:    dither.ClusteredDotDiagonal8x8,
+	CDClusteredDotDiagonal8x8_2:  dither.ClusteredDotDiagonal8x8_2,
+	CDClusteredDotDiagonal8x8_3:  dither.ClusteredDotDiagonal8x8_3,
+	CDClusteredDotDiagonal16x16:  dither.ClusteredDotDiagonal16x16,
+	CDClusteredDotHorizontalLine: dither.ClusteredDotHorizontalLine,
+	CDClusteredDotVerticalLine:   dither.ClusteredDotVerticalLine,
+	CDClusteredDotSpiral5x5:      dither.ClusteredDotSpiral5x5,
+}
+
+// Matrix list items
+type matrixItem struct {
 	Type MatrixType
 }
 
-func (i item) FilterValue() string {
-	return nameMap[i.Type]
-}
+func (i matrixItem) FilterValue() string { return matrixNameMap[i.Type] }
+func (i matrixItem) Title() string       { return matrixNameMap[i.Type] }
+func (i matrixItem) Description() string { return "" }
 
-func (i item) Title() string {
-	return nameMap[i.Type]
-}
-
-func (i item) Description() string {
-	return ""
-}
-
-func menuItems() []list.Item {
-	items := make([]list.Item, len(Matrices))
-	for i, matrix := range Matrices {
-		items[i] = item{Type: matrix}
+func newMatrixMenu(width int) list.Model {
+	items := make([]list.Item, 0, len(matrixNameMap))
+	for _, mt := range []MatrixType{MatAtkinson, MatBurkes, MatFloydSteinberg, MatFalseFloydSteinberg, MatJarvisJudiceNinke, MatSierra, MatSierra2, MatSierra3, MatSierraLite, MatTwoRowSierra, MatSierra2_4A, MatSimple2D, MatStucki, MatStevenPigeon} {
+		items = append(items, matrixItem{Type: mt})
 	}
-	return items
+	return newMenu(items, width, len(items))
+}
+
+// Clustered dot list items
+type clusteredDotItem struct {
+	Type ClusteredDotType
+}
+
+func (i clusteredDotItem) FilterValue() string { return clusteredDotNameMap[i.Type] }
+func (i clusteredDotItem) Title() string       { return clusteredDotNameMap[i.Type] }
+func (i clusteredDotItem) Description() string { return "" }
+
+func newClusteredDotMenu(width int) list.Model {
+	items := make([]list.Item, 0, len(clusteredDotNameMap))
+	for _, ct := range []ClusteredDotType{CDClusteredDot4x4, CDClusteredDot6x6, CDClusteredDot6x6_2, CDClusteredDot6x6_3, CDClusteredDot8x8, CDClusteredDotDiagonal6x6, CDClusteredDotDiagonal8x8, CDClusteredDotDiagonal8x8_2, CDClusteredDotDiagonal8x8_3, CDClusteredDotDiagonal16x16, CDClusteredDotHorizontalLine, CDClusteredDotVerticalLine, CDClusteredDotSpiral5x5} {
+		items = append(items, clusteredDotItem{Type: ct})
+	}
+	return newMenu(items, width, len(items))
 }
 
 func newMenu(items []list.Item, width, height int) list.Model {

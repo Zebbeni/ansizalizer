@@ -28,7 +28,7 @@ var navMap = map[Direction]map[State]State{
 		UnicodeQuart:      UnicodeShadeLight,
 		UnicodeShadeLight: UnicodeShadeMed,
 		UnicodeShadeMed:   UnicodeShadeHeavy,
-		OneColor:          TwoColor,
+		ColorBgOff:          ColorBgOn,
 		DarkToLight:       Sequence,
 		Sequence:          Random,
 	},
@@ -43,14 +43,14 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeLight: UnicodeQuart,
 		UnicodeQuart:      UnicodeHalf,
 		UnicodeHalf:       UnicodeFull,
-		TwoColor:          OneColor,
+		ColorBgOn:          ColorBgOff,
 		Random:            Sequence,
 		Sequence:          DarkToLight,
 	},
 	Up: {
-		Ascii:             OneColor,
-		Unicode:           OneColor,
-		Custom:            OneColor,
+		Ascii:             ColorBgOff,
+		Unicode:           ColorBgOff,
+		Custom:            ColorBgOff,
 		AsciiAz:           Ascii,
 		AsciiNums:         Ascii,
 		AsciiSpec:         Ascii,
@@ -67,8 +67,8 @@ var navMap = map[Direction]map[State]State{
 		Random:            SymbolsForm,
 	},
 	Down: {
-		OneColor:    Custom,
-		TwoColor:    Custom,
+		ColorBgOff:    Custom,
+		ColorBgOn:    Custom,
 		Ascii:       AsciiAz,
 		Unicode:     UnicodeShadeMed,
 		Custom:      SymbolsForm,
@@ -117,8 +117,10 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.customInput.Focus()
 	case DarkToLight, Sequence, Random:
 		m.selectionMode = m.active
-	case OneColor, TwoColor:
-		m.useFgBg = m.active
+	case ColorBgOff:
+		m.colorBg = false
+	case ColorBgOn:
+		m.colorBg = true
 	default:
 		switch m.charControls {
 		case Ascii:
@@ -171,13 +173,10 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	switch m.focus {
 	case Ascii:
 		m.charControls = Ascii
-		m.mode = Ascii
 	case Unicode:
 		m.charControls = Unicode
-		m.mode = Unicode
 	case Custom:
 		m.charControls = Custom
-		m.mode = Custom
 	}
-	return m, event.StartRenderToViewCmd
+	return m, nil
 }

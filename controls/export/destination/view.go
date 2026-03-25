@@ -43,6 +43,7 @@ func (m Model) drawSelected() string {
 	return widthStyle.Render(content)
 }
 
-func drawBrowserTitle() string {
-	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a directory")
+func (m Model) drawBrowserTitle() string {
+	dir := filepath.Base(m.Browser.SelectedDir)
+	return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 }

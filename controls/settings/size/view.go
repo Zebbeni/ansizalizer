@@ -3,12 +3,15 @@ package size
 import (
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
-	stateOrder = []State{FitButton, StretchButton}
+	stateOrder = []State{FitButton, FillButton, StretchButton}
 	stateNames = map[State]string{
 		FitButton:     "Fit",
+		FillButton:    "Fill",
 		StretchButton: "Stretch",
 		WidthForm:     "Width",
 		HeightForm:    "Height",
@@ -24,24 +27,37 @@ var (
 			Foreground(lipgloss.Color("#888888"))
 )
 
-func (m Model) drawButtons() string {
-	buttons := make([]string, len(stateOrder))
-	for i, state := range stateOrder {
-		styleColor := normalColor
-		if m.IsActive {
-			if state == m.focus {
-				styleColor = focusColor
-			} else if state == m.active {
-				styleColor = activeColor
-			}
-		}
-		style := lipgloss.NewStyle().
-			BorderStyle(lipgloss.RoundedBorder()).
-			BorderForeground(styleColor).
-			Foreground(styleColor)
-		buttons[i] = style.Copy().Width(12).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+func (m Model) drawModeButtons() string {
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Mode:")
+
+	fitStyle := style.NormalButtonNode
+	if m.IsActive && FitButton == m.focus {
+		fitStyle = style.FocusButtonNode
+	} else if m.mode == Fit {
+		fitStyle = style.ActiveButtonNode
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	fitButton := fitStyle.Render("Fit")
+	fitButton = lipgloss.NewStyle().Width(6).AlignHorizontal(lipgloss.Center).Render(fitButton)
+
+	fillStyle := style.NormalButtonNode
+	if m.IsActive && FillButton == m.focus {
+		fillStyle = style.FocusButtonNode
+	} else if m.mode == Fill {
+		fillStyle = style.ActiveButtonNode
+	}
+	fillButton := fillStyle.Render("Fill")
+	fillButton = lipgloss.NewStyle().Width(6).AlignHorizontal(lipgloss.Center).Render(fillButton)
+
+	stretchStyle := style.NormalButtonNode
+	if m.IsActive && StretchButton == m.focus {
+		stretchStyle = style.FocusButtonNode
+	} else if m.mode == Stretch {
+		stretchStyle = style.ActiveButtonNode
+	}
+	stretchButton := stretchStyle.Render("Stretch")
+	stretchButton = lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(stretchButton)
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, title, fitButton, fillButton, stretchButton)
 }
 
 func (m Model) drawSizeForms() string {

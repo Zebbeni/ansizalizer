@@ -94,6 +94,11 @@ func (m Model) Contrast() int {
 	return clampInput(m.contrastInput.Value())
 }
 
+func (m *Model) SetConfig(brightness, contrast int) {
+	m.brightnessInput.SetValue(strconv.Itoa(brightness))
+	m.contrastInput.SetValue(strconv.Itoa(contrast))
+}
+
 func (m *Model) ResetFocus() {
 	m.focus = BrightnessForm
 	m.active = None
@@ -102,7 +107,7 @@ func (m *Model) ResetFocus() {
 }
 
 func (m Model) Summary() string {
-	return "Bright: " + m.brightnessInput.Value() + " | Contrast: " + m.contrastInput.Value()
+	return "Bright: " + m.brightnessInput.Value() + "\nContrast: " + m.contrastInput.Value()
 }
 
 func clampInput(s string) int {

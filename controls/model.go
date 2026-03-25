@@ -8,6 +8,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/export"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/global"
+	"github.com/Zebbeni/ansizalizer/prefs"
 )
 
 type State int
@@ -41,14 +42,19 @@ type Model struct {
 	width int
 }
 
-func New(w int) Model {
+func New(w int, dirs prefs.Dirs) Model {
+	fileBrowser := browser.New(global.ImgExtensions, w)
+	if dirs.Browse != "" {
+		fileBrowser = browser.NewAtDir(dirs.Browse, global.ImgExtensions, w)
+	}
+
 	return Model{
 		active: Menu,
 		focus:  Browse,
 
-		FileBrowser: browser.New(global.ImgExtensions, w),
-		Settings:    settings.New(w),
-		Export:      export.New(w),
+		FileBrowser: fileBrowser,
+		Settings:    settings.New(w, dirs),
+		Export:      export.New(w, dirs),
 
 		width: w,
 	}

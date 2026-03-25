@@ -2,7 +2,6 @@ package palettes
 
 import (
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/palettes/adaptive"
 	"github.com/Zebbeni/ansizalizer/controls/settings/palettes/loader"
@@ -49,14 +48,19 @@ type Model struct {
 	width int
 }
 
-func New(w int) Model {
+func New(w int, paletteDir string) Model {
+	innerW := w - 2
+	loaderModel := loader.New(innerW)
+	if paletteDir != "" {
+		loaderModel = loader.NewAtDir(paletteDir, innerW)
+	}
 	m := Model{
-		selected:    Load,
-		focus:       Load,
-		controls:    Load,
-		Adapter:     adaptive.New(w),
-		Loader:      loader.New(w),
-		Lospec:      lospec.New(w),
+		selected:    Lospec,
+		focus:       Lospec,
+		controls:    Lospec,
+		Adapter:     adaptive.New(innerW),
+		Loader:      loaderModel,
+		Lospec:      lospec.New(innerW),
 		ShouldClose: false,
 		IsActive:    false,
 		width:       w,
@@ -81,25 +85,17 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	buttons := m.drawButtons()
-	if m.IsActive == false {
-		return buttons
-	}
+	return m.drawTabs()
+}
 
-	var controls string
-	switch m.controls {
-	case Adapt:
-		controls = m.Adapter.View()
-	case Load:
-		controls = m.Loader.View()
-	case Lospec:
-		controls = m.Lospec.View()
-	}
-	if len(controls) == 0 {
-		return buttons
-	}
+func (m *Model) SetSelected(state State) {
+	m.selected = state
+	m.controls = state
+	m.focus = state
+}
 
-	return lipgloss.JoinVertical(lipgloss.Top, buttons, controls)
+func (m Model) IsLospecFocused() bool {
+	return m.controls == Lospec
 }
 
 func (m Model) IsAdaptive() bool {

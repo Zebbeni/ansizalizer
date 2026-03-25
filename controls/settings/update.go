@@ -1,6 +1,8 @@
 package settings
 
 import (
+	"path/filepath"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 
@@ -14,14 +16,15 @@ const (
 	Up
 )
 
-var navMap = map[Direction]map[State]State{
-	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced},
-	Up:   {Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
-}
-
-var navMapAlpha = map[Direction]map[State]State{
-	Down: {Colors: Characters, Characters: Size, Size: Adjust, Adjust: Advanced, Advanced: Alpha},
-	Up:   {Alpha: Advanced, Advanced: Adjust, Adjust: Size, Size: Characters, Characters: Colors},
+func (m Model) visibleStates() []State {
+	states := []State{SaveLoad, Colors, Characters, Size, Adjust, Advanced}
+	if m.Animation.AnimatedImage {
+		states = append(states, Animation)
+	}
+	if m.Alpha.AlphaImage {
+		states = append(states, Alpha)
+	}
+	return states
 }
 
 func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -91,6 +94,58 @@ func (m Model) handleAdvancedUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) handleAnimationUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Animation, cmd = m.Animation.Update(msg)
+	if m.Animation.ShouldClose {
+		m.active = None
+		m.Animation.IsActive = false
+		m.Animation.ShouldClose = false
+	}
+	return m, cmd
+}
+
+func (m Model) handleSaveLoadUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.SaveLoad, cmd = m.SaveLoad.Update(msg)
+
+	if m.SaveLoad.ShouldClose {
+		// Check if a save or load was requested before closing
+		if m.SaveLoad.SavePath != "" {
+			cfg := m.ExportConfig()
+			err := SaveConfig(cfg, m.SaveLoad.SavePath)
+			filename := filepath.Base(m.SaveLoad.SavePath)
+			m.SaveLoad.SavePath = ""
+			m.SaveLoad.ShouldClose = false
+			if err != nil {
+				m.SaveLoad.SetSaveResult("Save Failed")
+				return m, event.BuildDisplayCmd("error saving settings")
+			}
+			m.SaveLoad.SetSaveResult("Saved to " + filename)
+			m.SaveLoad.SetStatus("Saved " + filename)
+			return m, event.BuildDisplayCmd("settings saved")
+		}
+		if m.SaveLoad.LoadPath != "" {
+			cfg, err := LoadConfig(m.SaveLoad.LoadPath)
+			filename := filepath.Base(m.SaveLoad.LoadPath)
+			m.SaveLoad.LoadPath = ""
+			m.SaveLoad.ShouldClose = false
+			if err != nil {
+				m.SaveLoad.SetLoadResult("Error Loading " + filename)
+				return m, event.BuildDisplayCmd("error loading settings")
+			}
+			m.ApplyConfig(cfg)
+			m.SaveLoad.SetLoadResult("Settings File: " + filename)
+			m.SaveLoad.SetStatus("Loaded " + filename)
+			return m, tea.Batch(event.StartRenderToViewCmd, event.BuildDisplayCmd("settings loaded"))
+		}
+		m.active = None
+		m.SaveLoad.IsActive = false
+		m.SaveLoad.ShouldClose = false
+	}
+	return m, cmd
+}
+
 func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Alpha, cmd = m.Alpha.Update(msg)
@@ -105,7 +160,10 @@ func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.active = m.focus
-	m.expanded[m.focus] = true
+	m.expanded = map[State]bool{m.focus: true}
+	if m.active != SaveLoad {
+		m.SaveLoad.ClearStatus()
+	}
 	switch m.active {
 	case Colors:
 		m.Colors.IsActive = true
@@ -117,14 +175,18 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Adjust.IsActive = true
 	case Advanced:
 		m.Advanced.IsActive = true
+	case Animation:
+		m.Animation.IsActive = true
 	case Alpha:
 		m.Alpha.IsActive = true
+	case SaveLoad:
+		m.SaveLoad.IsActive = true
 	}
 	return m, nil
 }
 
 func (m Model) handleExpand() (Model, tea.Cmd) {
-	m.expanded[m.focus] = true
+	m.expanded = map[State]bool{m.focus: true}
 	return m, nil
 }
 
@@ -140,29 +202,25 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	prev := m.focus
+	states := m.visibleStates()
+
 	switch {
 	case key.Matches(msg, event.KeyMap.Down):
-		if m.Alpha.AlphaImage {
-			if next, hasNext := navMapAlpha[Down][m.focus]; hasNext {
-				m.focus = next
-			}
-		} else {
-			if next, hasNext := navMap[Down][m.focus]; hasNext {
-				m.focus = next
+		for i, s := range states {
+			if s == m.focus && i+1 < len(states) {
+				m.focus = states[i+1]
+				break
 			}
 		}
 	case key.Matches(msg, event.KeyMap.Up):
-		if m.Alpha.AlphaImage {
-			if next, hasNext := navMapAlpha[Up][m.focus]; hasNext {
-				m.focus = next
-			} else {
-				m.ShouldClose = true
-			}
-		} else {
-			if next, hasNext := navMap[Up][m.focus]; hasNext {
-				m.focus = next
-			} else {
-				m.ShouldClose = true
+		for i, s := range states {
+			if s == m.focus {
+				if i == 0 {
+					m.ShouldClose = true
+				} else {
+					m.focus = states[i-1]
+				}
+				break
 			}
 		}
 	}
@@ -184,8 +242,12 @@ func (m *Model) resetSubMenu(state State) {
 		m.Adjust.ResetFocus()
 	case Advanced:
 		m.Advanced.ResetFocus()
+	case Animation:
+		m.Animation.ResetFocus()
 	case Alpha:
 		m.Alpha.ResetFocus()
+	case SaveLoad:
+		m.SaveLoad.ResetFocus()
 	}
 }
 

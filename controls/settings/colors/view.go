@@ -29,3 +29,25 @@ func (m Model) drawPaletteToggles() string {
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, trueColorNode, palettedNode)
 }
+
+func (m Model) drawAdaptToggle() string {
+	title := style.DimmedTitle.Copy().Padding(0, 1).Render("Adapt to Palette:")
+
+	onStyle := style.NormalButtonNode
+	if m.IsActive && m.focus == AdaptOn {
+		onStyle = style.FocusButtonNode
+	} else if m.adaptToPalette {
+		onStyle = style.ActiveButtonNode
+	}
+	onNode := lipgloss.NewStyle().Width(4).Render(onStyle.Render("On"))
+
+	offStyle := style.NormalButtonNode
+	if m.IsActive && m.focus == AdaptOff {
+		offStyle = style.FocusButtonNode
+	} else if !m.adaptToPalette {
+		offStyle = style.ActiveButtonNode
+	}
+	offNode := offStyle.Render("Off")
+
+	return lipgloss.JoinHorizontal(lipgloss.Left, title, onNode, offNode)
+}

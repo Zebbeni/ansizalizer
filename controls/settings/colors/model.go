@@ -1,6 +1,7 @@
 package colors
 
 import (
+	"fmt"
 	"image/color"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -18,12 +19,15 @@ type State int
 const (
 	UsePalette State = iota
 	UseTrueColor
+	AdaptOn
+	AdaptOff
 	Palette
 )
 
 type Model struct {
 	focus           State
 	mode            State
+	adaptToPalette  bool
 	width           int
 	PaletteControls palettes.Model
 
@@ -31,12 +35,12 @@ type Model struct {
 	ShouldClose bool
 }
 
-func New(w int) Model {
+func New(w int, paletteDir string) Model {
 	return Model{
 		focus:           UseTrueColor,
 		mode:            UseTrueColor,
 		width:           w,
-		PaletteControls: palettes.New(w),
+		PaletteControls: palettes.New(w-2, paletteDir),
 		IsActive:        false,
 		ShouldClose:     false,
 	}
@@ -68,12 +72,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	paletteToggles := m.drawPaletteToggles()
+	adaptToggle := m.drawAdaptToggle()
 	if m.mode == UseTrueColor {
-		return paletteToggles
+		return lipgloss.JoinVertical(lipgloss.Left, paletteToggles, adaptToggle)
 	}
 
 	paletteTabs := m.PaletteControls.View()
-	return lipgloss.JoinVertical(lipgloss.Left, paletteToggles, paletteTabs)
+	return lipgloss.JoinVertical(lipgloss.Left, paletteToggles, adaptToggle, paletteTabs)
 }
 
 // GetSelected returns isPaletted, isAdaptive, and the palette (if applicable)
@@ -97,10 +102,32 @@ func (m Model) IsLimited() bool {
 
 // NewPaletteMode returns a Model configured to use the given palette.
 func NewPaletteMode(p color.Palette, w int) Model {
-	m := New(w)
+	m := New(w, "")
 	m.mode = UsePalette
 	m.PaletteControls.Loader = loader.NewWithPalette(p, w)
 	return m
+}
+
+func (m Model) AdaptToPalette() bool {
+	return m.adaptToPalette
+}
+
+func (m *Model) SetAdaptToPalette(adapt bool) {
+	m.adaptToPalette = adapt
+}
+
+func (m *Model) SetMode(useTrueColor bool) {
+	if useTrueColor {
+		m.mode = UseTrueColor
+	} else {
+		m.mode = UsePalette
+	}
+}
+
+func (m *Model) SetPalette(name string, colors color.Palette) {
+	m.mode = UsePalette
+	m.PaletteControls.Loader = loader.NewWithNamedPalette(name, colors, m.width-2)
+	m.PaletteControls.SetSelected(palettes.Load)
 }
 
 func (m *Model) ResetFocus() {
@@ -112,12 +139,14 @@ func (m Model) Summary() string {
 		return "Mode: True Color"
 	}
 	p := m.PaletteControls.GetCurrentPalette()
-	summary := "Mode: Palette"
+	count := len(p.Colors())
+	summary := fmt.Sprintf("Mode: Palette (%d color)", count)
 	name := p.Name()
-	if name == "" {
-		summary += " | NONE"
-	} else {
-		summary += " | " + name
+	if name != "" {
+		summary += "\nName: " + name
+	}
+	if m.adaptToPalette {
+		summary += "\nAdapt: On"
 	}
 	return summary
 }

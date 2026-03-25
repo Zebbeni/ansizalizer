@@ -48,7 +48,7 @@ func (m Model) drawSubDirOptions() string {
 	if m.includeSubdirectories {
 		yesStyle = style.ActiveButtonNode.Copy()
 	}
-	if m.focus == SubDirsYes {
+	if m.focus == SubDirsYes && m.IsActive {
 		yesStyle = style.FocusButtonNode.Copy()
 	}
 	yesNode := nodeWidthStyle.Render(yesStyle.Render("Yes"))
@@ -57,7 +57,7 @@ func (m Model) drawSubDirOptions() string {
 	if !m.includeSubdirectories {
 		noStyle = style.ActiveButtonNode.Copy()
 	}
-	if m.focus == SubDirsNo {
+	if m.focus == SubDirsNo && m.IsActive {
 		noStyle = style.FocusButtonNode.Copy()
 	}
 
@@ -112,8 +112,9 @@ func (m Model) drawSelected() string {
 }
 
 func (m Model) drawBrowserTitle() string {
+	dir := filepath.Base(m.Browser.SelectedDir)
 	if m.doExportDirectory {
-		return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a directory")
+		return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 	}
-	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a .png or .jpg file")
+	return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 }

@@ -1,6 +1,9 @@
 package advanced
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/makeworld-the-better-one/dither/v2"
@@ -22,14 +25,15 @@ const (
 )
 
 type Model struct {
-	focus       State
-	active      State
-	activeTab   State
-	sampling    sampling.Model
-	dithering   dithering.Model
-	ShouldClose bool
-	IsActive    bool
-	width       int
+	focus         State
+	active        State
+	activeTab     State
+	sampling      sampling.Model
+	dithering     dithering.Model
+	ShouldClose   bool
+	IsActive      bool
+	ShowDithering bool
+	width         int
 }
 
 func New(w int) Model {
@@ -83,17 +87,75 @@ func (m Model) Dithering() (bool, bool, dither.ErrorDiffusionMatrix) {
 	return m.dithering.Settings()
 }
 
+func (m Model) DitherMode() dithering.DitherMode {
+	return m.dithering.DitherModeValue()
+}
+
+func (m Model) BayerSize() uint {
+	return m.dithering.BayerSize()
+}
+
+func (m Model) ClusteredDotMatrix() dither.OrderedDitherMatrix {
+	return m.dithering.ClusteredDotMatrix()
+}
+
+func (m Model) ClusteredDotName() string {
+	return m.dithering.ClusteredDotName()
+}
+
+func (m Model) DitherStrength() float32 {
+	return m.dithering.Strength()
+}
+
+func (m Model) SamplingFunctionName() string {
+	return m.sampling.FunctionName()
+}
+
+func (m Model) DitherMatrixName() string {
+	return m.dithering.MatrixName()
+}
+
+func (m *Model) SetConfig(samplingName string, doDither, doSerpentine bool, ditherMode dithering.DitherMode, matrixName, clusteredDotName string, bayerSize int, strength float32) {
+	m.sampling.SetFunctionByName(samplingName)
+	m.dithering.SetFullConfig(doDither, doSerpentine, ditherMode, matrixName, clusteredDotName, bayerSize, strength)
+}
+
 func (m *Model) ResetFocus() {
-	m.focus = Sampling
+	if m.ShowDithering {
+		m.focus = Dithering
+		m.activeTab = Dithering
+	} else {
+		m.focus = Sampling
+		m.activeTab = Sampling
+	}
 	m.active = Menu
-	m.activeTab = Sampling
 }
 
 func (m Model) Summary() string {
-	name := "Sample: " + m.sampling.FunctionName()
-	doDither, _, _ := m.dithering.Settings()
-	if doDither {
-		return name + " | Dither"
+	summary := "Sample: " + m.sampling.FunctionName()
+	doDither, doSerpentine, _ := m.dithering.Settings()
+	if !doDither {
+		return summary
 	}
-	return name
+
+	mode := m.dithering.DitherModeValue()
+	strength := m.dithering.Strength()
+	strengthStr := strconv.FormatFloat(float64(strength), 'f', -1, 32)
+
+	var ditherInfo string
+	switch mode {
+	case dithering.Matrix:
+		ditherInfo = "Dither: " + m.dithering.MatrixName()
+	case dithering.Bayer:
+		ditherInfo = fmt.Sprintf("Dither: Bayer %d", m.dithering.BayerSize())
+	case dithering.ClusteredDot:
+		ditherInfo = "Dither: " + m.dithering.ClusteredDotName()
+	}
+	ditherInfo += " (" + strengthStr + ")"
+
+	if doSerpentine {
+		ditherInfo += "\nSerpentine: On"
+	}
+
+	return summary + "\n" + ditherInfo
 }

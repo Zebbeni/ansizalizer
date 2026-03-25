@@ -1,6 +1,8 @@
 package controls
 
 import (
+	"path/filepath"
+
 	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/style"
@@ -34,6 +36,7 @@ func (m Model) drawButtons() string {
 }
 
 func (m Model) drawBrowserTitle() string {
-	title := style.DimmedTitle.Copy().Italic(true).Render("Search Images")
-	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
+	dir := filepath.Base(m.FileBrowser.SelectedDir)
+	title := style.DimmedTitle.Copy().Italic(true).Render(dir + "/")
+	return lipgloss.NewStyle().Width(m.width).Padding(1, 0).AlignHorizontal(lipgloss.Center).Render(title)
 }

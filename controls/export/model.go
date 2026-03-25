@@ -6,6 +6,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls/export/destination"
 	"github.com/Zebbeni/ansizalizer/controls/export/source"
+	"github.com/Zebbeni/ansizalizer/prefs"
 )
 
 type State int
@@ -38,12 +39,12 @@ type Model struct {
 	width int
 }
 
-func New(w int) Model {
+func New(w int, dirs prefs.Dirs) Model {
 	return Model{
 		focus:         Source,
 		active:        None,
-		Source:        source.New(w - 2),
-		Destination:   destination.New(w - 2),
+		Source:        source.New(w-2, dirs.ExportSource),
+		Destination:   destination.New(w-2, dirs.ExportDest),
 		ShouldClose:   false,
 		ShouldUnfocus: false,
 		width:         w,

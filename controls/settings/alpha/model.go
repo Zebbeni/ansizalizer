@@ -77,6 +77,11 @@ func (m Model) TrimAlpha() bool {
 	return m.trimAlpha
 }
 
+func (m *Model) SetConfig(useAlpha, trimAlpha bool) {
+	m.useAlpha = useAlpha
+	m.trimAlpha = trimAlpha
+}
+
 func (m *Model) ResetFocus() {
 	m.focus = AlphaYes
 }

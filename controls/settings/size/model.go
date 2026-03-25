@@ -18,11 +18,13 @@ type Mode int
 
 const (
 	Fit Mode = iota
+	Fill
 	Stretch
 )
 
 const (
 	FitButton State = iota
+	FillButton
 	StretchButton
 	WidthForm
 	HeightForm
@@ -46,7 +48,7 @@ type Model struct {
 
 func New() Model {
 	return Model{
-		focus:          FitButton,
+		focus:          WidthForm,
 		active:         None,
 		mode:           Fit,
 		widthInput:     newInput(WidthForm, 50),
@@ -64,21 +66,18 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
-	var cmd1, cmd2 tea.Cmd
-	newM := m
-
 	switch m.active {
 	case WidthForm:
 		if m.widthInput.Focused() {
-			newM, cmd1 = newM.handleWidthUpdate(msg)
+			return m.handleWidthUpdate(msg)
 		}
 	case HeightForm:
 		if m.heightInput.Focused() {
-			newM, cmd1 = newM.handleHeightUpdate(msg)
+			return m.handleHeightUpdate(msg)
 		}
 	case CharRatioForm:
 		if m.charRatioInput.Focused() {
-			newM, cmd1 = newM.handleCharRatioUpdate(msg)
+			return m.handleCharRatioUpdate(msg)
 		}
 	}
 
@@ -86,21 +85,21 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, event.KeyMap.Enter):
-			newM, cmd2 = newM.handleEnter()
+			return m.handleEnter()
 		case key.Matches(msg, event.KeyMap.Nav):
-			newM, cmd2 = newM.handleNav(msg)
+			return m.handleNav(msg)
 		case key.Matches(msg, event.KeyMap.Esc):
-			newM, cmd2 = newM.handleEsc()
+			return m.handleEsc()
 		}
 	}
-	return newM, tea.Batch(cmd1, cmd2)
+	return m, nil
 }
 
 func (m Model) View() string {
-	buttonRow := m.drawButtons()
 	forms := m.drawSizeForms()
+	modeRow := m.drawModeButtons()
 	ratioForm := m.drawCharRatioForm()
-	return lipgloss.JoinVertical(lipgloss.Left, buttonRow, forms, ratioForm)
+	return lipgloss.JoinVertical(lipgloss.Left, forms, modeRow, ratioForm)
 }
 
 func (m Model) Info() (Mode, int, int, float64) {
@@ -114,8 +113,15 @@ func (m Model) Info() (Mode, int, int, float64) {
 	return m.mode, width, height, charRatio
 }
 
+func (m *Model) SetConfig(mode Mode, width, height int, charRatio float64) {
+	m.mode = mode
+	m.widthInput.SetValue(strconv.Itoa(width))
+	m.heightInput.SetValue(strconv.Itoa(height))
+	m.charRatioInput.SetValue(strconv.FormatFloat(charRatio, 'f', -1, 64))
+}
+
 func (m *Model) ResetFocus() {
-	m.focus = FitButton
+	m.focus = WidthForm
 	m.active = None
 	m.widthInput.Blur()
 	m.heightInput.Blur()
@@ -123,11 +129,6 @@ func (m *Model) ResetFocus() {
 }
 
 func (m Model) Summary() string {
-	summary := "Size: " + m.widthInput.Value() + "x" + m.heightInput.Value()
-	if m.mode == Stretch {
-		summary += " | Mode: Stretch"
-	} else {
-		summary += " | Mode: Fit"
-	}
-	return summary
+	modeNames := map[Mode]string{Fit: "Fit", Fill: "Fill", Stretch: "Stretch"}
+	return "Size: " + m.widthInput.Value() + "x" + m.heightInput.Value() + "\nMode: " + modeNames[m.mode]
 }
