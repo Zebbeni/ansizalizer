@@ -81,11 +81,27 @@ func (m Model) DebugState() string {
 	)
 }
 
+func (m *Model) syncPalette() {
+	m.Advanced.ShowDithering = m.Colors.IsLimited()
+	if m.Colors.IsLimited() {
+		style.PaletteColors = m.Colors.GetCurrentPalette().Colors()
+	} else {
+		style.PaletteColors = nil
+	}
+	if style.ActiveTheme.Name == style.LightOnDarkPaletted || style.ActiveTheme.Name == style.DarkOnLightPaletted {
+		style.SetTheme(style.ActiveTheme.Name)
+		m.Colors.RefreshStyles()
+	}
+}
+
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	m.Advanced.ShowDithering = m.Colors.IsLimited()
+
 	switch m.active {
 	case Colors:
-		return m.handleColorsUpdate(msg)
+		m, cmd := m.handleColorsUpdate(msg)
+		m.syncPalette()
+		return m, cmd
 	case Characters:
 		return m.handleCharactersUpdate(msg)
 	case Size:

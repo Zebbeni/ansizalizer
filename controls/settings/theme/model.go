@@ -16,22 +16,28 @@ const (
 	LightOnDark
 	DarkOnLight
 	DarkOnTransparent
+	LightOnDarkPaletted
+	DarkOnLightPaletted
 )
 
-var themeOrder = []State{LightOnTransparent, LightOnDark, DarkOnLight, DarkOnTransparent}
+var themeOrder = []State{LightOnTransparent, LightOnDark, DarkOnLight, DarkOnTransparent, LightOnDarkPaletted, DarkOnLightPaletted}
 
 var stateToTheme = map[State]style.ThemeName{
-	LightOnTransparent: style.LightOnTransparent,
-	LightOnDark:        style.LightOnDark,
-	DarkOnLight:        style.DarkOnLight,
-	DarkOnTransparent:  style.DarkOnTransparent,
+	LightOnTransparent:  style.LightOnTransparent,
+	LightOnDark:         style.LightOnDark,
+	DarkOnLight:         style.DarkOnLight,
+	DarkOnTransparent:   style.DarkOnTransparent,
+	LightOnDarkPaletted: style.LightOnDarkPaletted,
+	DarkOnLightPaletted: style.DarkOnLightPaletted,
 }
 
 var themeToState = map[style.ThemeName]State{
-	style.LightOnTransparent: LightOnTransparent,
-	style.LightOnDark:        LightOnDark,
-	style.DarkOnLight:        DarkOnLight,
-	style.DarkOnTransparent:  DarkOnTransparent,
+	style.LightOnTransparent:  LightOnTransparent,
+	style.LightOnDark:         LightOnDark,
+	style.DarkOnLight:         DarkOnLight,
+	style.DarkOnTransparent:   DarkOnTransparent,
+	style.LightOnDarkPaletted: LightOnDarkPaletted,
+	style.DarkOnLightPaletted: DarkOnLightPaletted,
 }
 
 type Model struct {

@@ -4,16 +4,22 @@ import (
 	"strings"
 	"time"
 
+	"github.com/lucasb-eyer/go-colorful"
+
 	"github.com/Zebbeni/ansiart"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 )
 
 func RenderImageFile(s settings.Model, imgFilePath string) string {
+	return RenderImageFileWithBg(s, imgFilePath, nil)
+}
+
+func RenderImageFileWithBg(s settings.Model, imgFilePath string, solidBg *colorful.Color) string {
 	if imgFilePath == "" {
 		return "Browse an image to render"
 	}
 
-	opts := settingsToOptions(s)
+	opts := settingsToOptionsWithBg(s, solidBg)
 	result, err := ansiart.RenderFile(imgFilePath, opts)
 	if err != nil {
 		return err.Error()
@@ -22,7 +28,11 @@ func RenderImageFile(s settings.Model, imgFilePath string) string {
 }
 
 func RenderGIFFile(s settings.Model, imgFilePath string) ([]string, []time.Duration) {
-	opts := settingsToOptions(s)
+	return RenderGIFFileWithBg(s, imgFilePath, nil)
+}
+
+func RenderGIFFileWithBg(s settings.Model, imgFilePath string, solidBg *colorful.Color) ([]string, []time.Duration) {
+	opts := settingsToOptionsWithBg(s, solidBg)
 	frames, err := ansiart.RenderGIF(imgFilePath, opts)
 	if err != nil {
 		return []string{err.Error()}, []time.Duration{0}

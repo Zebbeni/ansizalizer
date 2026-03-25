@@ -21,7 +21,7 @@ const (
 func (m Model) renderControls() string {
 	vp := viewport.New(controlsWidth, m.leftPanelHeight())
 
-	leftContent := style.ApplyBg(m.controls.View(), controlsWidth)
+	leftContent := m.controls.View()
 
 	vp.SetContent(style.BgStyle().
 		Width(controlsWidth).
@@ -53,7 +53,7 @@ func (m Model) renderViewer() string {
 	renderViewport.SetContent(rightContent)
 	renderViewport.Style = style.BgStyle()
 
-	content := style.ApplyBg(renderViewport.View(), 0)
+	content := renderViewport.View()
 
 	return style.NormalButton.Copy().BorderForeground(style.DimmedColor1).BorderBackground(style.ActiveTheme.Bg).Render(content)
 }
@@ -67,6 +67,6 @@ func (m Model) renderHelp() string {
 	helpBar.Styles.FullDesc = style.BgStyle().Foreground(style.ExtraDimColor)
 	helpBar.Styles.FullSeparator = style.BgStyle().Foreground(style.ExtraDimColor)
 	helpBar.Styles.Ellipsis = style.BgStyle().Foreground(style.ExtraDimColor)
-	helpContent := style.ApplyBg(helpBar.View(event.KeyMap), 0)
+	helpContent := helpBar.View(event.KeyMap)
 	return style.BgStyle().PaddingLeft(1).Width(m.w).Render(helpContent)
 }

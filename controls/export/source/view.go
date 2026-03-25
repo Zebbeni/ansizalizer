@@ -17,15 +17,15 @@ var (
 )
 
 func (m Model) drawExportTypeOptions() string {
-	widthStyle := style.BgStyle().Width((m.width / 2) - 2).AlignHorizontal(lipgloss.Center)
+	buttonWidth := (m.width / 2) - 2
+
 	optionStyle := style.NormalButton
 	if ExpFile == m.focus && m.IsActive {
 		optionStyle = style.FocusButton
 	} else if m.doExportDirectory == false {
 		optionStyle = style.ActiveButton
 	}
-	singleFileButtonText := widthStyle.Render(stateNames[ExpFile])
-	singleFileButton := optionStyle.Render(singleFileButtonText)
+	singleFileButton := optionStyle.Copy().Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[ExpFile])
 
 	optionStyle = style.NormalButton
 	if ExpDirectory == m.focus && m.IsActive {
@@ -33,8 +33,7 @@ func (m Model) drawExportTypeOptions() string {
 	} else if m.doExportDirectory {
 		optionStyle = style.ActiveButton
 	}
-	directoryButtonText := widthStyle.Render(stateNames[ExpDirectory])
-	directoryButton := optionStyle.Render(directoryButtonText)
+	directoryButton := optionStyle.Copy().Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[ExpDirectory])
 
 	return lipgloss.JoinHorizontal(lipgloss.Center, singleFileButton, directoryButton)
 }

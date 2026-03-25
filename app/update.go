@@ -13,6 +13,7 @@ import (
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
 	"github.com/Zebbeni/ansizalizer/app/process"
@@ -87,9 +88,19 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 	}
 	extraInfo := strings.Join(extraParts, ", ")
 
+	// Compute solid bg for non-transparent themes
+	var solidBg *colorful.Color
+	if !style.ActiveTheme.Transparent {
+		hex := string(style.ActiveTheme.Bg)
+		c, err := colorful.Hex(hex)
+		if err == nil {
+			solidBg = &c
+		}
+	}
+
 	// Animated GIF path
 	if process.IsGIFFile(filePath) {
-		frames, _ := process.RenderGIFFile(m.controls.Settings, filePath)
+		frames, _ := process.RenderGIFFileWithBg(m.controls.Settings, filePath, solidBg)
 		if len(frames) > 1 {
 			return event.FinishRenderGIFToViewMsg{
 				FilePath:     filePath,
@@ -111,7 +122,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 	}
 
 	// Non-GIF: existing path
-	imgString := process.RenderImageFile(m.controls.Settings, filePath)
+	imgString := process.RenderImageFileWithBg(m.controls.Settings, filePath, solidBg)
 	return event.FinishRenderToViewMsg{
 		FilePath:     filePath,
 		ImgString:    imgString,
@@ -315,8 +326,13 @@ func (m Model) handleDebug() (Model, tea.Cmd) {
 }
 
 func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	prevThemeBg := string(style.ActiveTheme.Bg)
 	var cmd tea.Cmd
 	m.controls, cmd = m.controls.Update(msg)
+	// Refresh browser delegate styles if the theme bg changed (e.g. paletted theme)
+	if string(style.ActiveTheme.Bg) != prevThemeBg {
+		m.controls.RefreshBrowserStyles()
+	}
 	m.savePrefs()
 	return m, cmd
 }

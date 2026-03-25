@@ -1,5 +1,6 @@
 # Go files
 go.work.sum
+go.work
 
 # Images test directory
 images/*

@@ -92,6 +92,10 @@ func (m Model) GetSelected() (bool, bool, palette.Model) {
 	return false, m.PaletteControls.IsAdaptive(), colorPalette
 }
 
+func (m *Model) RefreshStyles() {
+	m.PaletteControls.RefreshStyles()
+}
+
 func (m Model) GetCurrentPalette() palette.Model {
 	return m.PaletteControls.GetCurrentPalette()
 }

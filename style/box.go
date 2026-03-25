@@ -59,36 +59,23 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 
 	var top, bottom string
 
-	// Pre-pad content lines with theme bg to fill inner width
-	// Manually construct the box to ensure bg covers all cells
-	leftBorder := topBorderStyler(border.Left)
-	rightBorder := topBorderStyler(border.Right)
-	botBorderLine := botLeft + bottomBorderStyler(strings.Repeat(border.Bottom, width)) + botRight
-
-	bgFill := BgStyle()
-	contentLines := strings.Split(content, "\n")
-	innerWidth := width
-
-	var bodyLines []string
-	for _, line := range contentLines {
-		lineWidth := lipgloss.Width(line)
-		pad := ""
-		if lineWidth < innerWidth {
-			pad = bgFill.Render(strings.Repeat(" ", innerWidth-lineWidth))
-		}
-		bodyLines = append(bodyLines, leftBorder+line+pad+rightBorder)
-	}
+	paddedContent := content
 
 	switch b.LabelStyle.GetAlignVertical() {
 	case lipgloss.Top:
+		strings.Repeat(border.Top, cellsShort)
 		top = topLeft + topBorderStyler(gapLeft) + renderedLabel + topBorderStyler(gapRight) + topRight
-		bottom = strings.Join(bodyLines, "\n") + "\n" + botBorderLine
+		bottom = b.BoxStyle.Copy().
+			BorderTop(false).
+			Width(width).
+			Render(paddedContent)
 	case lipgloss.Bottom:
+		strings.Repeat(border.Bottom, cellsShort)
 		bottom = botLeft + bottomBorderStyler(gapLeft) + renderedLabel + bottomBorderStyler(gapRight) + botRight
-		top = strings.Join(bodyLines, "\n")
-		// Add top border
-		topBorderLine := topLeft + topBorderStyler(strings.Repeat(border.Top, width)) + topRight
-		top = topBorderLine + "\n" + top
+		top = b.BoxStyle.Copy().
+			BorderBottom(false).
+			Width(width).
+			Render(paddedContent)
 	}
 
 	return top + "\n" + bottom

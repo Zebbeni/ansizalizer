@@ -2,6 +2,8 @@ package style
 
 import (
 	"fmt"
+	"image/color"
+	"math"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -15,21 +17,31 @@ const (
 	LightOnDark
 	DarkOnLight
 	DarkOnTransparent
+	LightOnDarkPaletted
+	DarkOnLightPaletted
 )
 
 var ThemeNames = map[ThemeName]string{
-	LightOnTransparent: "Light on Transparent",
-	LightOnDark:        "Light on Dark",
-	DarkOnLight:        "Dark on Light",
-	DarkOnTransparent:  "Dark on Transparent",
+	LightOnTransparent:  "Light on Transparent",
+	LightOnDark:         "Light on Dark",
+	DarkOnLight:         "Dark on Light",
+	DarkOnTransparent:   "Dark on Transparent",
+	LightOnDarkPaletted: "Light on Dark (Paletted)",
+	DarkOnLightPaletted: "Dark on Light (Paletted)",
 }
 
 var ThemeFromName = map[string]ThemeName{
-	"Light on Transparent": LightOnTransparent,
-	"Light on Dark":        LightOnDark,
-	"Dark on Light":        DarkOnLight,
-	"Dark on Transparent":  DarkOnTransparent,
+	"Light on Transparent":       LightOnTransparent,
+	"Light on Dark":              LightOnDark,
+	"Dark on Light":              DarkOnLight,
+	"Dark on Transparent":        DarkOnTransparent,
+	"Light on Dark (Paletted)":   LightOnDarkPaletted,
+	"Dark on Light (Paletted)":   DarkOnLightPaletted,
 }
+
+// PaletteColors holds the current palette for paletted themes.
+// Set this before calling SetTheme with a paletted theme.
+var PaletteColors color.Palette
 
 // Theme defines the complete color palette for a theme.
 type Theme struct {
@@ -102,10 +114,94 @@ var ActiveTheme = themes[LightOnTransparent]
 
 // SetTheme changes the active theme and refreshes all styles.
 func SetTheme(name ThemeName) {
-	if t, ok := themes[name]; ok {
-		ActiveTheme = t
+	switch name {
+	case LightOnDarkPaletted:
+		ActiveTheme = buildPalettedTheme(name, true)
+	case DarkOnLightPaletted:
+		ActiveTheme = buildPalettedTheme(name, false)
+	default:
+		if t, ok := themes[name]; ok {
+			ActiveTheme = t
+		}
 	}
 	Refresh()
+}
+
+// buildPalettedTheme creates a theme from the current palette colors.
+// lightOnDark=true: light fg on dark bg. lightOnDark=false: dark fg on light bg.
+func buildPalettedTheme(name ThemeName, lightOnDark bool) Theme {
+	if len(PaletteColors) == 0 {
+		// Fall back to default non-paletted theme
+		if lightOnDark {
+			return themes[LightOnDark]
+		}
+		return themes[DarkOnLight]
+	}
+
+	darkest, lightest := findDarkestLightest(PaletteColors)
+
+	var bgR, bgG, bgB, fgR, fgG, fgB float64
+	if lightOnDark {
+		bgR, bgG, bgB = colorToFloat(darkest)
+		fgR, fgG, fgB = colorToFloat(lightest)
+	} else {
+		bgR, bgG, bgB = colorToFloat(lightest)
+		fgR, fgG, fgB = colorToFloat(darkest)
+	}
+
+	return Theme{
+		Name:        name,
+		Transparent: false,
+		Bg:          floatToHex(bgR, bgG, bgB),
+		Fg:          floatToHex(fgR, fgG, fgB),
+		Selected:    floatToHex(fgR, fgG, fgB),
+		Normal:      lerpHex(fgR, fgG, fgB, bgR, bgG, bgB, 0.25),
+		Dimmed:      lerpHex(fgR, fgG, fgB, bgR, bgG, bgB, 0.50),
+		ExtraDim:    lerpHex(fgR, fgG, fgB, bgR, bgG, bgB, 0.70),
+		Subtle:      lerpHex(fgR, fgG, fgB, bgR, bgG, bgB, 0.55),
+	}
+}
+
+func findDarkestLightest(palette color.Palette) (color.Color, color.Color) {
+	var darkest, lightest color.Color
+	minLum := math.MaxFloat64
+	maxLum := -1.0
+
+	for _, c := range palette {
+		r, g, b := colorToFloat(c)
+		// Perceived luminance
+		lum := 0.299*r + 0.587*g + 0.114*b
+		if lum < minLum {
+			minLum = lum
+			darkest = c
+		}
+		if lum > maxLum {
+			maxLum = lum
+			lightest = c
+		}
+	}
+	return darkest, lightest
+}
+
+func colorToFloat(c color.Color) (float64, float64, float64) {
+	r, g, b, _ := c.RGBA()
+	return float64(r) / 65535.0, float64(g) / 65535.0, float64(b) / 65535.0
+}
+
+func floatToHex(r, g, b float64) lipgloss.Color {
+	return lipgloss.Color(fmt.Sprintf("#%02x%02x%02x",
+		int(math.Round(r*255)),
+		int(math.Round(g*255)),
+		int(math.Round(b*255))))
+}
+
+// lerpHex interpolates between (r1,g1,b1) and (r2,g2,b2) by t (0=first, 1=second).
+func lerpHex(r1, g1, b1, r2, g2, b2, t float64) lipgloss.Color {
+	return floatToHex(
+		r1+(r2-r1)*t,
+		g1+(g2-g1)*t,
+		b1+(b2-b1)*t,
+	)
 }
 
 // GetTheme returns the theme for the given name.

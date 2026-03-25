@@ -155,3 +155,11 @@ func (m *Model) SetListActive(active bool) {
 	}
 	m.paletteList.SetDelegate(delegate)
 }
+
+func (m *Model) RefreshStyles() {
+	if m.IsActive {
+		m.SetListActive(true)
+	} else {
+		m.SetListActive(false)
+	}
+}

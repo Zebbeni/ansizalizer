@@ -163,10 +163,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
 func (m Model) View() string {
-	controls := m.renderControls()
-	display := m.display.View()
+	controls := style.ApplyBg(m.renderControls(), 0)
+	display := style.ApplyBg(m.display.View(), 0)
 	viewer := m.renderViewer()
-	help := m.renderHelp()
+	help := style.ApplyBg(m.renderHelp(), 0)
 
 	leftPanel := controls
 	rightPanel := lipgloss.JoinVertical(lipgloss.Top, display, viewer)

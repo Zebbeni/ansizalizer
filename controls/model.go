@@ -62,6 +62,10 @@ func New(w int, dirs prefs.Dirs) Model {
 	}
 }
 
+func (m *Model) RefreshBrowserStyles() {
+	m.FileBrowser.RefreshStyles()
+}
+
 func (m Model) DebugState() string {
 	stateNames := map[State]string{Menu: "Menu", Browse: "Browse", Settings: "Settings", Export: "Export"}
 	return fmt.Sprintf("Controls: active=%s focus=%s", stateNames[m.active], stateNames[m.focus])
