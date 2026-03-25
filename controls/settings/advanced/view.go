@@ -22,7 +22,11 @@ var (
 func (m Model) drawTabs() string {
 	doc := strings.Builder{}
 	var renderedTabs []string
-	tabs := []State{Sampling, Dithering}
+	var tabs []State
+	if m.ShowDithering {
+		tabs = append(tabs, Dithering)
+	}
+	tabs = append(tabs, Sampling)
 
 	borderColor := style.DimmedColor2
 	if m.IsActive {

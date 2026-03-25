@@ -18,7 +18,13 @@ func (m Model) handleFinishRenderMsg(msg event.FinishRenderToViewMsg) (Model, te
 	m.currentFrame = 0
 	m.isAnimating = false
 
-	displayMsg := fmt.Sprintf("viewing %s/%s with %s palette and %s", filepath.Base(filepath.Dir(msg.FilePath)), filepath.Base(msg.FilePath), msg.ColorsString, msg.AlphaString)
+	displayMsg := fmt.Sprintf("viewing %s/%s with %s", filepath.Base(filepath.Dir(msg.FilePath)), filepath.Base(msg.FilePath), msg.ColorsString)
+	if msg.AlphaString != "" {
+		displayMsg += ", " + msg.AlphaString
+	}
+	if msg.ExtraInfo != "" {
+		displayMsg += ", " + msg.ExtraInfo
+	}
 	return m, event.BuildDisplayCmd(displayMsg)
 }
 
@@ -29,28 +35,43 @@ func (m Model) handleFinishRenderGIFMsg(msg event.FinishRenderGIFToViewMsg) (Mod
 	m.currentFrame = 0
 	m.isAnimating = true
 	m.imgString = ""
+	m.generation++
 
-	displayMsg := fmt.Sprintf("viewing %s/%s (%d frames, %dms) with %s palette and %s",
+	displayMsg := fmt.Sprintf("viewing %s/%s (%d frames, %dms) with %s",
 		filepath.Base(filepath.Dir(msg.FilePath)),
 		filepath.Base(msg.FilePath),
 		len(msg.Frames),
 		msg.Delay.Milliseconds(),
 		msg.ColorsString,
-		msg.AlphaString,
 	)
+	if msg.AlphaString != "" {
+		displayMsg += ", " + msg.AlphaString
+	}
+	if msg.ExtraInfo != "" {
+		displayMsg += ", " + msg.ExtraInfo
+	}
 
 	return m, tea.Batch(
 		event.BuildDisplayCmd(displayMsg),
-		event.BuildAnimationTickCmd(m.delay),
+		event.BuildAnimationTickCmd(m.delay, m.generation),
 	)
 }
 
-func (m Model) handleAnimationTick() (Model, tea.Cmd) {
-	if !m.isAnimating || len(m.frames) == 0 || m.WaitingOnRender {
-		m.isAnimating = false
+func (m Model) handleAnimationTick(msg event.AnimationTickMsg) (Model, tea.Cmd) {
+	if !m.isAnimating || len(m.frames) == 0 {
 		return m, nil
 	}
 
+	// Ignore ticks from a previous generation
+	if msg.Generation != m.generation {
+		return m, nil
+	}
+
+	if m.WaitingOnRender {
+		// Keep showing current frame while re-render is in progress
+		return m, event.BuildAnimationTickCmd(m.delay, m.generation)
+	}
+
 	m.currentFrame = (m.currentFrame + 1) % len(m.frames)
-	return m, event.BuildAnimationTickCmd(m.delay)
+	return m, event.BuildAnimationTickCmd(m.delay, m.generation)
 }

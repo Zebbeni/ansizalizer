@@ -31,10 +31,10 @@ const (
 
 var (
 	navMap = map[Direction]map[State]State{
-		Right: {CountForm: FilterExact, FilterExact: FilterMax, FilterMax: FilterMin, SortAlphabetical: SortDownloads, SortDownloads: SortNewest},
-		Left:  {TagForm: CountForm, FilterMin: FilterMax, FilterMax: FilterExact, FilterExact: CountForm, SortNewest: SortDownloads, SortDownloads: SortAlphabetical},
-		Up:    {TagForm: CountForm, SortAlphabetical: TagForm, SortDownloads: TagForm, SortNewest: TagForm, List: SortAlphabetical},
-		Down:  {CountForm: TagForm, FilterExact: TagForm, FilterMax: TagForm, FilterMin: TagForm, TagForm: SortAlphabetical, SortAlphabetical: List, SortDownloads: List, SortNewest: List},
+		Right: {CountForm: FilterExact, FilterExact: FilterMax, FilterMax: FilterMin, SortAlphabetical: SortNewest, SortDownloads: SortAlphabetical},
+		Left:  {TagForm: CountForm, FilterMin: FilterMax, FilterMax: FilterExact, FilterExact: CountForm, SortNewest: SortAlphabetical, SortAlphabetical: SortDownloads},
+		Up:    {TagForm: SortAlphabetical, SortAlphabetical: CountForm, SortDownloads: FilterExact, SortNewest: FilterMax, List: TagForm},
+		Down:  {CountForm: SortAlphabetical, FilterExact: SortDownloads, FilterMax: SortNewest, FilterMin: SortNewest, TagForm: List, SortAlphabetical: TagForm, SortDownloads: TagForm, SortNewest: TagForm},
 	}
 	filterParams = map[State]string{
 		FilterExact: "exact",

@@ -14,17 +14,17 @@ var (
 		IterForm:  "Passes",
 	}
 
-	inputStyle = lipgloss.NewStyle().Width(13).AlignHorizontal(lipgloss.Left)
+	inputStyle = lipgloss.NewStyle().Width(13).AlignHorizontal(lipgloss.Left).PaddingLeft(1)
 
 	activeColor = lipgloss.Color("#aaaaaa")
 	focusColor  = lipgloss.Color("#ffffff")
 	normalColor = lipgloss.Color("#555555")
 	titleStyle  = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#888888"))
+		Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawTitle() string {
-	title := style.DimmedTitle.Copy().Italic(true).Render("Create palette From image")
+	title := style.DimmedTitle.Copy().Italic(true).Render("Generate palette From image")
 	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }
 
@@ -70,7 +70,7 @@ func (m Model) drawGenerateButton() string {
 		Foreground(styleColor)
 
 	button := style.Render("Generate New")
-	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
+	return lipgloss.NewStyle().Width(m.width).PaddingLeft(1).Render(button)
 }
 
 // TODO: This is almost the same as drawGenerateButton. See if we can generalize
@@ -89,7 +89,7 @@ func (m Model) drawSaveButton() string {
 		Foreground(styleColor)
 
 	button := style.Render("Save to .hex File")
-	return lipgloss.NewStyle().Width(m.width - 2).AlignHorizontal(lipgloss.Center).Render(button)
+	return lipgloss.NewStyle().Width(m.width).PaddingLeft(1).Render(button)
 }
 
 func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {

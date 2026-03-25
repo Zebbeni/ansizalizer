@@ -16,11 +16,14 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
 	"github.com/Zebbeni/ansizalizer/app/process"
+	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/prefs"
 )
 
 func (m Model) handleStartRenderToViewCmd() (Model, tea.Cmd) {
 	m.viewer.WaitingOnRender = true
+	m.saveLatestSettings()
 	return m, m.processRenderToViewCmd
 }
 
@@ -31,6 +34,7 @@ func (m Model) handleFinishRenderToViewMsg(msg event.FinishRenderToViewMsg) (Mod
 	}
 	var cmd tea.Cmd
 	m.controls.Settings.Alpha.AlphaImage = false
+	m.controls.Settings.Animation.AnimatedImage = false
 	re := regexp.MustCompile(`(?i)\.(png|gif)$`)
 	if re.Match([]byte(m.controls.FileBrowser.ActiveFile)) {
 		m.controls.Settings.Alpha.AlphaImage = true
@@ -44,7 +48,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 	filePath := m.controls.FileBrowser.ActiveFile
 
 	colorsString := "true color"
-	alphaString := "no alpha channel"
+	alphaString := ""
 	if m.controls.Settings.Colors.IsLimited() {
 		palette := m.controls.Settings.Colors.GetCurrentPalette()
 		colorsString = palette.Title()
@@ -52,6 +56,35 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 	if m.controls.Settings.Alpha.ShouldOutputAlpha() && re.Match([]byte(filePath)) {
 		alphaString = "alpha channel"
 	}
+
+	brightness := m.controls.Settings.Adjust.Brightness()
+	contrast := m.controls.Settings.Adjust.Contrast()
+	adjustParts := make([]string, 0, 2)
+	if brightness != 0 {
+		adjustParts = append(adjustParts, fmt.Sprintf("bright %d", brightness))
+	}
+	if contrast != 0 {
+		adjustParts = append(adjustParts, fmt.Sprintf("contrast %d", contrast))
+	}
+	adjustString := ""
+	if len(adjustParts) > 0 {
+		adjustString = strings.Join(adjustParts, ", ")
+	}
+
+	doDither, _, _ := m.controls.Settings.Advanced.Dithering()
+	ditherString := ""
+	if doDither {
+		ditherString = "dithered"
+	}
+
+	extraParts := make([]string, 0, 2)
+	if adjustString != "" {
+		extraParts = append(extraParts, adjustString)
+	}
+	if ditherString != "" {
+		extraParts = append(extraParts, ditherString)
+	}
+	extraInfo := strings.Join(extraParts, ", ")
 
 	// Animated GIF path
 	if process.IsGIFFile(filePath) {
@@ -63,6 +96,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 				Delay:        m.controls.Settings.Animation.Delay(),
 				ColorsString: colorsString,
 				AlphaString:  alphaString,
+				ExtraInfo:    extraInfo,
 			}
 		}
 		// Single-frame GIF: use normal path
@@ -71,6 +105,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 			ImgString:    frames[0],
 			ColorsString: colorsString,
 			AlphaString:  alphaString,
+			ExtraInfo:    extraInfo,
 		}
 	}
 
@@ -81,6 +116,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 		ImgString:    imgString,
 		ColorsString: colorsString,
 		AlphaString:  alphaString,
+		ExtraInfo:    extraInfo,
 	}
 }
 
@@ -89,6 +125,7 @@ func (m Model) handleFinishRenderGIFToViewMsg(msg event.FinishRenderGIFToViewMsg
 		return m, nil
 	}
 	m.controls.Settings.Alpha.AlphaImage = true
+	m.controls.Settings.Animation.AnimatedImage = true
 	var cmd tea.Cmd
 	m.viewer, cmd = m.viewer.Update(msg)
 	return m, cmd
@@ -251,7 +288,28 @@ func (m Model) processAdaptingCmd() tea.Msg {
 func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.controls, cmd = m.controls.Update(msg)
+	m.savePrefs()
 	return m, cmd
+}
+
+func (m *Model) savePrefs() {
+	dirs := prefs.Dirs{
+		Browse:       m.controls.FileBrowser.SelectedDir,
+		ExportSource: m.controls.Export.Source.Browser.SelectedDir,
+		ExportDest:   m.controls.Export.Destination.GetSelected(),
+		SaveDir:      m.controls.Settings.SaveLoad.SelectedDirPath(),
+		LoadFile:     m.controls.Settings.SaveLoad.SelectedLoadDir(),
+		PaletteLoad:  m.controls.Settings.Colors.PaletteControls.Loader.FileBrowser.SelectedDir,
+	}
+	if dirs != m.prefs.Dirs {
+		m.prefs.Dirs = dirs
+		m.prefs.Save()
+	}
+}
+
+func (m Model) saveLatestSettings() {
+	cfg := m.controls.Settings.ExportConfig()
+	_ = settings.SaveConfig(cfg, prefs.LatestSettingsPath())
 }
 
 func (m Model) handleDisplayMsg(msg tea.Msg) (Model, tea.Cmd) {

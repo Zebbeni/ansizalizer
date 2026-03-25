@@ -6,13 +6,14 @@ import (
 
 	"github.com/Zebbeni/ansiart"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
+	"github.com/Zebbeni/ansizalizer/controls/settings/advanced/dithering"
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
 )
 
 func settingsToOptions(s settings.Model) ansiart.Options {
 	isTrueColor, _, palette := s.Colors.GetSelected()
-	mode, charMode, useFgBg, customChars := s.Characters.Selected()
+	mode, charMode, colorBg, customChars := s.Characters.Selected()
 	dimType, width, height, charRatio := s.Size.Info()
 	doDither, doSerpentine, ditherMatrix := s.Advanced.Dithering()
 
@@ -26,18 +27,23 @@ func settingsToOptions(s settings.Model) ansiart.Options {
 		AsciiCharSet:  convertAsciiCharSet(charMode),
 		UnicodeCharSet: convertUnicodeCharSet(charMode),
 		CustomChars:   customChars,
-		ColorMode:     convertColorMode(useFgBg),
+		ColorBg:       colorBg,
 		SelectionMode: convertSelectionMode(s.Characters.SelectionMode()),
 
-		TrueColor: isTrueColor,
+		TrueColor:      isTrueColor,
+		AdaptToPalette: s.Colors.AdaptToPalette(),
 
 		Brightness: s.Adjust.Brightness(),
 		Contrast:   s.Adjust.Contrast(),
 
-		Sampling:     convertSampling(s.Advanced.SamplingFunction()),
-		Dithering:    doDither,
-		Serpentine:   doSerpentine,
-		DitherMatrix: convertDitherMatrix(ditherMatrix),
+		Sampling:           convertSampling(s.Advanced.SamplingFunction()),
+		Dithering:          doDither,
+		Serpentine:         doSerpentine,
+		DitherMode:         convertDitherMode(s.Advanced.DitherMode()),
+		DitherMatrix:       convertDitherMatrix(ditherMatrix),
+		BayerSize:          s.Advanced.BayerSize(),
+		DitherStrength:     s.Advanced.DitherStrength(),
+		ClusteredDotMatrix: convertClusteredDotMatrix(s.Advanced.ClusteredDotMatrix()),
 
 		OutputAlpha: s.Alpha.ShouldOutputAlpha(),
 		TrimAlpha:   s.Alpha.TrimAlpha(),
@@ -52,6 +58,8 @@ func settingsToOptions(s settings.Model) ansiart.Options {
 
 func convertSizeMode(m size.Mode) ansiart.SizeMode {
 	switch m {
+	case size.Fill:
+		return ansiart.Fill
 	case size.Stretch:
 		return ansiart.Stretch
 	default:
@@ -97,15 +105,6 @@ func convertUnicodeCharSet(s characters.State) ansiart.UnicodeCharSet {
 		return ansiart.UnicodeShadeHeavy
 	default:
 		return ansiart.UnicodeHalf
-	}
-}
-
-func convertColorMode(s characters.State) ansiart.ColorMode {
-	switch s {
-	case characters.OneColor:
-		return ansiart.OneColor
-	default:
-		return ansiart.TwoColor
 	}
 }
 
@@ -165,6 +164,64 @@ func convertDitherMatrix(m dither.ErrorDiffusionMatrix) ansiart.DitherMatrix {
 		}
 	}
 	return ansiart.FloydSteinberg
+}
+
+func convertDitherMode(m dithering.DitherMode) ansiart.DitherMode {
+	switch m {
+	case dithering.Bayer:
+		return ansiart.DitherModeBayer
+	case dithering.ClusteredDot:
+		return ansiart.DitherModeClusteredDot
+	default:
+		return ansiart.DitherModeMatrix
+	}
+}
+
+type clusteredDotEntry struct {
+	matrix dither.OrderedDitherMatrix
+	value  ansiart.ClusteredDotMatrix
+}
+
+var clusteredDotEntries = []clusteredDotEntry{
+	{dither.ClusteredDot4x4, ansiart.ClusteredDot4x4},
+	{dither.ClusteredDot6x6, ansiart.ClusteredDot6x6},
+	{dither.ClusteredDot6x6_2, ansiart.ClusteredDot6x6_2},
+	{dither.ClusteredDot6x6_3, ansiart.ClusteredDot6x6_3},
+	{dither.ClusteredDot8x8, ansiart.ClusteredDot8x8},
+	{dither.ClusteredDotDiagonal6x6, ansiart.ClusteredDotDiagonal6x6},
+	{dither.ClusteredDotDiagonal8x8, ansiart.ClusteredDotDiagonal8x8},
+	{dither.ClusteredDotDiagonal8x8_2, ansiart.ClusteredDotDiagonal8x8_2},
+	{dither.ClusteredDotDiagonal8x8_3, ansiart.ClusteredDotDiagonal8x8_3},
+	{dither.ClusteredDotDiagonal16x16, ansiart.ClusteredDotDiagonal16x16},
+	{dither.ClusteredDotHorizontalLine, ansiart.ClusteredDotHorizontalLine},
+	{dither.ClusteredDotVerticalLine, ansiart.ClusteredDotVerticalLine},
+	{dither.ClusteredDotSpiral5x5, ansiart.ClusteredDotSpiral5x5},
+}
+
+func convertClusteredDotMatrix(m dither.OrderedDitherMatrix) ansiart.ClusteredDotMatrix {
+	for _, e := range clusteredDotEntries {
+		if orderedMatrixEqual(e.matrix, m) {
+			return e.value
+		}
+	}
+	return ansiart.ClusteredDot4x4
+}
+
+func orderedMatrixEqual(a, b dither.OrderedDitherMatrix) bool {
+	if len(a.Matrix) != len(b.Matrix) || a.Max != b.Max {
+		return false
+	}
+	for i := range a.Matrix {
+		if len(a.Matrix[i]) != len(b.Matrix[i]) {
+			return false
+		}
+		for j := range a.Matrix[i] {
+			if a.Matrix[i][j] != b.Matrix[i][j] {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func matrixEqual(a, b dither.ErrorDiffusionMatrix) bool {

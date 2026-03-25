@@ -19,6 +19,7 @@ type FinishRenderToViewMsg struct {
 	ImgString    string
 	ColorsString string
 	AlphaString  string
+	ExtraInfo    string
 }
 
 type FinishRenderGIFToViewMsg struct {
@@ -27,13 +28,16 @@ type FinishRenderGIFToViewMsg struct {
 	Delay        time.Duration
 	ColorsString string
 	AlphaString  string
+	ExtraInfo    string
 }
 
-type AnimationTickMsg time.Time
+type AnimationTickMsg struct {
+	Generation int
+}
 
-func BuildAnimationTickCmd(delay time.Duration) tea.Cmd {
+func BuildAnimationTickCmd(delay time.Duration, generation int) tea.Cmd {
 	return tea.Tick(delay, func(t time.Time) tea.Msg {
-		return AnimationTickMsg(t)
+		return AnimationTickMsg{Generation: generation}
 	})
 }
 

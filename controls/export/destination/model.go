@@ -33,15 +33,20 @@ type Model struct {
 	width int
 }
 
-func New(w int) Model {
-	filepath, _ := os.Getwd()
+func New(w int, dir string) Model {
+	selectedDir, _ := os.Getwd()
+	browserModel := browser.New(nil, w-2)
+	if dir != "" {
+		selectedDir = dir
+		browserModel = browser.NewAtDir(dir, nil, w-2)
+	}
 
 	return Model{
 		focus: Input,
 
-		Browser: browser.New(nil, w-2),
+		Browser: browserModel,
 
-		selectedDir: filepath,
+		selectedDir: selectedDir,
 
 		width:       w,
 		ShouldClose: false,
@@ -80,6 +85,7 @@ func (m Model) View() string {
 	content = append(content, selected)
 
 	if m.focus == Browser {
+		content = append(content, m.drawBrowserTitle())
 		content = append(content, m.Browser.View())
 	}
 

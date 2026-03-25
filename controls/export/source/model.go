@@ -38,8 +38,11 @@ type Model struct {
 	width int
 }
 
-func New(w int) Model {
+func New(w int, dir string) Model {
 	browserModel := browser.New(nil, w-2)
+	if dir != "" {
+		browserModel = browser.NewAtDir(dir, nil, w-2)
+	}
 
 	return Model{
 		focus: ExpDirectory,
@@ -90,6 +93,7 @@ func (m Model) View() string {
 	content = append(content, selected)
 
 	if m.focus == Browser {
+		content = append(content, m.drawBrowserTitle())
 		content = append(content, m.Browser.View())
 	}
 

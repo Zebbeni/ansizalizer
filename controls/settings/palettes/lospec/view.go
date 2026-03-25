@@ -9,7 +9,7 @@ import (
 
 var (
 	stateNames = map[State]string{
-		CountForm:        "Colors",
+		CountForm:        "Count",
 		TagForm:          "Tag",
 		FilterExact:      "Exact",
 		FilterMax:        "Max",
@@ -20,7 +20,7 @@ var (
 	}
 
 	filterOrder = []State{FilterExact, FilterMax, FilterMin}
-	sortOrder   = []State{SortAlphabetical, SortDownloads, SortNewest}
+	sortOrder   = []State{SortDownloads, SortAlphabetical, SortNewest}
 
 	activeColor = lipgloss.Color("#aaaaaa")
 	focusColor  = lipgloss.Color("#ffffff")
@@ -46,15 +46,15 @@ func (m Model) drawColorsInput() string {
 
 	m.countInput.CharLimit = 3
 	m.countInput.Width = 3
-	m.countInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
-	m.countInput.TextStyle = m.countInput.TextStyle.Copy().Foreground(prompt).MaxWidth(3)
+	m.countInput.PromptStyle = m.countInput.PromptStyle.Foreground(prompt)
+	m.countInput.TextStyle = m.countInput.TextStyle.Foreground(prompt).MaxWidth(3)
 	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
 	if m.countInput.Focused() {
 		m.countInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
 		m.countInput.Cursor.SetMode(cursor.CursorHide)
 	}
-	return lipgloss.NewStyle().Width(13).Render(m.countInput.View())
+	return lipgloss.NewStyle().Width(11).Render(m.countInput.View())
 }
 
 func (m Model) drawTagInput() string {
@@ -87,7 +87,6 @@ func (m Model) drawFilterButtons() string {
 }
 
 func (m Model) drawSortButtons() string {
-	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Sort:")
 	buttons := make([]string, len(sortOrder))
 	for i, sort := range sortOrder {
 		buttonStyle := style.NormalButtonNode
@@ -96,10 +95,16 @@ func (m Model) drawSortButtons() string {
 		} else if sort == m.sortType {
 			buttonStyle = style.ActiveButtonNode
 		}
-		buttons[i] = buttonStyle.Render(stateNames[sort])
+		name := stateNames[sort]
+		if sort == m.sortType {
+			name = "↑" + name
+		} else {
+			name = name + " "
+		}
+		buttons[i] = buttonStyle.Render(name)
 	}
 	buttonContent := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
-	return lipgloss.JoinHorizontal(lipgloss.Left, title, buttonContent)
+	return lipgloss.JoinHorizontal(lipgloss.Left, buttonContent)
 }
 
 func (m Model) drawPaletteList() string {

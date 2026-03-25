@@ -18,10 +18,10 @@ const (
 
 var navMap = map[Direction]map[State]State{
 	Right: {
-		Sampling: Dithering,
+		Dithering: Sampling,
 	},
 	Left: {
-		Dithering: Sampling,
+		Sampling: Dithering,
 	},
 	Down: {
 		Sampling:  SamplingControls,
@@ -77,7 +77,7 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Left):
-		if next, hasNext := navMap[Left][m.focus]; hasNext {
+		if next, hasNext := navMap[Left][m.focus]; hasNext && (next != Dithering || m.ShowDithering) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Up):
@@ -108,6 +108,7 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	case SamplingControls:
 		m.active = SamplingControls
 		m.sampling.IsActive = true
+		m.sampling.SetListActive(true)
 	case DitheringControls:
 		m.active = DitheringControls
 		m.dithering.IsActive = true

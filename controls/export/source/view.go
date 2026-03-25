@@ -112,8 +112,9 @@ func (m Model) drawSelected() string {
 }
 
 func (m Model) drawBrowserTitle() string {
+	dir := filepath.Base(m.Browser.SelectedDir)
 	if m.doExportDirectory {
-		return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a directory")
+		return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 	}
-	return style.DimmedTitle.Copy().Padding(0, 2, 1, 2).Render("Select a .png or .jpg file")
+	return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 }

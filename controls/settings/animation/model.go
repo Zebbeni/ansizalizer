@@ -24,17 +24,19 @@ type Model struct {
 
 	delayInput textinput.Model
 
-	ShouldClose bool
-	IsActive    bool
+	ShouldClose   bool
+	IsActive      bool
+	AnimatedImage bool
 }
 
 func New() Model {
 	return Model{
-		focus:       DelayForm,
-		active:      None,
-		delayInput:  newInput("Delay (ms)", 100),
-		ShouldClose: false,
-		IsActive:    false,
+		focus:         DelayForm,
+		active:        None,
+		delayInput:    newInput("Delay (ms)", 100),
+		ShouldClose:   false,
+		IsActive:      false,
+		AnimatedImage: false,
 	}
 }
 
@@ -84,6 +86,21 @@ func (m Model) Delay() time.Duration {
 
 func (m Model) Summary() string {
 	return "Delay: " + m.delayInput.Value() + "ms"
+}
+
+func (m Model) DelayMs() int {
+	val, err := strconv.Atoi(m.delayInput.Value())
+	if err != nil || val < 10 {
+		return 100
+	}
+	if val > 2000 {
+		return 2000
+	}
+	return val
+}
+
+func (m *Model) SetDelayMs(ms int) {
+	m.delayInput.SetValue(strconv.Itoa(ms))
 }
 
 func (m *Model) ResetFocus() {

@@ -18,6 +18,7 @@ type Model struct {
 	delay        time.Duration
 	currentFrame int
 	isAnimating  bool
+	generation   int
 
 	WaitingOnRender bool
 }
@@ -37,7 +38,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case event.FinishRenderGIFToViewMsg:
 		return m.handleFinishRenderGIFMsg(msg)
 	case event.AnimationTickMsg:
-		return m.handleAnimationTick()
+		return m.handleAnimationTick(msg)
 	}
 	return m, nil
 }

@@ -57,9 +57,9 @@ func New(w int) Model {
 	return Model{
 		focus: CountForm,
 
-		countInput: newInput(CountForm, "16"),
+		countInput: newInput(CountForm, "8"),
 		tagInput:   newInput(TagForm, ""),
-		filterType: FilterMin,
+		filterType: FilterExact,
 		sortType:   SortDownloads,
 
 		isPaletteListAllocated: false,
@@ -128,8 +128,8 @@ func (m Model) View() string {
 	colorsInput := m.drawColorsInput()
 	filters := m.drawFilterButtons()
 	colorFilters := lipgloss.JoinHorizontal(lipgloss.Left, colorsInput, filters)
-	tagInput := m.drawTagInput()
 	sortButtons := m.drawSortButtons()
+	tagInput := m.drawTagInput()
 
 	results := fmt.Sprintf("%d results found\npage %d of %d", len(m.paletteList.Items()), m.paletteList.Paginator.Page, m.paletteList.Paginator.TotalPages)
 	results = style.DimmedTitle.Copy().Width(m.width).Height(2).AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 0).Render(results)
@@ -137,7 +137,7 @@ func (m Model) View() string {
 	if len(m.paletteList.Items()) == 0 {
 		paletteList = ""
 	}
-	return lipgloss.JoinVertical(lipgloss.Top, title, colorFilters, tagInput, sortButtons, results, paletteList)
+	return lipgloss.JoinVertical(lipgloss.Top, title, colorFilters, sortButtons, tagInput, results, paletteList)
 }
 
 func (m Model) LoadInitial() (Model, tea.Cmd) {

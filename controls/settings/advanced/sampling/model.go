@@ -52,6 +52,19 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, nil
 }
 
+func (m *Model) SetFunctionByName(name string) {
+	for fn, n := range NameMap {
+		if n == name {
+			m.Function = fn
+			return
+		}
+	}
+}
+
+func (m *Model) SetListActive(active bool) {
+	m.list.SetDelegate(NewDelegate(active))
+}
+
 func (m Model) FunctionName() string {
 	if name, ok := NameMap[m.Function]; ok {
 		return name

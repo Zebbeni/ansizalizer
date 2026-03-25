@@ -19,16 +19,22 @@ const (
 var navMap = map[Direction]map[State]State{
 	Right: {
 		UseTrueColor: UsePalette,
+		AdaptOn:      AdaptOff,
 	},
 	Left: {
 		UsePalette: UseTrueColor,
+		AdaptOff:   AdaptOn,
 	},
 	Up: {
-		Palette: UsePalette,
+		AdaptOn:  UsePalette,
+		AdaptOff: UsePalette,
+		Palette:  AdaptOn,
 	},
 	Down: {
-		UseTrueColor: Palette,
-		UsePalette:   Palette,
+		UseTrueColor: AdaptOn,
+		UsePalette:   AdaptOn,
+		AdaptOn:      Palette,
+		AdaptOff:     Palette,
 	},
 }
 
@@ -39,7 +45,11 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if m.PaletteControls.ShouldClose {
 		m.PaletteControls.IsActive = false
 		m.PaletteControls.ShouldClose = false
-		m.focus = UsePalette
+		if m.PaletteControls.IsLospecFocused() {
+			m.focus = AdaptOff
+		} else {
+			m.focus = AdaptOn
+		}
 	}
 	return m, cmd
 }
@@ -50,8 +60,12 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.mode = UsePalette
 	case UseTrueColor:
 		m.mode = UseTrueColor
+	case AdaptOn:
+		m.adaptToPalette = true
+	case AdaptOff:
+		m.adaptToPalette = false
 	}
-	return m, nil
+	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
@@ -91,6 +105,8 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	if m.mode == UseTrueColor && focus == Palette {
+		m.IsActive = false
+		m.ShouldClose = true
 		return m, nil
 	}
 

@@ -1,6 +1,8 @@
 package loader
 
 import (
+	"path/filepath"
+
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/lipgloss"
 
@@ -34,6 +36,7 @@ func NewItemStyles() (s list.DefaultItemStyles) {
 }
 
 func (m Model) drawTitle() string {
-	title := style.DimmedTitle.Copy().Italic(true).Render("Load from .hex file")
+	dir := filepath.Base(m.FileBrowser.SelectedDir)
+	title := style.DimmedTitle.Copy().Italic(true).Render("Browsing " + dir + "/")
 	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }

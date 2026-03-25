@@ -36,6 +36,14 @@ func New(exts map[string]bool, w int) Model {
 		fmt.Println("Error getting starting directory:", err)
 		os.Exit(1)
 	}
+	return NewAtDir(dir, exts, w)
+}
+
+func NewAtDir(dir string, exts map[string]bool, w int) Model {
+	// Fall back to cwd if the directory doesn't exist
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		dir, _ = os.Getwd()
+	}
 
 	m := Model{
 		width:          w,

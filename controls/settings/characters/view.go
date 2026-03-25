@@ -28,8 +28,8 @@ var (
 		UnicodeShadeLight: "░",
 		UnicodeShadeMed:   "▒",
 		UnicodeShadeHeavy: "▓",
-		OneColor:          "1 Color",
-		TwoColor:          "2 Colors",
+		ColorBgOff:        "FG",
+		ColorBgOn:         "FG + BG",
 		DarkToLight:       "Brightness",
 		Sequence:          "Repeat",
 		Random:            "Random",
@@ -39,7 +39,7 @@ var (
 	focusColor  = lipgloss.Color("#ffffff")
 	normalColor = lipgloss.Color("#555555")
 	titleStyle  = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#888888"))
+		Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawCharControls() string {
@@ -119,25 +119,25 @@ func (m Model) drawSelectionMode() string {
 }
 
 func (m Model) drawColorsButtons() string {
-	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Colors per Char:")
+	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Colors:")
 
 	oneStyle := style.NormalButtonNode
-	if m.IsActive && OneColor == m.focus {
+	if m.IsActive && ColorBgOff == m.focus {
 		oneStyle = style.FocusButtonNode
-	} else if m.useFgBg == OneColor {
+	} else if !m.colorBg {
 		oneStyle = style.ActiveButtonNode
 	}
-	oneButton := oneStyle.Render("1")
+	oneButton := oneStyle.Render("FG")
 	oneButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(oneButton)
 
 	twoStyle := style.NormalButtonNode
-	if m.IsActive && TwoColor == m.focus {
+	if m.IsActive && ColorBgOn == m.focus {
 		twoStyle = style.FocusButtonNode
-	} else if m.useFgBg == TwoColor {
+	} else if m.colorBg {
 		twoStyle = style.ActiveButtonNode
 	}
-	twoButton := twoStyle.Render("2")
-	twoButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(twoButton)
+	twoButton := twoStyle.Render("FG + BG")
+	twoButton = lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(twoButton)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, oneButton, twoButton)
 }

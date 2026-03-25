@@ -29,8 +29,8 @@ const (
 	DarkToLight
 	Sequence
 	Random
-	OneColor
-	TwoColor
+	ColorBgOff
+	ColorBgOn
 )
 
 type Model struct {
@@ -40,7 +40,7 @@ type Model struct {
 	charControls  State
 	unicodeMode   State
 	asciiMode     State
-	useFgBg       State
+	colorBg       bool
 	selectionMode State
 	customInput   textinput.Model
 	ShouldClose   bool
@@ -56,7 +56,7 @@ func New(w int) Model {
 		charControls:  Unicode,
 		asciiMode:     AsciiAz,
 		unicodeMode:   UnicodeHalf,
-		useFgBg:       TwoColor,
+		colorBg:       true,
 		selectionMode: DarkToLight,
 		customInput:   newInput("Symbols", "/%A"),
 		ShouldClose:   false,
@@ -97,9 +97,9 @@ func (m Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Top, colorsButtons, charTabs)
 }
 
-// Selected returns the mode, charMode, whether to use two colors, and the
+// Selected returns the mode, charMode, whether to use background color, and the
 // current set of custom-defined characters
-func (m Model) Selected() (State, State, State, []rune) {
+func (m Model) Selected() (State, State, bool, []rune) {
 	var charMode State
 
 	switch m.mode {
@@ -111,11 +111,21 @@ func (m Model) Selected() (State, State, State, []rune) {
 		charMode = Custom
 	}
 
-	return m.mode, charMode, m.useFgBg, []rune(m.customInput.Value())
+	return m.mode, charMode, m.colorBg, []rune(m.customInput.Value())
 }
 
 func (m Model) SelectionMode() State {
 	return m.selectionMode
+}
+
+func (m *Model) SetConfig(mode, asciiMode, unicodeMode, selectionMode State, colorBg bool, customChars string) {
+	m.mode = mode
+	m.charControls = mode
+	m.asciiMode = asciiMode
+	m.unicodeMode = unicodeMode
+	m.colorBg = colorBg
+	m.selectionMode = selectionMode
+	m.customInput.SetValue(customChars)
 }
 
 func (m *Model) ResetFocus() {
@@ -125,25 +135,26 @@ func (m *Model) ResetFocus() {
 }
 
 func (m Model) Summary() string {
-	colors := "1"
-	if m.useFgBg == TwoColor {
-		colors = "2"
+	colors := "Colors: FG Only"
+	if m.colorBg {
+		colors = "Colors: FG + BG"
 	}
 
 	var chars string
 	switch m.mode {
 	case Ascii:
-		chars = stateNames[m.asciiMode]
+		chars = "Chars: " + stateNames[m.asciiMode]
 	case Unicode:
-		chars = stateNames[m.unicodeMode]
+		chars = "Chars: " + stateNames[m.unicodeMode]
 	case Custom:
-		chars = m.customInput.Value()
-		if len(chars) > 6 {
-			chars = chars[:6] + ".."
+		val := m.customInput.Value()
+		if len(val) > 6 {
+			val = val[:6] + ".."
 		}
+		chars = "Chars: " + val
 	}
 
-	summary := "Colors: " + colors + " | Chars: " + chars
+	summary := colors + "\n" + chars
 	if m.mode == Custom {
 		summary += "\nMode: " + stateNames[m.selectionMode]
 	}

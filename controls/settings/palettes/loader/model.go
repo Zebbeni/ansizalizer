@@ -45,10 +45,21 @@ func New(w int) Model {
 	}
 }
 
+func NewAtDir(dir string, w int) Model {
+	m := New(w)
+	m.FileBrowser = browser.NewAtDir(dir, paletteExtensions, w-2)
+	return m
+}
+
 // NewWithPalette returns a Model with a pre-set palette for testing.
 func NewWithPalette(colors color.Palette, w int) Model {
+	return NewWithNamedPalette("test", colors, w)
+}
+
+// NewWithNamedPalette returns a Model with a pre-set named palette.
+func NewWithNamedPalette(name string, colors color.Palette, w int) Model {
 	m := New(w)
-	m.palette = palette.New("test", colors, w-5, 3)
+	m.palette = palette.New(name, colors, w-5, 3)
 	m.IsSelected = true
 	return m
 }

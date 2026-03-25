@@ -17,8 +17,8 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {Load: Adapt, Adapt: Lospec},
-	Left:  {Lospec: Adapt, Adapt: Load},
+	Right: {Lospec: Load, Load: Adapt},
+	Left:  {Adapt: Load, Load: Lospec},
 	Down:  {Adapt: AdaptiveControls, Load: LoadControls, Lospec: LospecControls},
 	Up:    {AdaptiveControls: Adapt, LoadControls: Load, LospecControls: Lospec},
 }

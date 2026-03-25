@@ -17,10 +17,10 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {FitButton: StretchButton, WidthForm: HeightForm},
-	Left:  {StretchButton: FitButton, HeightForm: WidthForm},
-	Up:    {WidthForm: FitButton, HeightForm: StretchButton, CharRatioForm: HeightForm},
-	Down:  {FitButton: WidthForm, StretchButton: HeightForm, WidthForm: CharRatioForm, HeightForm: CharRatioForm},
+	Right: {FitButton: FillButton, FillButton: StretchButton, WidthForm: HeightForm},
+	Left:  {StretchButton: FillButton, FillButton: FitButton, HeightForm: WidthForm},
+	Up:    {FitButton: WidthForm, FillButton: WidthForm, StretchButton: HeightForm, CharRatioForm: FitButton},
+	Down:  {WidthForm: FitButton, HeightForm: StretchButton, FitButton: CharRatioForm, FillButton: CharRatioForm, StretchButton: CharRatioForm},
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
@@ -30,7 +30,7 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	if m.active == m.focus {
-		if m.active == FitButton || m.active == StretchButton {
+		if m.active == FitButton || m.active == FillButton || m.active == StretchButton {
 			m.ShouldClose = true
 			return m, nil
 		} else {
@@ -53,6 +53,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	switch m.active {
 	case FitButton:
 		m.mode = Fit
+	case FillButton:
+		m.mode = Fill
 	case StretchButton:
 		m.mode = Stretch
 	case WidthForm:
