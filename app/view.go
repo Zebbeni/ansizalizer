@@ -1,11 +1,8 @@
 package app
 
 import (
-	"fmt"
-
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/viewport"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/style"
@@ -32,33 +29,19 @@ func (m Model) renderControls() string {
 }
 
 func (m Model) renderViewer() string {
-	imgString := m.viewer.View()
-	imgWidth, imgHeight := lipgloss.Size(imgString)
-
-	imgViewer := imgString
-
-	// only render box label border around content if big enough.
-	if imgHeight > 1 && imgWidth > 4 {
-		boxLabelRenderer := style.BoxWithLabel{
-			BoxStyle:   style.BgStyle().BorderForeground(style.ExtraDimColor).Border(lipgloss.RoundedBorder()).BorderBackground(style.ActiveTheme.Bg),
-			LabelStyle: style.BgStyle().Foreground(style.ExtraDimColor).AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Bottom),
-		}
-		imgViewer = boxLabelRenderer.Render(fmt.Sprintf("%dx%d", imgWidth, imgHeight), imgString, imgWidth)
-	}
-
-	renderViewport := viewport.New(m.rPanelWidth()-2, m.rPanelHeight()-displayHeight-2)
-
-	vpRightStyle := style.BgStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
-	rightContent := vpRightStyle.Copy().Width(m.rPanelWidth() - 2).Height(m.rPanelHeight() - 4).Render(imgViewer)
-	renderViewport.SetContent(rightContent)
-	renderViewport.Style = style.BgStyle()
-
-	content := renderViewport.View()
-
-	return style.NormalButton.Copy().BorderForeground(style.DimmedColor1).BorderBackground(style.ActiveTheme.Bg).Render(content)
+	return m.viewer.View()
 }
 
+var (
+	helpCache      string
+	helpCacheW     int
+	helpCacheTheme style.ThemeName
+)
+
 func (m Model) renderHelp() string {
+	if helpCache != "" && helpCacheW == m.w && helpCacheTheme == style.ActiveTheme.Name {
+		return helpCache
+	}
 	helpBar := help.New()
 	helpBar.Styles.ShortKey = style.BgStyle().Foreground(style.DimmedColor1)
 	helpBar.Styles.ShortDesc = style.BgStyle().Foreground(style.ExtraDimColor)
@@ -68,5 +51,8 @@ func (m Model) renderHelp() string {
 	helpBar.Styles.FullSeparator = style.BgStyle().Foreground(style.ExtraDimColor)
 	helpBar.Styles.Ellipsis = style.BgStyle().Foreground(style.ExtraDimColor)
 	helpContent := helpBar.View(event.KeyMap)
-	return style.BgStyle().PaddingLeft(1).Width(m.w).Render(helpContent)
+	helpCache = style.ApplyBg(style.BgStyle().PaddingLeft(1).Width(m.w).Render(helpContent), 0)
+	helpCacheW = m.w
+	helpCacheTheme = style.ActiveTheme.Name
+	return helpCache
 }

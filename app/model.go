@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -95,6 +94,12 @@ func New() Model {
 		m.controls.Settings.SaveLoad.SetStatus("Loaded latest.json")
 	}
 
+	// Sync palette to style package so paletted themes work at startup
+	if m.controls.Settings.Colors.IsLimited() {
+		style.PaletteColors = m.controls.Settings.Colors.GetCurrentPalette().Colors()
+	}
+	style.SetTheme(style.ActiveTheme.Name)
+
 	return m
 }
 
@@ -166,20 +171,17 @@ func (m Model) View() string {
 	controls := style.ApplyBg(m.renderControls(), 0)
 	display := style.ApplyBg(m.display.View(), 0)
 	viewer := m.renderViewer()
-	help := style.ApplyBg(m.renderHelp(), 0)
+	help := m.renderHelp() // already has ApplyBg baked into cache
 
 	leftPanel := controls
 	rightPanel := lipgloss.JoinVertical(lipgloss.Top, display, viewer)
 	panels := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
 	all := lipgloss.JoinVertical(lipgloss.Top, panels, help)
 
-	vp := viewport.New(m.w, m.h)
-	vp.SetContent(all)
-	vpStyle := lipgloss.NewStyle().Width(m.w).Height(m.h)
+	appStyle := lipgloss.NewStyle().Width(m.w).Height(m.h)
 	if !style.ActiveTheme.Transparent {
-		vpStyle = vpStyle.Background(style.ActiveTheme.Bg)
+		appStyle = appStyle.Background(style.ActiveTheme.Bg)
 	}
-	vp.Style = vpStyle
 
-	return vp.View()
+	return appStyle.Render(all)
 }

@@ -316,6 +316,11 @@ func (m Model) handleDebug() (Model, tea.Cmd) {
 		style.ActiveTheme.Transparent,
 		string(style.ActiveTheme.Bg)))
 
+	// Viewer imgString
+	b.WriteString("=== VIEWER IMG STRING ===\n")
+	b.WriteString(m.viewer.ImgString())
+	b.WriteString("\n=== END VIEWER IMG STRING ===\n\n")
+
 	// Full ANSI output
 	b.WriteString("=== FULL ANSI OUTPUT ===\n")
 	b.WriteString(m.View())
