@@ -35,17 +35,12 @@ var (
 		Random:            "Random",
 	}
 
-	activeColor = lipgloss.Color("#aaaaaa")
-	focusColor  = lipgloss.Color("#ffffff")
-	normalColor = lipgloss.Color("#555555")
-	titleStyle  = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawCharControls() string {
 	if m.charControls == Custom {
 		content := m.drawCustomControls()
-		return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
+		return style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
 	}
 
 	whitespace := 0
@@ -74,23 +69,23 @@ func (m Model) drawCharControls() string {
 
 	gapSpace := whitespace / (len(buttons))
 	for i, button := range buttons {
-		buttons[i] = lipgloss.NewStyle().PaddingRight(gapSpace).Render(button)
+		buttons[i] = style.BgStyle().PaddingRight(gapSpace).Render(button)
 	}
 	content := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
-	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
+	return style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
 }
 
 func (m Model) drawCustomControls() string {
 	nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
-	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	textStyle := style.BgStyle().Foreground(style.DimmedColor1)
 	if m.customInput.Focused() {
 		nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
-		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+		textStyle = style.BgStyle().Foreground(style.SelectedColor1)
 		m.customInput.Cursor.SetMode(cursor.CursorBlink)
 	} else if m.focus == SymbolsForm {
 		nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
-		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
+		textStyle = style.BgStyle().Foreground(style.NormalColor1)
 		m.customInput.Cursor.SetMode(cursor.CursorHide)
 	} else {
 		m.customInput.Cursor.SetMode(cursor.CursorHide)
@@ -99,7 +94,7 @@ func (m Model) drawCustomControls() string {
 	m.customInput.TextStyle = textStyle
 
 	symbolsRow := m.customInput.View()
-	selectionRow := lipgloss.NewStyle().PaddingTop(1).Render(m.drawSelectionMode())
+	selectionRow := style.BgStyle().PaddingTop(1).Render(m.drawSelectionMode())
 	return lipgloss.JoinVertical(lipgloss.Left, symbolsRow, selectionRow)
 }
 
@@ -128,7 +123,7 @@ func (m Model) drawColorsButtons() string {
 		oneStyle = style.ActiveButtonNode
 	}
 	oneButton := oneStyle.Render("FG")
-	oneButton = lipgloss.NewStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(oneButton)
+	oneButton = style.BgStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(oneButton)
 
 	twoStyle := style.NormalButtonNode
 	if m.IsActive && ColorBgOn == m.focus {
@@ -137,7 +132,7 @@ func (m Model) drawColorsButtons() string {
 		twoStyle = style.ActiveButtonNode
 	}
 	twoButton := twoStyle.Render("FG + BG")
-	twoButton = lipgloss.NewStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(twoButton)
+	twoButton = style.BgStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(twoButton)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, oneButton, twoButton)
 }

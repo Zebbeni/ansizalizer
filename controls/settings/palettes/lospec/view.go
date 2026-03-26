@@ -22,11 +22,6 @@ var (
 	filterOrder = []State{FilterExact, FilterMax, FilterMin}
 	sortOrder   = []State{SortDownloads, SortAlphabetical, SortNewest}
 
-	activeColor = lipgloss.Color("#aaaaaa")
-	focusColor  = lipgloss.Color("#ffffff")
-	normalColor = lipgloss.Color("#555555")
-	titleStyle  = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawInputs() string {
@@ -38,7 +33,7 @@ func (m Model) drawInputs() string {
 
 func (m Model) drawTitle() string {
 	title := style.DimmedTitle.Copy().Italic(true).Render("Browse Lospec.com")
-	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
+	return style.BgStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }
 
 func (m Model) drawColorsInput() string {
@@ -54,7 +49,7 @@ func (m Model) drawColorsInput() string {
 	} else {
 		m.countInput.Cursor.SetMode(cursor.CursorHide)
 	}
-	return lipgloss.NewStyle().Width(11).Render(m.countInput.View())
+	return style.BgStyle().Width(11).Render(m.countInput.View())
 }
 
 func (m Model) drawTagInput() string {
@@ -115,13 +110,13 @@ func (m Model) drawPaletteList() string {
 	return m.paletteList.View()
 }
 
-func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {
+func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
 	if m.IsActive {
 		if m.focus == state {
-			return focusColor, focusColor
+			return style.SelectedColor1, style.SelectedColor1
 		} else if m.active == state {
-			return activeColor, activeColor
+			return style.NormalColor1, style.NormalColor1
 		}
 	}
-	return normalColor, normalColor
+	return style.DimmedColor1, style.DimmedColor1
 }

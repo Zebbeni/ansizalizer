@@ -32,7 +32,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) View() string {
 	// TODO: Switch style based on event type (warning, info, etc.)
 	displayStyle := style.ExtraDimTitle.Copy().Width(m.width - 2)
-	return displayStyle.Border(lipgloss.RoundedBorder()).BorderForeground(style.ExtraDimColor).Render(m.msg)
+	return displayStyle.Border(lipgloss.RoundedBorder()).BorderForeground(style.ExtraDimColor).BorderBackground(style.ActiveTheme.Bg).Render(m.msg)
 }
 
 func (m Model) SetWidth(w int) Model {

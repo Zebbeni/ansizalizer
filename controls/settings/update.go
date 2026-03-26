@@ -17,7 +17,7 @@ const (
 )
 
 func (m Model) visibleStates() []State {
-	states := []State{SaveLoad, Colors, Characters, Size, Adjust, Advanced}
+	states := []State{SaveLoad, Theme, Colors, Characters, Size, Adjust, Advanced}
 	if m.Animation.AnimatedImage {
 		states = append(states, Animation)
 	}
@@ -105,6 +105,18 @@ func (m Model) handleAnimationUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
+func (m Model) handleThemeUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.Theme, cmd = m.Theme.Update(msg)
+
+	if m.Theme.ShouldClose {
+		m.active = None
+		m.Theme.IsActive = false
+		m.Theme.ShouldClose = false
+	}
+	return m, cmd
+}
+
 func (m Model) handleSaveLoadUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.SaveLoad, cmd = m.SaveLoad.Update(msg)
@@ -179,6 +191,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Animation.IsActive = true
 	case Alpha:
 		m.Alpha.IsActive = true
+	case Theme:
+		m.Theme.IsActive = true
 	case SaveLoad:
 		m.SaveLoad.IsActive = true
 	}
@@ -246,6 +260,8 @@ func (m *Model) resetSubMenu(state State) {
 		m.Animation.ResetFocus()
 	case Alpha:
 		m.Alpha.ResetFocus()
+	case Theme:
+		m.Theme.ResetFocus()
 	case SaveLoad:
 		m.SaveLoad.ResetFocus()
 	}

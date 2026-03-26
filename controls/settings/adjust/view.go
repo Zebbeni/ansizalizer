@@ -5,14 +5,12 @@ import (
 
 	"github.com/charmbracelet/bubbles/cursor"
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
-	activeColor = lipgloss.Color("#aaaaaa")
-	focusColor  = lipgloss.Color("#ffffff")
-	normalColor = lipgloss.Color("#555555")
-
-	inputStyle = lipgloss.NewStyle().Width(20).AlignHorizontal(lipgloss.Left)
+	inputStyle = style.BgStyle().Width(20).AlignHorizontal(lipgloss.Left)
 )
 
 func (m Model) drawBrightnessForm() string {
@@ -20,7 +18,7 @@ func (m Model) drawBrightnessForm() string {
 	m.brightnessInput.Width = 4
 	m.brightnessInput.PromptStyle = m.brightnessInput.PromptStyle.Copy().Foreground(prompt)
 	m.brightnessInput.TextStyle = m.brightnessInput.TextStyle.Copy().Foreground(text)
-	m.brightnessInput.Cursor.TextStyle = lipgloss.NewStyle().Foreground(text)
+	m.brightnessInput.Cursor.TextStyle = style.BgStyle().Foreground(text)
 	if m.brightnessInput.Focused() {
 		m.brightnessInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
@@ -35,7 +33,7 @@ func (m Model) drawContrastForm() string {
 	m.contrastInput.Width = 4
 	m.contrastInput.PromptStyle = m.contrastInput.PromptStyle.Copy().Foreground(prompt)
 	m.contrastInput.TextStyle = m.contrastInput.TextStyle.Copy().Foreground(text)
-	m.contrastInput.Cursor.TextStyle = lipgloss.NewStyle().Foreground(text)
+	m.contrastInput.Cursor.TextStyle = style.BgStyle().Foreground(text)
 	if m.contrastInput.Focused() {
 		m.contrastInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
@@ -51,7 +49,6 @@ func (m Model) drawSlider(state State, value int) string {
 		sliderWidth = 3
 	}
 
-	// Map value from [-100, 100] to position [0, sliderWidth-1]
 	pos := int(float64(value+100) / 200.0 * float64(sliderWidth-1))
 	if pos < 0 {
 		pos = 0
@@ -63,21 +60,21 @@ func (m Model) drawSlider(state State, value int) string {
 	left := strings.Repeat("-", pos)
 	right := strings.Repeat("-", sliderWidth-1-pos)
 
-	sliderColor := normalColor
+	sliderColor := style.DimmedColor1
 	if m.IsActive && m.focus == state {
-		sliderColor = focusColor
+		sliderColor = style.SelectedColor1
 	}
 
-	style := lipgloss.NewStyle().Foreground(sliderColor).PaddingLeft(1)
-	return style.Render(left + "|" + right)
+	sliderStyle := style.BgStyle().Foreground(sliderColor).PaddingLeft(1)
+	return sliderStyle.Render(left + "|" + right)
 }
 
-func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {
+func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
 	if m.IsActive && m.focus == state {
 		if m.active == state {
-			return activeColor, focusColor
+			return style.NormalColor1, style.SelectedColor1
 		}
-		return focusColor, activeColor
+		return style.SelectedColor1, style.NormalColor1
 	}
-	return normalColor, normalColor
+	return style.DimmedColor1, style.DimmedColor1
 }

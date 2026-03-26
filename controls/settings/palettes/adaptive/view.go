@@ -14,18 +14,13 @@ var (
 		IterForm:  "Passes",
 	}
 
-	inputStyle = lipgloss.NewStyle().Width(13).AlignHorizontal(lipgloss.Left).PaddingLeft(1)
+	inputStyle = style.BgStyle().Width(13).AlignHorizontal(lipgloss.Left).PaddingLeft(1)
 
-	activeColor = lipgloss.Color("#aaaaaa")
-	focusColor  = lipgloss.Color("#ffffff")
-	normalColor = lipgloss.Color("#555555")
-	titleStyle  = lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#888888"))
 )
 
 func (m Model) drawTitle() string {
 	title := style.DimmedTitle.Copy().Italic(true).Render("Generate palette From image")
-	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
+	return style.BgStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }
 
 func (m Model) drawInputs() string {
@@ -55,50 +50,50 @@ func (m Model) drawInputs() string {
 }
 
 func (m Model) drawGenerateButton() string {
-	styleColor := normalColor
+	styleColor := style.DimmedColor1
 	if m.IsActive && m.focus == Generate {
-		styleColor = focusColor
+		styleColor = style.SelectedColor1
 	} else if m.active == Generate {
-		styleColor = activeColor
+		styleColor = style.NormalColor1
 	}
 
-	style := lipgloss.NewStyle().
+	btnStyle := style.BgStyle().
 		Width(m.width - 4).
 		AlignHorizontal(lipgloss.Center).
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(styleColor).
 		Foreground(styleColor)
 
-	button := style.Render("Generate New")
-	return lipgloss.NewStyle().Width(m.width).PaddingLeft(1).Render(button)
+	button := btnStyle.Render("Generate New")
+	return style.BgStyle().Width(m.width).PaddingLeft(1).Render(button)
 }
 
 // TODO: This is almost the same as drawGenerateButton. See if we can generalize
 func (m Model) drawSaveButton() string {
-	styleColor := normalColor
+	styleColor := style.DimmedColor1
 	if m.IsActive && m.focus == Save {
-		styleColor = focusColor
+		styleColor = style.SelectedColor1
 	} else if m.active == Save {
-		styleColor = activeColor
+		styleColor = style.NormalColor1
 	}
 
-	style := lipgloss.NewStyle().
+	btnStyle := style.BgStyle().
 		Width(m.width - 4).
 		AlignHorizontal(lipgloss.Center).
 		PaddingTop(1).
 		Foreground(styleColor)
 
-	button := style.Render("Save to .hex File")
-	return lipgloss.NewStyle().Width(m.width).PaddingLeft(1).Render(button)
+	button := btnStyle.Render("Save to .hex File")
+	return style.BgStyle().Width(m.width).PaddingLeft(1).Render(button)
 }
 
-func (m Model) getInputColors(state State) (lipgloss.Color, lipgloss.Color) {
+func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
 	if m.IsActive {
 		if m.focus == state {
-			return focusColor, focusColor
+			return style.SelectedColor1, style.SelectedColor1
 		} else if m.active == state {
-			return activeColor, activeColor
+			return style.NormalColor1, style.NormalColor1
 		}
 	}
-	return normalColor, normalColor
+	return style.DimmedColor1, style.DimmedColor1
 }

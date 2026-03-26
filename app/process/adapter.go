@@ -1,6 +1,7 @@
 package process
 
 import (
+	"github.com/lucasb-eyer/go-colorful"
 	"github.com/makeworld-the-better-one/dither/v2"
 	"github.com/nfnt/resize"
 
@@ -12,6 +13,10 @@ import (
 )
 
 func settingsToOptions(s settings.Model) ansiart.Options {
+	return settingsToOptionsWithBg(s, nil)
+}
+
+func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansiart.Options {
 	isTrueColor, _, palette := s.Colors.GetSelected()
 	mode, charMode, colorBg, customChars := s.Characters.Selected()
 	dimType, width, height, charRatio := s.Size.Info()
@@ -27,8 +32,9 @@ func settingsToOptions(s settings.Model) ansiart.Options {
 		AsciiCharSet:  convertAsciiCharSet(charMode),
 		UnicodeCharSet: convertUnicodeCharSet(charMode),
 		CustomChars:   customChars,
-		ColorBg:       colorBg,
-		SelectionMode: convertSelectionMode(s.Characters.SelectionMode()),
+		ColorBg:              colorBg,
+		SolidBackgroundColor: solidBg,
+		SelectionMode:        convertSelectionMode(s.Characters.SelectionMode()),
 
 		TrueColor:      isTrueColor,
 		AdaptToPalette: s.Colors.AdaptToPalette(),

@@ -15,6 +15,7 @@ type Map struct {
 	Collapse key.Binding
 	Copy     key.Binding
 	Save     key.Binding
+	Debug    key.Binding
 	Esc      key.Binding
 }
 
@@ -56,6 +57,8 @@ func InitKeyMap() {
 		Save: key.NewBinding(
 			key.WithKeys("ctrl+s"),
 			key.WithHelp("ctrl+s", "save to file")),
+		Debug: key.NewBinding(
+			key.WithKeys("ctrl+d")),
 		Esc: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "back/exit menu"),

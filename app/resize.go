@@ -23,6 +23,7 @@ func (m Model) handleSizeMsg(msg tea.WindowSizeMsg) (Model, tea.Cmd) {
 	w, h := msg.Width, msg.Height
 	m.w, m.h = w, h
 	m.display = m.display.SetWidth(m.rPanelWidth())
+	m.viewer.SetSize(m.rPanelWidth(), m.rPanelHeight())
 
 	tea.ClearScreen()
 	return m, nil

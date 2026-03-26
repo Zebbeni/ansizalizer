@@ -11,10 +11,12 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/advanced/dithering"
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 // Config is the JSON-serializable representation of all user-configurable settings.
 type Config struct {
+	Theme      string           `json:"theme,omitempty"`
 	Colors     ColorsConfig     `json:"colors"`
 	Characters CharactersConfig `json:"characters"`
 	Size       SizeConfig       `json:"size"`
@@ -168,6 +170,7 @@ func (m Model) ExportConfig() Config {
 	}
 
 	return Config{
+		Theme: m.Theme.ThemeName(),
 		Colors: ColorsConfig{
 			UseTrueColor:   !m.Colors.IsLimited(),
 			AdaptToPalette: m.Colors.AdaptToPalette(),
@@ -244,11 +247,20 @@ func (m *Model) ApplyConfig(cfg Config) {
 	m.Animation.SetDelayMs(cfg.Animation.DelayMs)
 
 	m.Alpha.SetConfig(cfg.Alpha.UseAlpha, cfg.Alpha.TrimAlpha)
+
+	// Set theme last so paletted themes have access to the palette colors
+	if cfg.Theme != "" {
+		if m.Colors.IsLimited() {
+			style.PaletteColors = m.Colors.GetCurrentPalette().Colors()
+		}
+		m.Theme.SetThemeByName(cfg.Theme)
+	}
 }
 
 // DefaultConfig returns the default settings matching the app's initial state.
 func DefaultConfig() Config {
 	return Config{
+		Theme: "Light on Transparent",
 		Colors: ColorsConfig{
 			UseTrueColor: false,
 			PaletteName:  "teal_orange",

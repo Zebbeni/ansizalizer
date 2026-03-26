@@ -16,6 +16,8 @@ func New(items []list.Item, w int) list.Model {
 	newList.SetShowStatusBar(false)
 	newList.SetShowTitle(false)
 	newList.SetFilteringEnabled(false)
+	newList.Styles.NoItems = style.BgStyle()
+	newList.Styles.PaginationStyle = style.BgStyle()
 
 	return newList
 }
@@ -29,31 +31,37 @@ func NewDelegate() list.DefaultDelegate {
 }
 
 func ItemStyles() (s list.DefaultItemStyles) {
-	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
-	s.NormalDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+	bg := style.BgStyle()
 
-	s.SelectedTitle = style.SelectedTitle.Copy().Padding(0, 1, 0, 1).
-		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(style.SelectedColor1)
-	s.NormalDesc = style.SelectedTitle.Copy().MaxHeight(1).Padding(0, 0, 0, 2).
-		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(style.SelectedColor1)
+	s.NormalTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 2)
+	s.NormalDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
-	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
-	s.DimmedDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+	s.SelectedTitle = bg.Copy().Foreground(style.SelectedColor1).Padding(0, 1, 0, 1).
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(style.SelectedColor1).
+		BorderBackground(style.ActiveTheme.Bg)
+	s.SelectedDesc = bg.Copy().Foreground(style.SelectedColor1).MaxHeight(1).Padding(0, 0, 0, 1).
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(style.SelectedColor1).
+		BorderBackground(style.ActiveTheme.Bg)
+
+	s.DimmedTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 0)
+	s.DimmedDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
 	return s
 }
 
 func InactiveItemStyles() (s list.DefaultItemStyles) {
-	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
-	s.NormalDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+	bg := style.BgStyle()
 
-	s.SelectedTitle = style.NormalTitle.Copy().Padding(0, 1, 0, 2)
-	s.SelectedDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+	s.NormalTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 2)
+	s.NormalDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
-	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
-	s.DimmedDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
+	s.SelectedTitle = bg.Copy().Foreground(style.NormalColor1).Padding(0, 1, 0, 2)
+	s.SelectedDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
+
+	s.DimmedTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 0)
+	s.DimmedDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
 	return s
 }

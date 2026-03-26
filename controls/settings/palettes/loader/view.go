@@ -38,5 +38,5 @@ func NewItemStyles() (s list.DefaultItemStyles) {
 func (m Model) drawTitle() string {
 	dir := filepath.Base(m.FileBrowser.SelectedDir)
 	title := style.DimmedTitle.Copy().Italic(true).Render("Browsing " + dir + "/")
-	return lipgloss.NewStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
+	return style.BgStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }

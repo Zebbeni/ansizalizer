@@ -15,7 +15,7 @@ func NewDefaultBoxWithLabel() BoxWithLabel {
 	return BoxWithLabel{
 		BoxStyle: lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")),
+			BorderForeground(DimmedColor1),
 
 		// You could, of course, also set background and foreground colors here
 		// as well.
@@ -31,8 +31,8 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 		// Query the box style for some of its border properties so we can
 		// essentially take the top border apart and put it around the label.
 		border             lipgloss.Border     = b.BoxStyle.GetBorderStyle()
-		topBorderStyler    func(string ...string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
-		bottomBorderStyler func(string ...string) string = lipgloss.NewStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
+		topBorderStyler    func(string ...string) string = BgStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
+		bottomBorderStyler func(string ...string) string = BgStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
 		topLeft            string              = topBorderStyler(border.TopLeft)
 		topRight           string              = topBorderStyler(border.TopRight)
 		botLeft            string              = bottomBorderStyler(border.BottomLeft)
@@ -59,6 +59,8 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 
 	var top, bottom string
 
+	paddedContent := content
+
 	switch b.LabelStyle.GetAlignVertical() {
 	case lipgloss.Top:
 		strings.Repeat(border.Top, cellsShort)
@@ -66,17 +68,16 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 		bottom = b.BoxStyle.Copy().
 			BorderTop(false).
 			Width(width).
-			Render(content)
+			Render(paddedContent)
 	case lipgloss.Bottom:
 		strings.Repeat(border.Bottom, cellsShort)
 		bottom = botLeft + bottomBorderStyler(gapLeft) + renderedLabel + bottomBorderStyler(gapRight) + botRight
 		top = b.BoxStyle.Copy().
 			BorderBottom(false).
 			Width(width).
-			Render(content)
+			Render(paddedContent)
 	}
 
-	// Stack the pieces
 	return top + "\n" + bottom
 }
 

@@ -14,9 +14,11 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
+	selectedItem := m.list.SelectedItem().(item)
+	m.Function = selectedItem.Function
 	m.ShouldClose = true
 	m.list.SetDelegate(NewDelegate(false))
-	return m, nil
+	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
@@ -29,13 +31,5 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.list, cmd = m.list.Update(msg)
 	m.list.SetDelegate(NewDelegate(true))
-	selectedItem := m.list.SelectedItem().(item)
-
-	if selectedItem.Function == m.Function {
-		return m, cmd
-	}
-
-	m.Function = selectedItem.Function
-
-	return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+	return m, cmd
 }

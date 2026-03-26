@@ -106,6 +106,10 @@ func (m Model) IsPaletted() bool {
 	return m.selected == Load
 }
 
+func (m *Model) RefreshStyles() {
+	m.Lospec.RefreshStyles()
+}
+
 func (m Model) GetCurrentPalette() palette.Model {
 	switch m.selected {
 	case Load:

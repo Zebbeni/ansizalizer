@@ -13,12 +13,14 @@ import (
 
 	"github.com/atotto/clipboard"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
 	"github.com/Zebbeni/ansizalizer/app/process"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/prefs"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 func (m Model) handleStartRenderToViewCmd() (Model, tea.Cmd) {
@@ -86,9 +88,19 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 	}
 	extraInfo := strings.Join(extraParts, ", ")
 
+	// Compute solid bg for non-transparent themes
+	var solidBg *colorful.Color
+	if !style.ActiveTheme.Transparent {
+		hex := string(style.ActiveTheme.Bg)
+		c, err := colorful.Hex(hex)
+		if err == nil {
+			solidBg = &c
+		}
+	}
+
 	// Animated GIF path
 	if process.IsGIFFile(filePath) {
-		frames, _ := process.RenderGIFFile(m.controls.Settings, filePath)
+		frames, _ := process.RenderGIFFileWithBg(m.controls.Settings, filePath, solidBg)
 		if len(frames) > 1 {
 			return event.FinishRenderGIFToViewMsg{
 				FilePath:     filePath,
@@ -110,7 +122,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 	}
 
 	// Non-GIF: existing path
-	imgString := process.RenderImageFile(m.controls.Settings, filePath)
+	imgString := process.RenderImageFileWithBg(m.controls.Settings, filePath, solidBg)
 	return event.FinishRenderToViewMsg{
 		FilePath:     filePath,
 		ImgString:    imgString,
@@ -285,9 +297,47 @@ func (m Model) processAdaptingCmd() tea.Msg {
 	}
 }
 
+func (m Model) handleDebug() (Model, tea.Cmd) {
+	var b strings.Builder
+	b.WriteString("=== DEBUG LOG ===\n\n")
+
+	// App state
+	b.WriteString(fmt.Sprintf("App: state=%d w=%d h=%d\n", m.state, m.w, m.h))
+	b.WriteString(fmt.Sprintf("Active file: %s\n", m.controls.FileBrowser.ActiveFile))
+	b.WriteString(fmt.Sprintf("Viewer: animating=%v waitingOnRender=%v\n\n", m.viewer.IsAnimating(), m.viewer.WaitingOnRender))
+
+	// Controls state
+	b.WriteString(m.controls.DebugState() + "\n")
+	b.WriteString(m.controls.Settings.DebugState() + "\n\n")
+
+	// Theme
+	b.WriteString(fmt.Sprintf("Theme: %s (transparent=%v bg=%s)\n\n",
+		style.ThemeNames[style.ActiveTheme.Name],
+		style.ActiveTheme.Transparent,
+		string(style.ActiveTheme.Bg)))
+
+	// Viewer imgString
+	b.WriteString("=== VIEWER IMG STRING ===\n")
+	b.WriteString(m.viewer.ImgString())
+	b.WriteString("\n=== END VIEWER IMG STRING ===\n\n")
+
+	// Full ANSI output
+	b.WriteString("=== FULL ANSI OUTPUT ===\n")
+	b.WriteString(m.View())
+	b.WriteString("\n=== END ===\n")
+
+	_ = os.WriteFile("debug.log", []byte(b.String()), 0644)
+	return m, event.BuildDisplayCmd("debug.log written")
+}
+
 func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	prevThemeBg := string(style.ActiveTheme.Bg)
 	var cmd tea.Cmd
 	m.controls, cmd = m.controls.Update(msg)
+	// Refresh browser delegate styles if the theme bg changed (e.g. paletted theme)
+	if string(style.ActiveTheme.Bg) != prevThemeBg {
+		m.controls.RefreshBrowserStyles()
+	}
 	m.savePrefs()
 	return m, cmd
 }

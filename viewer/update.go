@@ -11,12 +11,14 @@ import (
 
 func (m Model) handleFinishRenderMsg(msg event.FinishRenderToViewMsg) (Model, tea.Cmd) {
 	m.WaitingOnRender = false
-	m.imgString = msg.ImgString
 
 	// Clear animation state
 	m.frames = nil
 	m.currentFrame = 0
 	m.isAnimating = false
+
+	m.imgString = msg.ImgString
+	m.wrappedView = m.buildWrappedView()
 
 	displayMsg := fmt.Sprintf("viewing %s/%s with %s", filepath.Base(filepath.Dir(msg.FilePath)), filepath.Base(msg.FilePath), msg.ColorsString)
 	if msg.AlphaString != "" {
@@ -34,8 +36,9 @@ func (m Model) handleFinishRenderGIFMsg(msg event.FinishRenderGIFToViewMsg) (Mod
 	m.delay = msg.Delay
 	m.currentFrame = 0
 	m.isAnimating = true
-	m.imgString = ""
+	m.imgString = msg.Frames[0]
 	m.generation++
+	m.wrappedView = m.buildWrappedView()
 
 	displayMsg := fmt.Sprintf("viewing %s/%s (%d frames, %dms) with %s",
 		filepath.Base(filepath.Dir(msg.FilePath)),
@@ -73,5 +76,8 @@ func (m Model) handleAnimationTick(msg event.AnimationTickMsg) (Model, tea.Cmd) 
 	}
 
 	m.currentFrame = (m.currentFrame + 1) % len(m.frames)
+	m.imgString = m.frames[m.currentFrame]
+	m.wrappedView = m.buildWrappedView()
+
 	return m, event.BuildAnimationTickCmd(m.delay, m.generation)
 }

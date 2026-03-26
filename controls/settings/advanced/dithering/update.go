@@ -72,17 +72,16 @@ func (m Model) handleMatrixListUpdate(msg tea.KeyMsg) (Model, tea.Cmd) {
 	case key.Matches(msg, event.KeyMap.Esc):
 		return m.setFocus(ModeMatrix)
 	case key.Matches(msg, event.KeyMap.Enter):
-		m, _ = m.setFocus(ModeMatrix)
-		return m, nil
+		if it, ok := m.matrixList.SelectedItem().(matrixItem); ok {
+			if mat, ok := errorDiffMatrixMap[it.Type]; ok {
+				m.matrix = mat
+			}
+		}
+		return m, event.StartRenderToViewCmd
 	}
 	var cmd tea.Cmd
 	m.matrixList, cmd = m.matrixList.Update(msg)
-	if it, ok := m.matrixList.SelectedItem().(matrixItem); ok {
-		if mat, ok := errorDiffMatrixMap[it.Type]; ok {
-			m.matrix = mat
-		}
-	}
-	return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+	return m, cmd
 }
 
 func (m Model) handleClusteredDotListUpdate(msg tea.KeyMsg) (Model, tea.Cmd) {
@@ -92,17 +91,16 @@ func (m Model) handleClusteredDotListUpdate(msg tea.KeyMsg) (Model, tea.Cmd) {
 	case key.Matches(msg, event.KeyMap.Esc):
 		return m.setFocus(ModeClusteredDot)
 	case key.Matches(msg, event.KeyMap.Enter):
-		m, _ = m.setFocus(ModeClusteredDot)
-		return m, nil
+		if it, ok := m.clusteredDotList.SelectedItem().(clusteredDotItem); ok {
+			if cdm, ok := clusteredDotMatrixMap[it.Type]; ok {
+				m.clusteredDot = cdm
+			}
+		}
+		return m, event.StartRenderToViewCmd
 	}
 	var cmd tea.Cmd
 	m.clusteredDotList, cmd = m.clusteredDotList.Update(msg)
-	if it, ok := m.clusteredDotList.SelectedItem().(clusteredDotItem); ok {
-		if cdm, ok := clusteredDotMatrixMap[it.Type]; ok {
-			m.clusteredDot = cdm
-		}
-	}
-	return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+	return m, cmd
 }
 
 func (m Model) handleStrengthUpdate(msg tea.Msg) (Model, tea.Cmd) {

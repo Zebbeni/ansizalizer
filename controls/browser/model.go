@@ -8,7 +8,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/controls/menu"
 	"github.com/Zebbeni/ansizalizer/event"
@@ -82,12 +81,18 @@ func (m Model) listIndex() int {
 }
 
 func (m Model) View() string {
-	browser := m.currentList().View()
-	return lipgloss.JoinVertical(lipgloss.Left, browser)
+	return m.currentList().View()
 }
 
 func (m Model) ActiveFilename() string {
 	return filepath.Base(m.ActiveFile)
+}
+
+func (m *Model) RefreshStyles() {
+	delegate := menu.NewDelegate()
+	for i := range m.lists {
+		m.lists[i].SetDelegate(delegate)
+	}
 }
 
 func (m *Model) SetActive(active bool) {

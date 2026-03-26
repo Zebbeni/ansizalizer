@@ -2,7 +2,6 @@ package app
 
 import (
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/env"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/prefs"
+	"github.com/Zebbeni/ansizalizer/style"
 	"github.com/Zebbeni/ansizalizer/viewer"
 )
 
@@ -94,6 +94,12 @@ func New() Model {
 		m.controls.Settings.SaveLoad.SetStatus("Loaded latest.json")
 	}
 
+	// Sync palette to style package so paletted themes work at startup
+	if m.controls.Settings.Colors.IsLimited() {
+		style.PaletteColors = m.controls.Settings.Colors.GetCurrentPalette().Colors()
+	}
+	style.SetTheme(style.ActiveTheme.Name)
+
 	return m
 }
 
@@ -142,6 +148,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.handleCopy()
 		case key.Matches(msg, event.KeyMap.Save):
 			return m.handleSave()
+		case key.Matches(msg, event.KeyMap.Debug):
+			return m.handleDebug()
 		}
 	}
 	return m.handleControlsUpdate(msg)
@@ -160,19 +168,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
 func (m Model) View() string {
-	controls := m.renderControls()
-	display := m.display.View()
+	controls := style.ApplyBg(m.renderControls(), 0)
+	display := style.ApplyBg(m.display.View(), 0)
 	viewer := m.renderViewer()
-	help := m.renderHelp()
+	help := m.renderHelp() // already has ApplyBg baked into cache
 
 	leftPanel := controls
 	rightPanel := lipgloss.JoinVertical(lipgloss.Top, display, viewer)
 	panels := lipgloss.JoinHorizontal(lipgloss.Top, leftPanel, rightPanel)
 	all := lipgloss.JoinVertical(lipgloss.Top, panels, help)
 
-	vp := viewport.New(m.w, m.h)
-	vp.SetContent(all)
-	vp.Style = lipgloss.NewStyle().Width(m.w).Height(m.h)
+	appStyle := lipgloss.NewStyle().Width(m.w).Height(m.h)
+	if !style.ActiveTheme.Transparent {
+		appStyle = appStyle.Background(style.ActiveTheme.Bg)
+	}
 
-	return vp.View()
+	return appStyle.Render(all)
 }

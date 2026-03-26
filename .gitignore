@@ -1,8 +1,12 @@
 # Go files
 go.work.sum
+go.work
 
 # Images test directory
 images/*
+
+# Debug files
+*.log
 
 # Binaries for programs and plugins
 *.exe

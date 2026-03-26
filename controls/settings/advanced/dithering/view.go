@@ -12,9 +12,9 @@ import (
 var (
 	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
 	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
-	inactiveTabStyle  = lipgloss.NewStyle().Border(inactiveTabBorder, true)
-	activeTabStyle    = lipgloss.NewStyle().Border(activeTabBorder, true)
-	windowStyle       = lipgloss.NewStyle().Align(lipgloss.Center).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
+	inactiveTabStyle  = style.BgStyle().Border(inactiveTabBorder, true)
+	activeTabStyle    = style.BgStyle().Border(activeTabBorder, true)
+	windowStyle       = style.BgStyle().Align(lipgloss.Center).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
 
 	modeTabNames = map[State]string{
 		ModeMatrix:       "Preset",
@@ -25,7 +25,7 @@ var (
 
 func (m Model) drawDitheringOptions() string {
 	prompt := style.DimmedTitle.Render("Dithering:")
-	prompt = lipgloss.NewStyle().Width(12).Render(prompt)
+	prompt = style.BgStyle().Width(12).Render(prompt)
 
 	nodeStyle := style.NormalButtonNode
 	if m.IsActive && m.focus == DitherOn {
@@ -33,7 +33,7 @@ func (m Model) drawDitheringOptions() string {
 	} else if m.doDithering {
 		nodeStyle = style.ActiveButtonNode
 	}
-	onNode := lipgloss.NewStyle().Width(4).Render(nodeStyle.Copy().Render("On"))
+	onNode := style.BgStyle().Width(4).Render(nodeStyle.Copy().Render("On"))
 
 	nodeStyle = style.NormalButtonNode
 	if m.IsActive && m.focus == DitherOff {
@@ -48,7 +48,7 @@ func (m Model) drawDitheringOptions() string {
 
 func (m Model) drawSerpentineOptions() string {
 	prompt := style.DimmedTitle.Render("Serpentine:")
-	prompt = lipgloss.NewStyle().Width(12).Render(prompt)
+	prompt = style.BgStyle().Width(12).Render(prompt)
 
 	nodeStyle := style.NormalButtonNode
 	if m.IsActive && m.focus == SerpentineOn {
@@ -56,7 +56,7 @@ func (m Model) drawSerpentineOptions() string {
 	} else if m.doSerpentine {
 		nodeStyle = style.ActiveButtonNode
 	}
-	onNode := lipgloss.NewStyle().Width(4).Render(nodeStyle.Copy().Render("On"))
+	onNode := style.BgStyle().Width(4).Render(nodeStyle.Copy().Render("On"))
 
 	nodeStyle = style.NormalButtonNode
 	if m.IsActive && m.focus == SerpentineOff {
@@ -101,9 +101,9 @@ func (m Model) drawModeTabs() string {
 		}
 
 		if showControls {
-			tabStyle = activeTabStyle.Copy()
+			tabStyle = style.ActiveTabStyle.Copy()
 		} else {
-			tabStyle = inactiveTabStyle.Copy()
+			tabStyle = style.InactiveTabStyle.Copy()
 		}
 
 		border, _, _, _, _ := tabStyle.GetBorder()
@@ -117,7 +117,7 @@ func (m Model) drawModeTabs() string {
 			border.BottomRight = "┴"
 		}
 
-		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).Foreground(fgColor)
+		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Foreground(fgColor)
 		renderedTabs = append(renderedTabs, tabStyle.Render(modeTabNames[t]))
 	}
 
@@ -125,7 +125,7 @@ func (m Model) drawModeTabs() string {
 	extW := max(m.width-lipgloss.Width(tabBlock)-4, 0)
 
 	border := lipgloss.Border{BottomLeft: "─", Bottom: "─", BottomRight: "┐"}
-	extendedStyle := windowStyle.Copy().Border(border).BorderForeground(borderColor).Padding(0)
+	extendedStyle := style.TabWindowStyle.Copy().Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
 	extended := extendedStyle.Copy().Width(extW).Height(1).Render("")
 	renderedTabs = append(renderedTabs, extended)
 
@@ -134,7 +134,7 @@ func (m Model) drawModeTabs() string {
 	doc.WriteString("\n")
 
 	content := m.drawModeContent()
-	doc.WriteString(windowStyle.Copy().BorderForeground(borderColor).Width(lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize()).Render(content))
+	doc.WriteString(style.TabWindowStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - style.TabWindowStyle.GetHorizontalFrameSize()).Render(content))
 	return doc.String()
 }
 
@@ -173,7 +173,7 @@ func (m Model) drawBayerSizeButtons() string {
 		} else if m.bayerSize == opt.size {
 			btnStyle = style.ActiveButtonNode
 		}
-		buttons[i] = lipgloss.NewStyle().Width(4).Render(btnStyle.Render(opt.label))
+		buttons[i] = style.BgStyle().Width(4).Render(btnStyle.Render(opt.label))
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, append([]string{prompt}, buttons...)...)
@@ -181,13 +181,13 @@ func (m Model) drawBayerSizeButtons() string {
 
 func (m Model) drawStrength() string {
 	promptStyle := style.DimmedTitle.Copy()
-	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	textStyle := style.BgStyle().Foreground(style.DimmedColor1)
 	if m.strengthInput.Focused() {
 		promptStyle = style.SelectedTitle.Copy()
-		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+		textStyle = style.BgStyle().Foreground(style.SelectedColor1)
 	} else if m.focus == StrengthForm && m.IsActive {
 		promptStyle = style.NormalTitle.Copy()
-		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
+		textStyle = style.BgStyle().Foreground(style.NormalColor1)
 	}
 	m.strengthInput.PromptStyle = promptStyle
 	m.strengthInput.TextStyle = textStyle

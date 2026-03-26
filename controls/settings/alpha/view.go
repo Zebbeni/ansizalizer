@@ -15,7 +15,7 @@ func (m Model) drawAlphaOptions() string {
 		yesButton = style.ActiveButtonNode
 	}
 	yesNode := yesButton.Render("Yes")
-	yesNode = lipgloss.NewStyle().PaddingLeft(1).Render(yesNode)
+	yesNode = style.BgStyle().PaddingLeft(1).Render(yesNode)
 
 	noButton := style.NormalButtonNode
 	if m.IsActive && m.focus == AlphaNo {
@@ -24,7 +24,7 @@ func (m Model) drawAlphaOptions() string {
 		noButton = style.ActiveButtonNode
 	}
 	noNode := noButton.Render("No")
-	noNode = lipgloss.NewStyle().PaddingLeft(1).Render(noNode)
+	noNode = style.BgStyle().PaddingLeft(1).Render(noNode)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, yesNode, noNode)
 }
@@ -39,7 +39,7 @@ func (m Model) drawAlphaTrimOptions() string {
 		yesButton = style.ActiveButtonNode
 	}
 	yesNode := yesButton.Render("Yes")
-	yesNode = lipgloss.NewStyle().PaddingLeft(1).Render(yesNode)
+	yesNode = style.BgStyle().PaddingLeft(1).Render(yesNode)
 
 	noButton := style.NormalButtonNode
 	if m.IsActive && m.focus == TrimAlphaNo {
@@ -48,7 +48,7 @@ func (m Model) drawAlphaTrimOptions() string {
 		noButton = style.ActiveButtonNode
 	}
 	noNode := noButton.Render("No")
-	noNode = lipgloss.NewStyle().PaddingLeft(1).Render(noNode)
+	noNode = style.BgStyle().PaddingLeft(1).Render(noNode)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, yesNode, noNode)
 }
