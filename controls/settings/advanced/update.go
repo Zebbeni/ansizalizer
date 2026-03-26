@@ -65,6 +65,12 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
+	switch m.focus {
+	case Sampling:
+		m.activeTab = Sampling
+	case Dithering:
+		m.activeTab = Dithering
+	}
 	m.active = m.focus
 	return m, nil
 }
@@ -88,6 +94,13 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		// Activate tab if focused but not active
+		switch m.focus {
+		case Sampling:
+			m.activeTab = Sampling
+		case Dithering:
+			m.activeTab = Dithering
+		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
@@ -101,10 +114,8 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
 	switch m.focus {
-	case Sampling:
-		m.activeTab = Sampling
-	case Dithering:
-		m.activeTab = Dithering
+	case Sampling, Dithering:
+		// Tab focus only — don't change activeTab
 	case SamplingControls:
 		m.active = SamplingControls
 		m.sampling.IsActive = true

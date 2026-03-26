@@ -11,6 +11,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/advanced/dithering"
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
+	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
@@ -250,8 +251,25 @@ func (m *Model) ApplyConfig(cfg Config) {
 
 	// Set theme last so paletted themes have access to the palette colors
 	if cfg.Theme != "" {
+		debug.Log("ApplyConfig: isLimited=%v paletteColors=%d", m.Colors.IsLimited(), len(cfg.Colors.PaletteColors))
 		if m.Colors.IsLimited() {
-			style.PaletteColors = m.Colors.GetCurrentPalette().Colors()
+			p := m.Colors.GetCurrentPalette().Colors()
+			debug.Log("ApplyConfig: GetCurrentPalette returned %d colors, name=%s", len(p), m.Colors.GetCurrentPalette().Name())
+			if len(p) == 0 && len(cfg.Colors.PaletteColors) > 0 {
+				// Palette wasn't loaded into the model yet — use config colors directly
+				for _, hex := range cfg.Colors.PaletteColors {
+					c, err := colorful.Hex(hex)
+					if err != nil {
+						c, _ = colorful.Hex(fmt.Sprintf("#%s", hex))
+					}
+					p = append(p, c)
+				}
+				debug.Log("ApplyConfig: rebuilt palette from config (%d colors)", len(p))
+			}
+			style.PaletteColors = p
+			debug.Log("ApplyConfig: setting palette colors (%d colors) before theme %s", len(p), cfg.Theme)
+		} else {
+			debug.Log("ApplyConfig: no palette (trueColor), setting theme %s", cfg.Theme)
 		}
 		m.Theme.SetThemeByName(cfg.Theme)
 	}

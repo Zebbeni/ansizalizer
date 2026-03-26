@@ -20,7 +20,7 @@ const (
 	DarkOnLightPaletted
 )
 
-var themeOrder = []State{LightOnTransparent, LightOnDark, DarkOnLight, DarkOnTransparent, LightOnDarkPaletted, DarkOnLightPaletted}
+var themeOrder = []State{LightOnTransparent, LightOnDark, LightOnDarkPaletted, DarkOnTransparent, DarkOnLight, DarkOnLightPaletted}
 
 var stateToTheme = map[State]style.ThemeName{
 	LightOnTransparent:  style.LightOnTransparent,

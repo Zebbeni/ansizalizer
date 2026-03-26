@@ -11,6 +11,7 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
+	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/display"
 	"github.com/Zebbeni/ansizalizer/env"
 	"github.com/Zebbeni/ansizalizer/event"
@@ -44,6 +45,7 @@ type Model struct {
 }
 
 func New() Model {
+	debug.Init()
 	firstRun := prefs.Init()
 	if firstRun {
 		defaultCfg := settings.DefaultConfig()
@@ -99,6 +101,9 @@ func New() Model {
 		style.PaletteColors = m.controls.Settings.Colors.GetCurrentPalette().Colors()
 	}
 	style.SetTheme(style.ActiveTheme.Name)
+
+	// Refresh browser delegates after theme is set
+	m.controls.FileBrowser.RefreshStyles()
 
 	return m
 }

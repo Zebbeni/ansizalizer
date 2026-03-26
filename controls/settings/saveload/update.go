@@ -112,7 +112,6 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		switch m.focus {
 		case SaveTabSelect:
 			m.focus = LoadTabSelect
-			m.tab = LoadTab
 		case CancelButton:
 			if m.tab == SaveTab {
 				m.focus = SaveButton
@@ -126,7 +125,6 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		switch m.focus {
 		case LoadTabSelect:
 			m.focus = SaveTabSelect
-			m.tab = SaveTab
 		case SaveButton:
 			m.focus = CancelButton
 		case LoadConfirmButton:

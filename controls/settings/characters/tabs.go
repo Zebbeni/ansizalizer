@@ -75,8 +75,8 @@ func (m Model) drawCharTabs() string {
 
 	border := lipgloss.Border{BottomLeft: "─", Bottom: "─", BottomRight: "┐"}
 
-	extendedStyle := style.TabWindowStyle.Copy().Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
-	extended := extendedStyle.Copy().Width(extW).Height(extH).Render("")
+	extendedStyle := style.TabWindowStyle.Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
+	extended := extendedStyle.Width(extW).Height(extH).Render("")
 	renderedTabs = append(renderedTabs, extended)
 
 	row := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
@@ -84,7 +84,7 @@ func (m Model) drawCharTabs() string {
 	doc.WriteString("\n")
 
 	charButtons := m.drawCharControls()
-	doc.WriteString(style.TabWindowStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - style.TabWindowStyle.GetHorizontalFrameSize()).Render(charButtons))
+	doc.WriteString(style.TabWindowStyle.BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).AlignHorizontal(lipgloss.Center).Width(lipgloss.Width(row) - style.TabWindowStyle.GetHorizontalFrameSize()).Render(charButtons))
 	return docStyle.Render(doc.String())
 }
 

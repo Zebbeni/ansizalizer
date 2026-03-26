@@ -37,5 +37,5 @@ var stateTitles = map[State]string{
 	Animation:  "Animation",
 	Alpha:      "Alpha Channel",
 	Theme:      "Theme",
-	SaveLoad:   "Import/Export",
+	SaveLoad:   "Load / Save Settings",
 }

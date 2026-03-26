@@ -235,7 +235,7 @@ func (m Model) drawLoadContent() string {
 	} else {
 		// Show browse prompt
 		browseText := inputValueStyle.Render("Browse Settings Files ↴")
-		parts = append(parts, style.BgStyle().Width(m.width-4).AlignHorizontal(lipgloss.Center).Render(browseText))
+		parts = append(parts, style.BgStyle().Width(m.width-2).AlignHorizontal(lipgloss.Center).Render(browseText))
 	}
 
 	// File browser (only shown when active)

@@ -139,10 +139,13 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.doSerpentine = false
 	case ModeMatrix:
 		m.ditherMode = Matrix
+		m.modeControls = ModeMatrix
 	case ModeBayer:
 		m.ditherMode = Bayer
+		m.modeControls = ModeBayer
 	case ModeClusteredDot:
 		m.ditherMode = ClusteredDot
+		m.modeControls = ModeClusteredDot
 	case BayerSize2:
 		m.bayerSize = 2
 	case BayerSize4:
@@ -186,6 +189,18 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 			return m, nil
 		}
+		// Activate tab if focused but not active
+		switch m.focus {
+		case ModeMatrix:
+			m.modeControls = ModeMatrix
+			m.ditherMode = Matrix
+		case ModeBayer:
+			m.modeControls = ModeBayer
+			m.ditherMode = Bayer
+		case ModeClusteredDot:
+			m.modeControls = ModeClusteredDot
+			m.ditherMode = ClusteredDot
+		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
@@ -213,26 +228,13 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.matrixList.SetDelegate(NewDelegate(false))
 	m.clusteredDotList.SetDelegate(NewDelegate(false))
 
-	// Switch tab content when focusing a tab
 	switch m.focus {
-	case ModeMatrix:
-		m.modeControls = ModeMatrix
-		m.ditherMode = Matrix
-	case ModeBayer:
-		m.modeControls = ModeBayer
-		m.ditherMode = Bayer
-	case ModeClusteredDot:
-		m.modeControls = ModeClusteredDot
-		m.ditherMode = ClusteredDot
+	case ModeMatrix, ModeBayer, ModeClusteredDot:
+		// Tab focus only — don't change modeControls
 	case MatrixList:
 		m.matrixList.SetDelegate(NewDelegate(true))
 	case ClusteredDotList:
 		m.clusteredDotList.SetDelegate(NewDelegate(true))
-	}
-
-	// Re-render when switching dither modes
-	if focus == ModeMatrix || focus == ModeBayer || focus == ModeClusteredDot {
-		return m, event.StartRenderToViewCmd
 	}
 	return m, nil
 }

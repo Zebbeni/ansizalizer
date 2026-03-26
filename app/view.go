@@ -35,11 +35,12 @@ func (m Model) renderViewer() string {
 var (
 	helpCache      string
 	helpCacheW     int
-	helpCacheTheme style.ThemeName
+	helpCacheBg    string
 )
 
 func (m Model) renderHelp() string {
-	if helpCache != "" && helpCacheW == m.w && helpCacheTheme == style.ActiveTheme.Name {
+	currentBg := string(style.ActiveTheme.Bg)
+	if helpCache != "" && helpCacheW == m.w && helpCacheBg == currentBg {
 		return helpCache
 	}
 	helpBar := help.New()
@@ -53,6 +54,6 @@ func (m Model) renderHelp() string {
 	helpContent := helpBar.View(event.KeyMap)
 	helpCache = style.ApplyBg(style.BgStyle().PaddingLeft(1).Width(m.w).Render(helpContent), 0)
 	helpCacheW = m.w
-	helpCacheTheme = style.ActiveTheme.Name
+	helpCacheBg = currentBg
 	return helpCache
 }

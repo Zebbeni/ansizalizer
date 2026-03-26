@@ -94,12 +94,23 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
-	m.selected = m.focus
-	// Kick off a new palette generation before rendering if not done yet.
-	// Allow the app to trigger a render when the generation is complete.
-	if m.IsAdaptive() && len(m.Adapter.GetCurrent().Colors()) == 0 {
-		return m, event.StartAdaptingCmd
+	// Activate the focused tab
+	switch m.focus {
+	case Adapt, Load, Lospec:
+		m.selected = m.focus
+		m.controls = m.focus
+		if m.focus == Lospec && !m.Lospec.DidInitializeList() {
+			var cmd tea.Cmd
+			m.Lospec, cmd = m.Lospec.InitializeList()
+			return m, cmd
+		}
+		// Kick off a new palette generation before rendering if not done yet.
+		if m.IsAdaptive() && len(m.Adapter.GetCurrent().Colors()) == 0 {
+			return m, event.StartAdaptingCmd
+		}
+		return m, event.StartRenderToViewCmd
 	}
+	m.selected = m.focus
 	return m, event.StartRenderToViewCmd
 }
 
@@ -115,6 +126,17 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		// Activate tab if focused but not active before navigating into its content
+		switch m.focus {
+		case Adapt, Load, Lospec:
+			if m.controls != m.focus {
+				m.controls = m.focus
+				m.selected = m.focus
+				if m.focus == Lospec && !m.Lospec.DidInitializeList() {
+					m.Lospec, cmd = m.Lospec.InitializeList()
+				}
+			}
+		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
@@ -138,12 +160,8 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
 
 	switch m.focus {
-	case Adapt:
-		m.controls = Adapt
-	case Load:
-		m.controls = Load
-	case Lospec:
-		m.controls = Lospec
+	case Adapt, Load, Lospec:
+		// Tab focus only — don't change controls
 	case AdaptiveControls:
 		m.Adapter.IsActive = true
 	case LoadControls:

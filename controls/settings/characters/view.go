@@ -34,16 +34,12 @@ var (
 		Sequence:          "Repeat",
 		Random:            "Random",
 	}
-
 )
 
 func (m Model) drawCharControls() string {
 	if m.charControls == Custom {
-		content := m.drawCustomControls()
-		return style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
+		return m.drawCustomControls()
 	}
-
-	whitespace := 0
 
 	var buttonOrder []State
 	switch m.charControls {
@@ -52,6 +48,9 @@ func (m Model) drawCharControls() string {
 	case Unicode:
 		buttonOrder = unicodeButtonOrder
 	}
+
+	innerWidth := m.width - 4
+	buttonWidth := innerWidth / len(buttonOrder)
 
 	buttons := make([]string, len(buttonOrder))
 	for i, state := range buttonOrder {
@@ -62,18 +61,9 @@ func (m Model) drawCharControls() string {
 			buttonStyle = style.ActiveButtonNode
 		}
 
-		buttons[i] = buttonStyle.Copy().Render(stateNames[state])
-
-		whitespace += lipgloss.Width(buttons[i])
+		buttons[i] = lipgloss.NewStyle().Width(buttonWidth).Render(buttonStyle.Copy().Render(stateNames[state]))
 	}
-
-	gapSpace := whitespace / (len(buttons))
-	for i, button := range buttons {
-		buttons[i] = style.BgStyle().PaddingRight(gapSpace).Render(button)
-	}
-	content := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
-
-	return style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Left).Render(content)
+	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 }
 
 func (m Model) drawCustomControls() string {
@@ -90,12 +80,18 @@ func (m Model) drawCustomControls() string {
 	} else {
 		m.customInput.Cursor.SetMode(cursor.CursorHide)
 	}
-	m.customInput.PromptStyle = nodeStyle.Copy()
+	m.customInput.PromptStyle = nodeStyle
 	m.customInput.TextStyle = textStyle
 
 	symbolsRow := m.customInput.View()
 	selectionRow := style.BgStyle().PaddingTop(1).Render(m.drawSelectionMode())
-	return lipgloss.JoinVertical(lipgloss.Left, symbolsRow, selectionRow)
+	return lipgloss.JoinVertical(lipgloss.Center, symbolsRow, selectionRow)
+}
+
+var modeDescriptions = map[State]string{
+	DarkToLight: "Map chars by brightness",
+	Sequence:    "Repeat chars in order",
+	Random:      "Assign chars randomly",
 }
 
 func (m Model) drawSelectionMode() string {
@@ -110,7 +106,16 @@ func (m Model) drawSelectionMode() string {
 		buttons[i] = buttonStyle.Render(stateNames[state])
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+
+	// Show description for focused mode
+	if desc, ok := modeDescriptions[m.focus]; ok {
+		descInner := style.DimmedTitle.Copy().Italic(true).Render(desc)
+		descText := lipgloss.NewStyle().PaddingTop(1).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(descInner)
+		return lipgloss.JoinVertical(lipgloss.Left, row, descText)
+	}
+
+	return row
 }
 
 func (m Model) drawColorsButtons() string {

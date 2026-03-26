@@ -108,10 +108,13 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	switch m.active {
 	case Ascii:
 		m.mode = Ascii
+		m.charControls = Ascii
 	case Unicode:
 		m.mode = Unicode
+		m.charControls = Unicode
 	case Custom:
 		m.mode = Custom
+		m.charControls = Custom
 	case SymbolsForm:
 		m.mode = Custom
 		m.customInput.Focus()
@@ -158,6 +161,14 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		// Activate tab if focused but not active before navigating into its content
+		switch m.focus {
+		case Ascii, Unicode, Custom:
+			if m.charControls != m.focus {
+				m.charControls = m.focus
+				m.mode = m.focus
+			}
+		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
@@ -170,13 +181,5 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
-	switch m.focus {
-	case Ascii:
-		m.charControls = Ascii
-	case Unicode:
-		m.charControls = Unicode
-	case Custom:
-		m.charControls = Custom
-	}
 	return m, nil
 }

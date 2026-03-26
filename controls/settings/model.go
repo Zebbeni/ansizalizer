@@ -6,6 +6,9 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/Zebbeni/ansizalizer/debug"
+	"github.com/Zebbeni/ansizalizer/event"
+
 	"github.com/Zebbeni/ansizalizer/controls/settings/adjust"
 	"github.com/Zebbeni/ansizalizer/controls/settings/advanced"
 	"github.com/Zebbeni/ansizalizer/controls/settings/alpha"
@@ -81,17 +84,29 @@ func (m Model) DebugState() string {
 	)
 }
 
-func (m *Model) syncPalette() {
+// syncPalette returns true if the theme bg changed (triggering a re-render)
+func (m *Model) syncPalette() bool {
 	m.Advanced.ShowDithering = m.Colors.IsLimited()
 	if m.Colors.IsLimited() {
-		style.PaletteColors = m.Colors.GetCurrentPalette().Colors()
+		newColors := m.Colors.GetCurrentPalette().Colors()
+		if len(newColors) == 0 {
+			return false
+		}
+		style.PaletteColors = newColors
 	} else {
 		style.PaletteColors = nil
 	}
 	if style.ActiveTheme.Name == style.LightOnDarkPaletted || style.ActiveTheme.Name == style.DarkOnLightPaletted {
+		prevBg := string(style.ActiveTheme.Bg)
 		style.SetTheme(style.ActiveTheme.Name)
-		m.Colors.RefreshStyles()
+		newBg := string(style.ActiveTheme.Bg)
+		if prevBg != newBg {
+			debug.Log("syncPalette: theme bg changed %s -> %s", prevBg, newBg)
+			m.Colors.RefreshStyles()
+			return true
+		}
 	}
+	return false
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
@@ -100,7 +115,9 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.active {
 	case Colors:
 		m, cmd := m.handleColorsUpdate(msg)
-		m.syncPalette()
+		if m.syncPalette() {
+			return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+		}
 		return m, cmd
 	case Characters:
 		return m.handleCharactersUpdate(msg)
