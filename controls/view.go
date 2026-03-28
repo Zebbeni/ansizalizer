@@ -25,10 +25,21 @@ func (m Model) drawButtons() string {
 	buttons := make([]string, len(stateOrder))
 	for i, state := range stateOrder {
 		buttonStyle := style.NormalButton
-		if state == m.active {
-			buttonStyle = style.ActiveButton
-		} else if state == m.focus {
-			buttonStyle = style.FocusButton
+		if m.active != Menu {
+			// A tab is handling events
+			if state == m.active {
+				buttonStyle = style.ActiveButton
+			} else if state == m.focus {
+				buttonStyle = style.FocusButton
+			}
+		} else {
+			// Tab bar has focus; show which tab's content is displayed
+			if state == m.showing && m.showing != Menu {
+				buttonStyle = style.ActiveButton
+			}
+			if state == m.focus {
+				buttonStyle = style.FocusButton
+			}
 		}
 		buttons[i] = buttonStyle.Copy().Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
 	}

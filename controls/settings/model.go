@@ -2,11 +2,11 @@ package settings
 
 import (
 	"fmt"
+	"image/color"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/event"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/adjust"
@@ -17,6 +17,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/colors"
 	"github.com/Zebbeni/ansizalizer/controls/settings/saveload"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
+	"github.com/Zebbeni/ansizalizer/controls/settings/textstyle"
 	"github.com/Zebbeni/ansizalizer/controls/settings/theme"
 	"github.com/Zebbeni/ansizalizer/prefs"
 	"github.com/Zebbeni/ansizalizer/style"
@@ -31,6 +32,7 @@ type Model struct {
 	Characters characters.Model
 	Size       size.Model
 	Adjust     adjust.Model
+	TextStyle  textstyle.Model
 	Advanced   advanced.Model
 	Animation  animation.Model
 	Alpha      alpha.Model
@@ -53,6 +55,7 @@ func New(w int, dirs prefs.Dirs) Model {
 		Characters: characters.New(w - 2),
 		Size:       size.New(),
 		Adjust:     adjust.New(w - 2),
+		TextStyle:  textstyle.New(w - 2),
 		Advanced:   advanced.New(w - 2),
 		Animation:  animation.New(),
 		Alpha:      alpha.New(w - 2),
@@ -84,29 +87,22 @@ func (m Model) DebugState() string {
 	)
 }
 
-// syncPalette returns true if the theme bg changed (triggering a re-render)
-func (m *Model) syncPalette() bool {
+func (m *Model) RefreshAllStyles() {
+	m.Colors.RefreshStyles()
+	m.Advanced.RefreshStyles()
+}
+
+// buildCheckThemeCmd returns a CheckThemeCmd if the palette or theme may have changed.
+func (m Model) buildCheckThemeCmd() tea.Cmd {
 	m.Advanced.ShowDithering = m.Colors.IsLimited()
+	var palette color.Palette
 	if m.Colors.IsLimited() {
-		newColors := m.Colors.GetCurrentPalette().Colors()
-		if len(newColors) == 0 {
-			return false
-		}
-		style.PaletteColors = newColors
-	} else {
-		style.PaletteColors = nil
-	}
-	if style.ActiveTheme.Name == style.LightOnDarkPaletted || style.ActiveTheme.Name == style.DarkOnLightPaletted {
-		prevBg := string(style.ActiveTheme.Bg)
-		style.SetTheme(style.ActiveTheme.Name)
-		newBg := string(style.ActiveTheme.Bg)
-		if prevBg != newBg {
-			debug.Log("syncPalette: theme bg changed %s -> %s", prevBg, newBg)
-			m.Colors.RefreshStyles()
-			return true
+		palette = m.Colors.GetCurrentPalette().Colors()
+		if len(palette) == 0 {
+			return nil
 		}
 	}
-	return false
+	return event.BuildCheckThemeCmd(palette, m.Theme.ThemeName())
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
@@ -115,8 +111,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	switch m.active {
 	case Colors:
 		m, cmd := m.handleColorsUpdate(msg)
-		if m.syncPalette() {
-			return m, tea.Batch(cmd, event.StartRenderToViewCmd)
+		if themeCmd := m.buildCheckThemeCmd(); themeCmd != nil {
+			return m, tea.Batch(cmd, themeCmd)
 		}
 		return m, cmd
 	case Characters:
@@ -125,6 +121,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m.handleSizeUpdate(msg)
 	case Adjust:
 		return m.handleAdjustUpdate(msg)
+	case TextStyle:
+		return m.handleTextStyleUpdate(msg)
 	case Advanced:
 		return m.handleAdvancedUpdate(msg)
 	case Animation:
@@ -150,10 +148,11 @@ func (m Model) View() string {
 	char := m.renderCollapsible(m.Characters.View(), m.Characters.Summary(), Characters)
 	siz := m.renderCollapsible(m.Size.View(), m.Size.Summary(), Size)
 	adj := m.renderCollapsible(m.Adjust.View(), m.Adjust.Summary(), Adjust)
+	ts := m.renderCollapsible(m.TextStyle.View(), m.TextStyle.Summary(), TextStyle)
 	sam := m.renderCollapsible(m.Advanced.View(), m.Advanced.Summary(), Advanced)
 	thm := m.renderCollapsible(m.Theme.View(), m.Theme.Summary(), Theme)
 	sl := m.renderCollapsible(m.SaveLoad.View(), m.SaveLoad.Summary(), SaveLoad)
-	parts := []string{sl, thm, col, char, siz, adj, sam}
+	parts := []string{sl, thm, col, char, siz, adj, ts, sam}
 	if m.Animation.AnimatedImage {
 		parts = append(parts, m.renderCollapsible(m.Animation.View(), m.Animation.Summary(), Animation))
 	}

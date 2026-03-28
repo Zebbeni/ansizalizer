@@ -22,9 +22,17 @@ type Config struct {
 	Characters CharactersConfig `json:"characters"`
 	Size       SizeConfig       `json:"size"`
 	Adjust     AdjustConfig     `json:"adjust"`
+	TextStyle  TextStyleConfig  `json:"textStyle"`
 	Advanced   AdvancedConfig   `json:"advanced"`
 	Animation  AnimationConfig  `json:"animation"`
 	Alpha      AlphaConfig      `json:"alpha"`
+}
+
+type TextStyleConfig struct {
+	Bold          bool `json:"bold"`
+	Italic        bool `json:"italic"`
+	Underline     bool `json:"underline"`
+	Strikethrough bool `json:"strikethrough"`
 }
 
 type ColorsConfig struct {
@@ -38,9 +46,10 @@ type CharactersConfig struct {
 	Mode          string `json:"mode"`
 	AsciiMode     string `json:"asciiMode"`
 	UnicodeMode   string `json:"unicodeMode"`
-	ColorBg       bool   `json:"colorBg"`
-	SelectionMode string `json:"selectionMode"`
-	CustomChars   string `json:"customChars"`
+	ColorBg        bool    `json:"colorBg"`
+	FgBgThreshold  float64 `json:"fgBgThreshold"`
+	SelectionMode  string  `json:"selectionMode"`
+	CustomChars    string  `json:"customChars"`
 }
 
 type SizeConfig struct {
@@ -118,12 +127,12 @@ var unicodeModeFromName = map[string]characters.State{
 }
 
 var selectionModeNames = map[characters.State]string{
-	characters.DarkToLight: "DarkToLight",
+	characters.Variance: "DarkToLight",
 	characters.Sequence:    "Sequence",
 	characters.Random:      "Random",
 }
 var selectionModeFromName = map[string]characters.State{
-	"DarkToLight": characters.DarkToLight,
+	"DarkToLight": characters.Variance,
 	"Sequence":    characters.Sequence,
 	"Random":      characters.Random,
 }
@@ -182,7 +191,8 @@ func (m Model) ExportConfig() Config {
 			Mode:          charModeNames[mode],
 			AsciiMode:     asciiModeNames[charMode],
 			UnicodeMode:   unicodeModeNames[charMode],
-			ColorBg:       colorBg,
+			ColorBg:        colorBg,
+			FgBgThreshold:  m.Characters.FgBgThreshold(),
 			SelectionMode: selectionModeNames[selMode],
 			CustomChars:   string(customChars),
 		},
@@ -195,6 +205,12 @@ func (m Model) ExportConfig() Config {
 		Adjust: AdjustConfig{
 			Brightness: m.Adjust.Brightness(),
 			Contrast:   m.Adjust.Contrast(),
+		},
+		TextStyle: TextStyleConfig{
+			Bold:          m.TextStyle.Bold(),
+			Italic:        m.TextStyle.Italic(),
+			Underline:     m.TextStyle.Underline(),
+			Strikethrough: m.TextStyle.Strikethrough(),
 		},
 		Advanced: AdvancedConfig{
 			SamplingFunction:   m.Advanced.SamplingFunctionName(),
@@ -236,11 +252,16 @@ func (m *Model) ApplyConfig(cfg Config) {
 	unicodeMode := unicodeModeFromName[cfg.Characters.UnicodeMode]
 	selMode := selectionModeFromName[cfg.Characters.SelectionMode]
 	m.Characters.SetConfig(charMode, asciiMode, unicodeMode, selMode, cfg.Characters.ColorBg, cfg.Characters.CustomChars)
+	if cfg.Characters.FgBgThreshold > 0 {
+		m.Characters.SetFgBgThreshold(cfg.Characters.FgBgThreshold)
+	}
 
 	sizeMode := sizeModeFromName[cfg.Size.Mode]
 	m.Size.SetConfig(sizeMode, cfg.Size.Width, cfg.Size.Height, cfg.Size.CharRatio)
 
 	m.Adjust.SetConfig(cfg.Adjust.Brightness, cfg.Adjust.Contrast)
+
+	m.TextStyle.SetConfig(cfg.TextStyle.Bold, cfg.TextStyle.Italic, cfg.TextStyle.Underline, cfg.TextStyle.Strikethrough)
 
 	ditherMode := ditherModeFromName[cfg.Advanced.DitherMode]
 	m.Advanced.SetConfig(cfg.Advanced.SamplingFunction, cfg.Advanced.Dithering, cfg.Advanced.Serpentine, ditherMode, cfg.Advanced.DitherMatrix, cfg.Advanced.ClusteredDotMatrix, cfg.Advanced.BayerSize, cfg.Advanced.DitherStrength)
@@ -293,7 +314,8 @@ func DefaultConfig() Config {
 			Mode:          "Unicode",
 			UnicodeMode:   "Half",
 			AsciiMode:     "AZ",
-			ColorBg:       true,
+			ColorBg:        true,
+			FgBgThreshold:  0.15,
 			SelectionMode: "DarkToLight",
 			CustomChars:   "/%A",
 		},

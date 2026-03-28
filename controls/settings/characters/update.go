@@ -29,7 +29,7 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeLight: UnicodeShadeMed,
 		UnicodeShadeMed:   UnicodeShadeHeavy,
 		ColorBgOff:          ColorBgOn,
-		DarkToLight:       Sequence,
+		Variance:       Sequence,
 		Sequence:          Random,
 	},
 	Left: {
@@ -45,7 +45,7 @@ var navMap = map[Direction]map[State]State{
 		UnicodeHalf:       UnicodeFull,
 		ColorBgOn:          ColorBgOff,
 		Random:            Sequence,
-		Sequence:          DarkToLight,
+		Sequence:          Variance,
 	},
 	Up: {
 		Ascii:             ColorBgOff,
@@ -62,17 +62,17 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeMed:   Unicode,
 		UnicodeShadeHeavy: Unicode,
 		SymbolsForm:       Custom,
-		DarkToLight:       SymbolsForm,
+		Variance:       SymbolsForm,
 		Sequence:          SymbolsForm,
 		Random:            SymbolsForm,
 	},
 	Down: {
-		ColorBgOff:    Custom,
-		ColorBgOn:    Custom,
+		ColorBgOff:  Ascii,
+		ColorBgOn:   Ascii,
 		Ascii:       AsciiAz,
 		Unicode:     UnicodeShadeMed,
 		Custom:      SymbolsForm,
-		SymbolsForm: DarkToLight,
+		SymbolsForm: Variance,
 	},
 }
 
@@ -80,6 +80,23 @@ var (
 	asciiCharModeMap   = map[State]bool{AsciiAz: true, AsciiNums: true, AsciiSpec: true, AsciiAll: true}
 	unicodeCharModeMap = map[State]bool{UnicodeFull: true, UnicodeHalf: true, UnicodeQuart: true, UnicodeShadeLight: true, UnicodeShadeMed: true, UnicodeShadeHeavy: true}
 )
+
+func (m Model) handleThresholdFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.thresholdInput.Blur()
+			m.fgBgThreshold = m.FgBgThreshold()
+			return m, event.StartRenderToViewCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.thresholdInput.Blur()
+		}
+	}
+
+	var cmd tea.Cmd
+	m.thresholdInput, cmd = m.thresholdInput.Update(msg)
+	return m, cmd
+}
 
 func (m Model) handleSymbolsFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
@@ -115,10 +132,13 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case Custom:
 		m.mode = Custom
 		m.charControls = Custom
+	case ThresholdForm:
+		m.thresholdInput.Focus()
+		return m, nil
 	case SymbolsForm:
 		m.mode = Custom
 		m.customInput.Focus()
-	case DarkToLight, Sequence, Random:
+	case Variance, Sequence, Random:
 		m.selectionMode = m.active
 	case ColorBgOff:
 		m.colorBg = false
@@ -154,6 +174,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Up):
+		// ThresholdForm goes up to the row above it in the current tab
+		if m.focus == ThresholdForm {
+			switch m.charControls {
+			case Ascii:
+				return m.setFocus(AsciiAz)
+			case Custom:
+				return m.setFocus(m.selectionMode)
+			}
+		}
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
@@ -161,12 +190,20 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
-		// Activate tab if focused but not active before navigating into its content
+		// Focused but inactive tabs don't navigate on down
 		switch m.focus {
 		case Ascii, Unicode, Custom:
 			if m.charControls != m.focus {
-				m.charControls = m.focus
-				m.mode = m.focus
+				return m, nil
+			}
+		}
+		// Navigate down to ThresholdForm from Ascii buttons or Custom selection modes (when visible)
+		if m.colorBg {
+			if _, ok := asciiCharModeMap[m.focus]; ok && m.charControls == Ascii {
+				return m.setFocus(ThresholdForm)
+			}
+			if m.selectionMode == Variance && (m.focus == Variance || m.focus == Sequence || m.focus == Random) {
+				return m.setFocus(ThresholdForm)
 			}
 		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {

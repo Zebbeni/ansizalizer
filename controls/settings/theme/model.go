@@ -117,8 +117,8 @@ func (m *Model) SetThemeByName(name string) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.active = m.focus
-	style.SetTheme(stateToTheme[m.active])
-	return m, event.StartRenderToViewCmd
+	themeName := style.ThemeNames[stateToTheme[m.active]]
+	return m, event.BuildCheckThemeCmd(style.PaletteColors, themeName)
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {

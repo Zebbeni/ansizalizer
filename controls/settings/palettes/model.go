@@ -107,6 +107,7 @@ func (m Model) IsPaletted() bool {
 }
 
 func (m *Model) RefreshStyles() {
+	m.Loader.FileBrowser.RefreshStyles()
 	m.Lospec.RefreshStyles()
 }
 

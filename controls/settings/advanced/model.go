@@ -120,6 +120,10 @@ func (m *Model) SetConfig(samplingName string, doDither, doSerpentine bool, dith
 	m.dithering.SetFullConfig(doDither, doSerpentine, ditherMode, matrixName, clusteredDotName, bayerSize, strength)
 }
 
+func (m *Model) RefreshStyles() {
+	m.sampling.SetListActive(m.sampling.IsActive)
+}
+
 func (m *Model) ResetFocus() {
 	if m.ShowDithering {
 		m.focus = Dithering

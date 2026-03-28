@@ -133,8 +133,14 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	case key.Matches(msg, event.KeyMap.Down):
 		switch m.focus {
 		case LoadTabSelect:
+			if m.tab != LoadTab {
+				return m, nil // focused but inactive tab
+			}
 			m.focus = LoadInput
 		case SaveTabSelect:
+			if m.tab != SaveTab {
+				return m, nil // focused but inactive tab
+			}
 			m.focus = DirInput
 		case DirInput:
 			if m.dirChosen {

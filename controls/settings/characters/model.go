@@ -1,6 +1,8 @@
 package characters
 
 import (
+	"strconv"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -26,11 +28,12 @@ const (
 	UnicodeShadeMed
 	UnicodeShadeHeavy
 	SymbolsForm
-	DarkToLight
+	Variance
 	Sequence
 	Random
 	ColorBgOff
 	ColorBgOn
+	ThresholdForm
 )
 
 type Model struct {
@@ -40,9 +43,11 @@ type Model struct {
 	charControls  State
 	unicodeMode   State
 	asciiMode     State
-	colorBg       bool
-	selectionMode State
-	customInput   textinput.Model
+	colorBg        bool
+	fgBgThreshold  float64
+	thresholdInput textinput.Model
+	selectionMode  State
+	customInput    textinput.Model
 	ShouldClose   bool
 	IsActive      bool
 	width         int
@@ -56,8 +61,10 @@ func New(w int) Model {
 		charControls:  Unicode,
 		asciiMode:     AsciiAz,
 		unicodeMode:   UnicodeHalf,
-		colorBg:       true,
-		selectionMode: DarkToLight,
+		colorBg:        true,
+		fgBgThreshold:  0.15,
+		thresholdInput: newThresholdInput(0.15),
+		selectionMode:  Variance,
 		customInput:   newInput("Symbols", "/%A"),
 		ShouldClose:   false,
 		IsActive:      false,
@@ -74,6 +81,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case SymbolsForm:
 		if m.customInput.Focused() {
 			return m.handleSymbolsFormUpdate(msg)
+		}
+	case ThresholdForm:
+		if m.thresholdInput.Focused() {
+			return m.handleThresholdFormUpdate(msg)
 		}
 	}
 
@@ -116,6 +127,27 @@ func (m Model) Selected() (State, State, bool, []rune) {
 
 func (m Model) SelectionMode() State {
 	return m.selectionMode
+}
+
+func newThresholdInput(value float64) textinput.Model {
+	input := textinput.New()
+	input.Prompt = " Char Threshold "
+	input.CharLimit = 5
+	input.SetValue(strconv.FormatFloat(value, 'f', 2, 64))
+	return input
+}
+
+func (m Model) FgBgThreshold() float64 {
+	val, err := strconv.ParseFloat(m.thresholdInput.Value(), 64)
+	if err != nil || val <= 0 {
+		return 0.15
+	}
+	return val
+}
+
+func (m *Model) SetFgBgThreshold(t float64) {
+	m.fgBgThreshold = t
+	m.thresholdInput.SetValue(strconv.FormatFloat(t, 'f', 2, 64))
 }
 
 func (m *Model) SetConfig(mode, asciiMode, unicodeMode, selectionMode State, colorBg bool, customChars string) {

@@ -94,12 +94,12 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
-		// Activate tab if focused but not active
+		// Focused but inactive tabs don't navigate on down
 		switch m.focus {
-		case Sampling:
-			m.activeTab = Sampling
-		case Dithering:
-			m.activeTab = Dithering
+		case Sampling, Dithering:
+			if m.activeTab != m.focus {
+				return m, nil
+			}
 		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)

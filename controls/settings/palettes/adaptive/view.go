@@ -13,9 +13,6 @@ var (
 		CountForm: "Colors",
 		IterForm:  "Passes",
 	}
-
-	inputStyle = style.BgStyle().Width(13).AlignHorizontal(lipgloss.Left).PaddingLeft(1)
-
 )
 
 func (m Model) drawTitle() string {
@@ -24,25 +21,25 @@ func (m Model) drawTitle() string {
 }
 
 func (m Model) drawInputs() string {
-	prompt, placeholder := m.getInputColors(CountForm)
-
-	m.countInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
-	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
+	promptStyle, textStyle := m.getInputStyles(CountForm)
+	m.countInput.PromptStyle = promptStyle
+	m.countInput.TextStyle = textStyle
 	if m.countInput.Focused() {
 		m.countInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
 		m.countInput.Cursor.SetMode(cursor.CursorHide)
 	}
 
-	prompt, placeholder = m.getInputColors(IterForm)
-	m.iterInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
-	m.iterInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
+	promptStyle, textStyle = m.getInputStyles(IterForm)
+	m.iterInput.PromptStyle = promptStyle
+	m.iterInput.TextStyle = textStyle
 	if m.iterInput.Focused() {
 		m.iterInput.Cursor.SetMode(cursor.CursorBlink)
 	} else {
 		m.iterInput.Cursor.SetMode(cursor.CursorHide)
 	}
 
+	inputStyle := style.BgStyle().Width(13).AlignHorizontal(lipgloss.Left).PaddingLeft(1)
 	countInput := inputStyle.Render(m.countInput.View())
 	iterInput := inputStyle.Render(m.iterInput.View())
 
@@ -87,13 +84,15 @@ func (m Model) drawSaveButton() string {
 	return style.BgStyle().Width(m.width).PaddingLeft(1).Render(button)
 }
 
-func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
-	if m.IsActive {
-		if m.focus == state {
-			return style.SelectedColor1, style.SelectedColor1
-		} else if m.active == state {
-			return style.NormalColor1, style.NormalColor1
-		}
+func (m Model) getInputStyles(state State) (lipgloss.Style, lipgloss.Style) {
+	promptStyle := style.DimmedTitle.Copy()
+	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	if m.IsActive && m.focus == state {
+		promptStyle = style.SelectedTitle.Copy()
+		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+	} else if m.active == state {
+		promptStyle = style.NormalTitle.Copy()
+		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
 	}
-	return style.DimmedColor1, style.DimmedColor1
+	return promptStyle.Width(8).PaddingLeft(1), textStyle
 }

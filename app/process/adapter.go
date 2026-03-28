@@ -35,6 +35,7 @@ func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansiart.
 		ColorBg:              colorBg,
 		SolidBackgroundColor: solidBg,
 		SelectionMode:        convertSelectionMode(s.Characters.SelectionMode()),
+		FgBgThreshold:        s.Characters.FgBgThreshold(),
 
 		TrueColor:      isTrueColor,
 		AdaptToPalette: s.Colors.AdaptToPalette(),
@@ -50,6 +51,13 @@ func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansiart.
 		BayerSize:          s.Advanced.BayerSize(),
 		DitherStrength:     s.Advanced.DitherStrength(),
 		ClusteredDotMatrix: convertClusteredDotMatrix(s.Advanced.ClusteredDotMatrix()),
+
+		TextStyle: ansiart.TextStyle{
+			Bold:          s.TextStyle.Bold(),
+			Italic:        s.TextStyle.Italic(),
+			Underline:     s.TextStyle.Underline(),
+			Strikethrough: s.TextStyle.Strikethrough(),
+		},
 
 		OutputAlpha: s.Alpha.ShouldOutputAlpha(),
 		TrimAlpha:   s.Alpha.TrimAlpha(),

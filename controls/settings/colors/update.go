@@ -93,6 +93,10 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		// Focused but inactive tab doesn't navigate on down
+		if m.focus == UsePalette && m.mode != UsePalette {
+			return m, cmd
+		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
@@ -104,7 +108,7 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 }
 
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
-	if m.mode == UseTrueColor && focus == Palette {
+	if m.mode == UseTrueColor && (focus == AdaptOn || focus == AdaptOff || focus == Palette) {
 		m.IsActive = false
 		m.ShouldClose = true
 		return m, nil

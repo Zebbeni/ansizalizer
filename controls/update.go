@@ -29,6 +29,7 @@ func (m Model) handleOpenUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 	if m.FileBrowser.ShouldClose {
 		m.FileBrowser.ShouldClose = false
+		m.FileBrowser.SetActive(false)
 		m.active = Menu
 	}
 	return m, cmd
@@ -65,6 +66,10 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, event.KeyMap.Enter):
 			m.active = m.focus
+			m.showing = m.focus
+			if m.focus == Browse {
+				m.FileBrowser.SetActive(true)
+			}
 
 		case key.Matches(msg, event.KeyMap.Nav):
 			switch {
@@ -75,6 +80,15 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			case key.Matches(msg, event.KeyMap.Left):
 				if next, hasNext := navMap[Left][m.focus]; hasNext {
 					m.focus = next
+				}
+			case key.Matches(msg, event.KeyMap.Down):
+				// Re-enter the tab whose content is showing;
+				// focused-but-inactive tabs do not navigate on down.
+				if m.focus == m.showing {
+					m.active = m.focus
+					if m.focus == Browse {
+						m.FileBrowser.SetActive(true)
+					}
 				}
 			}
 

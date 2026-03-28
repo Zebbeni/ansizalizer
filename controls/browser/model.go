@@ -88,6 +88,10 @@ func (m Model) ActiveFilename() string {
 	return filepath.Base(m.ActiveFile)
 }
 
+func (m Model) SelectedFilename() string {
+	return filepath.Base(m.SelectedFile)
+}
+
 func (m *Model) RefreshStyles() {
 	delegate := menu.NewDelegate()
 	for i := range m.lists {

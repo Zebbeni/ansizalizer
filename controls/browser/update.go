@@ -41,14 +41,10 @@ func (m Model) updateActive() (Model, tea.Cmd) {
 		panic("Unexpected list item type")
 	}
 
-	if itm.isDir && m.ActiveDir != itm.path {
+	if itm.isDir {
 		m.ActiveDir = itm.path
-		return m, nil
-	}
-
-	if itm.isDir == false && m.ActiveFile != itm.path {
+	} else {
 		m.ActiveFile = itm.path
-		return m, event.StartRenderToViewCmd
 	}
 
 	return m, nil
@@ -63,11 +59,18 @@ func (m Model) updateSelected() (Model, tea.Cmd) {
 	if itm.isDir {
 		m.SelectedDir = itm.path
 		m = m.addListForDirectory(itm.path)
-	} else {
-		m.SelectedFile = itm.path
-		m.ShouldClose = true
+		return m, nil
 	}
 
+	// First enter on a file: select it and start rendering
+	if m.SelectedFile != itm.path {
+		m.SelectedFile = itm.path
+		m.ActiveFile = itm.path
+		return m, event.StartRenderToViewCmd
+	}
+
+	// Second enter on same file: close browser
+	m.ShouldClose = true
 	return m, nil
 }
 

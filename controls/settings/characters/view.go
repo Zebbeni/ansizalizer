@@ -12,7 +12,7 @@ var (
 	asciiButtonOrder   = []State{AsciiAz, AsciiNums, AsciiSpec, AsciiAll}
 	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy}
 
-	selectionModeOrder = []State{DarkToLight, Sequence, Random}
+	selectionModeOrder = []State{Variance, Sequence, Random}
 
 	stateNames = map[State]string{
 		Ascii:             "Ascii",
@@ -30,7 +30,7 @@ var (
 		UnicodeShadeHeavy: "▓",
 		ColorBgOff:        "FG",
 		ColorBgOn:         "FG + BG",
-		DarkToLight:       "Brightness",
+		Variance:          "Variance",
 		Sequence:          "Repeat",
 		Random:            "Random",
 	}
@@ -63,7 +63,14 @@ func (m Model) drawCharControls() string {
 
 		buttons[i] = lipgloss.NewStyle().Width(buttonWidth).Render(buttonStyle.Copy().Render(stateNames[state]))
 	}
-	return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+
+	if m.charControls == Ascii && m.colorBg {
+		thresholdRow := style.BgStyle().PaddingTop(1).Render(m.drawThresholdInput())
+		return lipgloss.JoinVertical(lipgloss.Left, row, thresholdRow)
+	}
+
+	return row
 }
 
 func (m Model) drawCustomControls() string {
@@ -85,13 +92,19 @@ func (m Model) drawCustomControls() string {
 
 	symbolsRow := m.customInput.View()
 	selectionRow := style.BgStyle().PaddingTop(1).Render(m.drawSelectionMode())
+
+	if m.colorBg && m.selectionMode == Variance {
+		thresholdRow := style.BgStyle().PaddingTop(1).Render(m.drawThresholdInput())
+		return lipgloss.JoinVertical(lipgloss.Center, symbolsRow, selectionRow, thresholdRow)
+	}
+
 	return lipgloss.JoinVertical(lipgloss.Center, symbolsRow, selectionRow)
 }
 
 var modeDescriptions = map[State]string{
-	DarkToLight: "Map chars by brightness",
-	Sequence:    "Repeat chars in order",
-	Random:      "Assign chars randomly",
+	Variance: "Select by color variance left: less, right: more",
+	Sequence: "Repeat chars in order",
+	Random:   "Assign chars randomly",
 }
 
 func (m Model) drawSelectionMode() string {
@@ -108,8 +121,12 @@ func (m Model) drawSelectionMode() string {
 
 	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
-	// Show description for focused mode
-	if desc, ok := modeDescriptions[m.focus]; ok {
+	// Show description for focused mode or when threshold is focused
+	showFocus := m.focus
+	if m.focus == ThresholdForm || m.thresholdInput.Focused() {
+		showFocus = Variance
+	}
+	if desc, ok := modeDescriptions[showFocus]; ok {
 		descInner := style.DimmedTitle.Copy().Italic(true).Render(desc)
 		descText := lipgloss.NewStyle().PaddingTop(1).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(descInner)
 		return lipgloss.JoinVertical(lipgloss.Left, row, descText)
@@ -140,4 +157,32 @@ func (m Model) drawColorsButtons() string {
 	twoButton = style.BgStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(twoButton)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, oneButton, twoButton)
+}
+
+func (m Model) drawThresholdInput() string {
+	promptStyle := style.DimmedTitle.Copy()
+	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	if m.thresholdInput.Focused() {
+		promptStyle = style.SelectedTitle.Copy()
+		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+	} else if m.focus == ThresholdForm && m.IsActive {
+		promptStyle = style.NormalTitle.Copy()
+		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
+	}
+	m.thresholdInput.PromptStyle = promptStyle
+	m.thresholdInput.TextStyle = textStyle
+	if m.thresholdInput.Focused() {
+		m.thresholdInput.Cursor.SetMode(cursor.CursorBlink)
+	} else {
+		m.thresholdInput.Cursor.SetMode(cursor.CursorHide)
+	}
+	thresholdRow := m.thresholdInput.View()
+
+	if m.focus == ThresholdForm || m.thresholdInput.Focused() {
+		desc := style.DimmedTitle.Copy().Italic(true).Render("Variance threshold for displaying characters.")
+		descRow := lipgloss.NewStyle().PaddingLeft(1).PaddingTop(1).Width(m.width - 4).Render(desc)
+		return lipgloss.JoinVertical(lipgloss.Left, thresholdRow, descRow)
+	}
+
+	return thresholdRow
 }

@@ -126,15 +126,11 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Down):
-		// Activate tab if focused but not active before navigating into its content
+		// Focused but inactive tabs don't navigate on down
 		switch m.focus {
 		case Adapt, Load, Lospec:
 			if m.controls != m.focus {
-				m.controls = m.focus
-				m.selected = m.focus
-				if m.focus == Lospec && !m.Lospec.DidInitializeList() {
-					m.Lospec, cmd = m.Lospec.InitializeList()
-				}
+				return m, nil
 			}
 		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {

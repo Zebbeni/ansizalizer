@@ -17,7 +17,7 @@ const (
 )
 
 func (m Model) visibleStates() []State {
-	states := []State{SaveLoad, Theme, Colors, Characters, Size, Adjust, Advanced}
+	states := []State{SaveLoad, Theme, Colors, Characters, Size, Adjust, TextStyle, Advanced}
 	if m.Animation.AnimatedImage {
 		states = append(states, Animation)
 	}
@@ -79,6 +79,17 @@ func (m Model) handleAdjustUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		m.active = None
 		m.Adjust.IsActive = false
 		m.Adjust.ShouldClose = false
+	}
+	return m, cmd
+}
+
+func (m Model) handleTextStyleUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.TextStyle, cmd = m.TextStyle.Update(msg)
+	if m.TextStyle.ShouldClose {
+		m.active = None
+		m.TextStyle.IsActive = false
+		m.TextStyle.ShouldClose = false
 	}
 	return m, cmd
 }
@@ -185,6 +196,8 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.Size.IsActive = true
 	case Adjust:
 		m.Adjust.IsActive = true
+	case TextStyle:
+		m.TextStyle.IsActive = true
 	case Advanced:
 		m.Advanced.IsActive = true
 	case Animation:
@@ -210,6 +223,10 @@ func (m Model) handleCollapse() (Model, tea.Cmd) {
 }
 
 func (m Model) handleEsc() (Model, tea.Cmd) {
+	if m.expanded[m.focus] {
+		delete(m.expanded, m.focus)
+		return m, nil
+	}
 	m.ShouldClose = true
 	return m, nil
 }
@@ -254,6 +271,8 @@ func (m *Model) resetSubMenu(state State) {
 		m.Size.ResetFocus()
 	case Adjust:
 		m.Adjust.ResetFocus()
+	case TextStyle:
+		m.TextStyle.ResetFocus()
 	case Advanced:
 		m.Advanced.ResetFocus()
 	case Animation:

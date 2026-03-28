@@ -72,11 +72,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	paletteToggles := m.drawPaletteToggles()
-	adaptToggle := m.drawAdaptToggle()
 	if m.mode == UseTrueColor {
-		return lipgloss.JoinVertical(lipgloss.Left, paletteToggles, adaptToggle)
+		return paletteToggles
 	}
 
+	adaptToggle := m.drawAdaptToggle()
 	paletteTabs := m.PaletteControls.View()
 	return lipgloss.JoinVertical(lipgloss.Left, paletteToggles, adaptToggle, paletteTabs)
 }

@@ -8,6 +8,19 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
+// CheckThemeMsg is sent when a component changes something that may affect the app theme.
+// The top-level app compares against its current state and applies changes if needed.
+type CheckThemeMsg struct {
+	Palette  color.Palette
+	ThemeName string
+}
+
+func BuildCheckThemeCmd(palette color.Palette, themeName string) tea.Cmd {
+	return func() tea.Msg {
+		return CheckThemeMsg{Palette: palette, ThemeName: themeName}
+	}
+}
+
 type StartRenderToViewMsg bool
 
 func StartRenderToViewCmd() tea.Msg {

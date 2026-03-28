@@ -102,8 +102,8 @@ func New() Model {
 	}
 	style.SetTheme(style.ActiveTheme.Name)
 
-	// Refresh browser delegates after theme is set
-	m.controls.FileBrowser.RefreshStyles()
+	// Refresh all cached styles after theme is set
+	m.controls.RefreshAllStyles()
 
 	return m
 }
@@ -123,6 +123,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.handleCheckSizeMsg()
 	case tea.WindowSizeMsg:
 		return m.handleSizeMsg(msg)
+	case event.CheckThemeMsg:
+		return m.handleCheckTheme(msg)
 	case event.StartRenderToViewMsg:
 		return m.handleStartRenderToViewCmd()
 	case event.FinishRenderToViewMsg:

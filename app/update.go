@@ -16,12 +16,47 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
+	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/app/process"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/prefs"
 	"github.com/Zebbeni/ansizalizer/style"
 )
+
+func (m Model) handleCheckTheme(msg event.CheckThemeMsg) (Model, tea.Cmd) {
+	prevBg := string(style.ActiveTheme.Bg)
+	prevTheme := style.ActiveTheme.Name
+
+	// Update palette colors (don't clear if empty — may be temporarily empty)
+	if len(msg.Palette) > 0 {
+		style.PaletteColors = msg.Palette
+	}
+
+	// Resolve and apply theme
+	if msg.ThemeName != "" {
+		if themeName, ok := style.ThemeFromName[msg.ThemeName]; ok {
+			style.SetTheme(themeName)
+			// Update the theme submenu to match
+			m.controls.Settings.Theme.SetThemeByName(msg.ThemeName)
+		}
+	} else if prevTheme == style.LightOnDarkPaletted || prevTheme == style.DarkOnLightPaletted {
+		// Refresh paletted theme with new palette
+		style.SetTheme(prevTheme)
+	}
+
+	newBg := string(style.ActiveTheme.Bg)
+	var cmds []tea.Cmd
+
+	if prevBg != newBg || prevTheme != style.ActiveTheme.Name {
+		debug.Log("handleCheckTheme: theme changed (bg %s -> %s)", prevBg, newBg)
+		m.controls.RefreshAllStyles()
+		helpCacheBg = ""
+		cmds = append(cmds, event.StartRenderToViewCmd)
+	}
+
+	return m, tea.Batch(cmds...)
+}
 
 func (m Model) handleStartRenderToViewCmd() (Model, tea.Cmd) {
 	m.viewer.WaitingOnRender = true
@@ -31,14 +66,14 @@ func (m Model) handleStartRenderToViewCmd() (Model, tea.Cmd) {
 
 func (m Model) handleFinishRenderToViewMsg(msg event.FinishRenderToViewMsg) (Model, tea.Cmd) {
 	// cut out early if the finished render is for a previously selected image
-	if msg.FilePath != m.controls.FileBrowser.ActiveFile {
+	if msg.FilePath != m.controls.FileBrowser.SelectedFile {
 		return m, nil
 	}
 	var cmd tea.Cmd
 	m.controls.Settings.Alpha.AlphaImage = false
 	m.controls.Settings.Animation.AnimatedImage = false
 	re := regexp.MustCompile(`(?i)\.(png|gif)$`)
-	if re.Match([]byte(m.controls.FileBrowser.ActiveFile)) {
+	if re.Match([]byte(m.controls.FileBrowser.SelectedFile)) {
 		m.controls.Settings.Alpha.AlphaImage = true
 	}
 	m.viewer, cmd = m.viewer.Update(msg)
@@ -47,7 +82,7 @@ func (m Model) handleFinishRenderToViewMsg(msg event.FinishRenderToViewMsg) (Mod
 
 func (m Model) processRenderToViewCmd() tea.Msg {
 	re := regexp.MustCompile(`(?i)\.(png|gif)$`)
-	filePath := m.controls.FileBrowser.ActiveFile
+	filePath := m.controls.FileBrowser.SelectedFile
 
 	colorsString := "true color"
 	alphaString := ""
@@ -133,7 +168,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 }
 
 func (m Model) handleFinishRenderGIFToViewMsg(msg event.FinishRenderGIFToViewMsg) (Model, tea.Cmd) {
-	if msg.FilePath != m.controls.FileBrowser.ActiveFile {
+	if msg.FilePath != m.controls.FileBrowser.SelectedFile {
 		return m, nil
 	}
 	m.controls.Settings.Alpha.AlphaImage = true
@@ -241,7 +276,7 @@ func (m Model) startExportingFile(msg event.StartExportMsg) (Model, tea.Cmd) {
 }
 
 func (m Model) handleStartAdaptingMsg() (Model, tea.Cmd) {
-	filename := m.controls.FileBrowser.ActiveFilename()
+	filename := m.controls.FileBrowser.SelectedFilename()
 	message := fmt.Sprintf("generating palette from %s...", filename)
 	return m, tea.Batch(event.BuildDisplayCmd(message), m.processAdaptingCmd)
 }
@@ -290,7 +325,7 @@ func (m Model) handleLospecResponseMsg(msg event.LospecResponseMsg) (Model, tea.
 }
 
 func (m Model) processAdaptingCmd() tea.Msg {
-	colors, name := adapt.GeneratePalette(m.controls.Settings.Colors.PaletteControls.Adapter, m.controls.FileBrowser.ActiveFile)
+	colors, name := adapt.GeneratePalette(m.controls.Settings.Colors.PaletteControls.Adapter, m.controls.FileBrowser.SelectedFile)
 	return event.FinishAdaptingMsg{
 		Name:   name,
 		Colors: colors,
@@ -331,13 +366,8 @@ func (m Model) handleDebug() (Model, tea.Cmd) {
 }
 
 func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	prevThemeBg := string(style.ActiveTheme.Bg)
 	var cmd tea.Cmd
 	m.controls, cmd = m.controls.Update(msg)
-	// Refresh browser delegate styles if the theme bg changed (e.g. paletted theme)
-	if string(style.ActiveTheme.Bg) != prevThemeBg {
-		m.controls.RefreshBrowserStyles()
-	}
 	m.savePrefs()
 	return m, cmd
 }
@@ -374,13 +404,13 @@ func (m Model) handleCopy() (Model, tea.Cmd) {
 		// we should have a place in the UI where we display errors or processing messages,
 		// and package our desired event to the user in a specific command
 	}
-	filename := m.controls.FileBrowser.ActiveFilename()
+	filename := m.controls.FileBrowser.SelectedFilename()
 	name := strings.Split(filename, ".")[0] // strip extension
 	return m, event.BuildDisplayCmd(fmt.Sprintf("copied %s to clipboard", name))
 }
 
 func (m Model) handleSave() (Model, tea.Cmd) {
-	name := strings.Split(m.controls.FileBrowser.ActiveFilename(), ".")[0]
+	name := strings.Split(m.controls.FileBrowser.SelectedFilename(), ".")[0]
 
 	if m.viewer.IsAnimating() {
 		frames := m.viewer.Frames()

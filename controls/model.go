@@ -34,8 +34,9 @@ var (
 )
 
 type Model struct {
-	active State
-	focus  State
+	active  State
+	focus   State
+	showing State // which tab's content is displayed (persists when returning to tab bar)
 
 	FileBrowser browser.Model
 	Settings    settings.Model
@@ -62,13 +63,14 @@ func New(w int, dirs prefs.Dirs) Model {
 	}
 }
 
-func (m *Model) RefreshBrowserStyles() {
+func (m *Model) RefreshAllStyles() {
 	m.FileBrowser.RefreshStyles()
+	m.Settings.RefreshAllStyles()
 }
 
 func (m Model) DebugState() string {
 	stateNames := map[State]string{Menu: "Menu", Browse: "Browse", Settings: "Settings", Export: "Export"}
-	return fmt.Sprintf("Controls: active=%s focus=%s", stateNames[m.active], stateNames[m.focus])
+	return fmt.Sprintf("Controls: active=%s focus=%s showing=%s", stateNames[m.active], stateNames[m.focus], stateNames[m.showing])
 }
 
 func (m Model) Init() tea.Cmd {
@@ -96,7 +98,13 @@ func (m Model) View() string {
 	buttons := m.drawButtons()
 	var controls string
 
-	switch m.active {
+	// Show the active tab's content, or the showing tab's content when on the tab bar
+	contentState := m.showing
+	if m.active != Menu {
+		contentState = m.active
+	}
+
+	switch contentState {
 	case Browse:
 		browserTitle := m.drawBrowserTitle()
 		controls = lipgloss.JoinVertical(lipgloss.Left, browserTitle, m.FileBrowser.View())
