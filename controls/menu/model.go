@@ -2,7 +2,6 @@ package menu
 
 import (
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -37,11 +36,11 @@ func ItemStyles() (s list.DefaultItemStyles) {
 	s.NormalDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
 	s.SelectedTitle = bg.Copy().Foreground(style.SelectedColor1).Padding(0, 1, 0, 1).
-		Border(lipgloss.NormalBorder(), false, false, false, true).
+		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1).
 		BorderBackground(style.ActiveTheme.Bg)
 	s.SelectedDesc = bg.Copy().Foreground(style.SelectedColor1).MaxHeight(1).Padding(0, 0, 0, 1).
-		Border(lipgloss.NormalBorder(), false, false, false, true).
+		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1).
 		BorderBackground(style.ActiveTheme.Bg)
 

@@ -18,8 +18,12 @@ func (m Model) renderWithBorder(content string, state State, collapsed bool) str
 		AlignHorizontal(lipgloss.Center).
 		Padding(0, 1, 0, 1).
 		Foreground(renderColor)
+	border := lipgloss.RoundedBorder()
+	if m.focus == state && m.active != state {
+		border = style.HeavyBorder()
+	}
 	borderStyle := style.BgStyle().
-		Border(lipgloss.RoundedBorder()).
+		Border(border).
 		BorderForeground(renderColor).
 		BorderBackground(style.ActiveTheme.Bg)
 

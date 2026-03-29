@@ -304,7 +304,7 @@ func Refresh() {
 		Foreground(t.Normal).
 		BorderBackground(t.Bg))
 	FocusButton = bg(lipgloss.NewStyle().
-		BorderStyle(lipgloss.RoundedBorder()).
+		BorderStyle(heavyBorder()).
 		BorderForeground(t.Selected).
 		Foreground(t.Selected).
 		BorderBackground(t.Bg))
@@ -319,7 +319,7 @@ func Refresh() {
 		PaddingLeft(1).
 		Foreground(t.Normal))
 	FocusButtonNode = bg(lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder(), false, false, false, true).
+		Border(heavyBorder(), false, false, false, true).
 		BorderForeground(t.Selected).
 		Foreground(t.Selected).
 		BorderBackground(t.Bg).
@@ -331,5 +331,9 @@ func Refresh() {
 	// Tab styles
 	InactiveTabStyle = bg(lipgloss.NewStyle().Border(InactiveTabBorder, true).BorderBackground(t.Bg))
 	ActiveTabStyle = bg(lipgloss.NewStyle().Border(ActiveTabBorder, true).BorderBackground(t.Bg))
+	FocusTabStyle = bg(lipgloss.NewStyle().Border(FocusTabBorder, true).BorderBackground(t.Bg))
+	FocusActiveTabStyle = bg(lipgloss.NewStyle().Border(FocusActiveTabBorder, true).BorderBackground(t.Bg))
+	InactiveTabOnHeavyStyle = bg(lipgloss.NewStyle().Border(InactiveTabOnHeavyBorder, true).BorderBackground(t.Bg))
 	TabWindowStyle = bg(lipgloss.NewStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0).BorderBackground(t.Bg))
+	TabWindowHeavyStyle = bg(lipgloss.NewStyle().Align(lipgloss.Left).Border(heavyWindowBorder()).UnsetBorderTop().Padding(1, 0).BorderBackground(t.Bg))
 }

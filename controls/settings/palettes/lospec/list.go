@@ -2,7 +2,6 @@ package lospec
 
 import (
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -33,7 +32,7 @@ func ItemStyles() (s list.DefaultItemStyles) {
 	s.NormalDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
 
 	s.SelectedTitle = style.SelectedTitle.Copy().Padding(0, 1, 0, 1).
-		Border(lipgloss.NormalBorder(), false, false, false, true).
+		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1)
 	s.SelectedDesc = style.DimmedParagraph.Copy().MaxHeight(1).Padding(0, 0, 0, 2)
 

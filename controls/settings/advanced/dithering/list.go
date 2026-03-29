@@ -2,7 +2,6 @@ package dithering
 
 import (
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/makeworld-the-better-one/dither/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
@@ -174,7 +173,7 @@ func NewDelegate(isActive bool) list.DefaultDelegate {
 func ItemStylesActive() (s list.DefaultItemStyles) {
 	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
 	s.SelectedTitle = style.SelectedTitle.Copy().Padding(0, 1, 0, 1).
-		Border(lipgloss.NormalBorder(), false, false, false, true).
+		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1)
 	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
 	return s

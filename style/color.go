@@ -31,23 +31,63 @@ var (
 	FocusButtonNode  lipgloss.Style
 	NormalButtonNode lipgloss.Style
 
-	InactiveTabBorder lipgloss.Border
-	ActiveTabBorder   lipgloss.Border
-	InactiveTabStyle  lipgloss.Style
-	ActiveTabStyle    lipgloss.Style
-	TabWindowStyle    lipgloss.Style
+	InactiveTabBorder        lipgloss.Border
+	ActiveTabBorder          lipgloss.Border
+	FocusTabBorder           lipgloss.Border
+	FocusActiveTabBorder     lipgloss.Border
+	InactiveTabOnHeavyBorder lipgloss.Border
+
+	InactiveTabStyle        lipgloss.Style
+	ActiveTabStyle          lipgloss.Style
+	FocusTabStyle           lipgloss.Style
+	FocusActiveTabStyle     lipgloss.Style
+	InactiveTabOnHeavyStyle lipgloss.Style
+	TabWindowStyle          lipgloss.Style
+	TabWindowHeavyStyle     lipgloss.Style
 )
 
 func init() {
-	InactiveTabBorder = TabBorderWithBottom("┴", "─", "┴")
-	ActiveTabBorder = TabBorderWithBottom("┘", " ", "└")
+	InactiveTabBorder = tabBorderWithBottom(lipgloss.RoundedBorder(), "┴", "─", "┴")
+	ActiveTabBorder = tabBorderWithBottom(lipgloss.RoundedBorder(), "┘", " ", "└")
+
+	// Heavy-border variants for focused tabs
+	FocusTabBorder = tabBorderWithBottom(heavyBorder(), "┸", "─", "┸")
+	FocusActiveTabBorder = tabBorderWithBottom(heavyBorder(), "┛", " ", "┗")
+
+	// Inactive tab sitting on a heavy-bordered content window
+	InactiveTabOnHeavyBorder = tabBorderWithBottom(lipgloss.RoundedBorder(), "┷", "━", "┷")
 	Refresh()
 }
 
-func TabBorderWithBottom(left, middle, right string) lipgloss.Border {
-	border := lipgloss.RoundedBorder()
-	border.BottomLeft = left
-	border.Bottom = middle
-	border.BottomRight = right
-	return border
+// HeavyBorder returns a border using heavy box-drawing characters (┏━┓┃┗┛).
+func HeavyBorder() lipgloss.Border {
+	return heavyBorder()
+}
+
+func heavyWindowBorder() lipgloss.Border {
+	b := heavyBorder()
+	b.Top = ""
+	b.TopLeft = ""
+	b.TopRight = ""
+	return b
+}
+
+func heavyBorder() lipgloss.Border {
+	return lipgloss.Border{
+		Top:         "━",
+		Bottom:      "━",
+		Left:        "┃",
+		Right:       "┃",
+		TopLeft:     "┏",
+		TopRight:    "┓",
+		BottomLeft:  "┗",
+		BottomRight: "┛",
+	}
+}
+
+func tabBorderWithBottom(base lipgloss.Border, left, middle, right string) lipgloss.Border {
+	base.BottomLeft = left
+	base.Bottom = middle
+	base.BottomRight = right
+	return base
 }

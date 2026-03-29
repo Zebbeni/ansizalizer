@@ -8,16 +8,7 @@ import (
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-var (
-	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
-	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
-	docStyle          = style.BgStyle().Padding(0)
-	inactiveTabStyle  = style.BgStyle().Border(inactiveTabBorder, true)
-	activeTabStyle    = style.BgStyle().Border(activeTabBorder, true)
-	focusTabStyle     = style.ActiveTabStyle.Copy().BorderForeground(style.SelectedColor1)
-	windowStyle       = style.BgStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0)
-	stateNames        = map[State]string{Sampling: "Sampling", Dithering: "Dithering"}
-)
+var stateNames = map[State]string{Sampling: "Sampling", Dithering: "Dithering"}
 
 func (m Model) drawTabs() string {
 	doc := strings.Builder{}
@@ -33,38 +24,73 @@ func (m Model) drawTabs() string {
 		borderColor = style.NormalColor1
 	}
 
+	focusIsTab := m.focus == Sampling || m.focus == Dithering
+	focusedTabIsActive := focusIsTab && m.focus == m.activeTab
+	focusIsContent := m.IsActive && !focusIsTab
+	useDoubleContent := m.IsActive && (focusedTabIsActive || focusIsContent)
+
 	for i, t := range tabs {
-		var tabStyle lipgloss.Style
-		isFirst, isLast, isActive, isActiveTab := i == 0, i == len(tabs)-1, m.focus == t, m.activeTab == t
+		isFirst, isLast := i == 0, i == len(tabs)-1
+		isFocused := m.focus == t
+		isActiveTab := m.activeTab == t
 
 		fgColor := style.DimmedColor2
 		if m.IsActive {
-			if isActive {
+			if isFocused {
 				fgColor = style.SelectedColor1
 			} else {
 				fgColor = style.DimmedColor1
 			}
 		} else {
-			if isActive {
+			if isFocused {
 				fgColor = style.NormalColor2
 			}
 		}
 
-		if m.activeTab == t {
+		var tabStyle lipgloss.Style
+		if m.IsActive && isFocused && isActiveTab {
+			tabStyle = style.FocusActiveTabStyle.Copy()
+		} else if m.IsActive && isFocused {
+			tabStyle = style.FocusTabStyle.Copy()
+		} else if isActiveTab && useDoubleContent {
+			tabStyle = style.FocusActiveTabStyle.Copy()
+		} else if isActiveTab {
 			tabStyle = style.ActiveTabStyle.Copy()
+		} else if useDoubleContent {
+			tabStyle = style.InactiveTabOnHeavyStyle.Copy()
 		} else {
 			tabStyle = style.InactiveTabStyle.Copy()
 		}
 
 		border, _, _, _, _ := tabStyle.GetBorder()
-		if isFirst && isActiveTab {
-			border.BottomLeft = "│"
-		} else if isFirst && !isActiveTab {
-			border.BottomLeft = "├"
-		} else if isLast && isActiveTab {
-			border.BottomRight = "└"
-		} else if isLast && !isActiveTab {
-			border.BottomRight = "┴"
+		if useDoubleContent {
+			if isFirst && isActiveTab {
+				border.BottomLeft = "┃"
+			} else if isFirst {
+				border.BottomLeft = "┢"
+			}
+			if isLast && isActiveTab {
+				border.BottomRight = "┗"
+			} else if isLast && isFocused {
+				border.BottomRight = "┸"
+			} else if isLast {
+				border.BottomRight = "┷"
+			}
+		} else {
+			if isFirst && isActiveTab {
+				border.BottomLeft = "│"
+			} else if isFirst && m.IsActive && isFocused {
+				border.BottomLeft = "┞"
+			} else if isFirst {
+				border.BottomLeft = "├"
+			}
+			if isLast && isActiveTab {
+				border.BottomRight = "└"
+			} else if isLast && m.IsActive && isFocused {
+				border.BottomRight = "┸"
+			} else if isLast {
+				border.BottomRight = "┴"
+			}
 		}
 
 		tabStyle = tabStyle.Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Foreground(fgColor)
@@ -74,9 +100,14 @@ func (m Model) drawTabs() string {
 	tabBlock := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 	extW, extH := max(m.width-lipgloss.Width(tabBlock)-2, 0), 1
 
-	border := lipgloss.Border{BottomLeft: "─", Bottom: "─", BottomRight: "┐"}
+	var extBorder lipgloss.Border
+	if useDoubleContent {
+		extBorder = lipgloss.Border{BottomLeft: "━", Bottom: "━", BottomRight: "┓"}
+	} else {
+		extBorder = lipgloss.Border{BottomLeft: "─", Bottom: "─", BottomRight: "┐"}
+	}
 
-	extendedStyle := style.TabWindowStyle.Copy().Border(border).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
+	extendedStyle := style.TabWindowStyle.Copy().Border(extBorder).BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Padding(0)
 	extended := extendedStyle.Copy().Width(extW).Height(extH).Render("")
 	renderedTabs = append(renderedTabs, extended)
 
@@ -84,9 +115,14 @@ func (m Model) drawTabs() string {
 	doc.WriteString(row)
 	doc.WriteString("\n")
 
+	winStyle := style.TabWindowStyle
+	if useDoubleContent {
+		winStyle = style.TabWindowHeavyStyle
+	}
+
 	content := m.drawTabContent()
-	doc.WriteString(style.TabWindowStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - style.TabWindowStyle.GetHorizontalFrameSize()).Render(content))
-	return docStyle.Render(doc.String())
+	doc.WriteString(winStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - winStyle.GetHorizontalFrameSize()).Render(content))
+	return style.BgStyle().Padding(0).Render(doc.String())
 }
 
 func (m Model) drawTabContent() string {
