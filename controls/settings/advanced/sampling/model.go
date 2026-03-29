@@ -76,5 +76,5 @@ func (m Model) View() string {
 	prompt := style.DimmedTitle.Copy().Render("Select Method")
 	menu := m.list.View()
 	content := lipgloss.JoinVertical(lipgloss.Left, prompt, menu)
-	return lipgloss.NewStyle().Padding(0, 1).Render(content)
+	return content
 }

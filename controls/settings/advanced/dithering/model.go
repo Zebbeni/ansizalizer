@@ -135,7 +135,7 @@ func (m Model) View() string {
 		parts = append(parts, m.drawModeTabs())
 	}
 	content := lipgloss.JoinVertical(lipgloss.Left, parts...)
-	return lipgloss.NewStyle().Padding(0, 1).Render(content)
+	return content
 }
 
 func (m Model) Settings() (bool, bool, dither.ErrorDiffusionMatrix) {

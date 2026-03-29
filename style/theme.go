@@ -229,8 +229,13 @@ func ApplyBg(content string, width int) string {
 	r, g, b := int(math.Round(rf*255)), int(math.Round(gf*255)), int(math.Round(bf*255))
 	bgEsc := fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r, g, b)
 
-	// Replace every reset with reset+bg, so subsequent spaces carry the bg
+	// Replace every reset with reset+bg, so subsequent spaces carry the bg.
+	// lipgloss v2 uses \x1b[m (bare SGR reset) instead of \x1b[0m.
+	// Replace the longer form first to avoid double-matching.
 	result := strings.ReplaceAll(content, "\x1b[0m", "\x1b[0m"+bgEsc)
+	result = strings.ReplaceAll(result, "\x1b[m", "\x1b[m"+bgEsc)
+	// Clean up any double bg injections from the above
+	result = strings.ReplaceAll(result, bgEsc+bgEsc, bgEsc)
 
 	// Also prepend bg to the very start so leading spaces have bg
 	result = bgEsc + result
