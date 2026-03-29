@@ -1,10 +1,10 @@
 package lospec
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
-	"github.com/charmbracelet/bubbles/textinput"
+	"charm.land/bubbles/v2/textinput"
 )
 
 var (
@@ -14,12 +14,15 @@ var (
 
 // TODO: This is basically the same as we have in adaptive. Maybe generalize?
 func newInput(state State, value string) textinput.Model {
-	textinput.New()
 	input := textinput.New()
 	input.Prompt = stateNames[state]
-	input.PromptStyle = promptStyle
-	input.PlaceholderStyle = placeholderStyle
-	input.Cursor.Blink = true
+	styles := input.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Blurred.Prompt = promptStyle
+	styles.Focused.Placeholder = placeholderStyle
+	styles.Blurred.Placeholder = placeholderStyle
+	styles.Cursor.Blink = true
+	input.SetStyles(styles)
 	input.SetValue(value)
 	return input
 }

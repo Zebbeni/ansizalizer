@@ -3,8 +3,8 @@ package app
 import (
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -103,7 +103,7 @@ func (m Model) renderSplash() string {
 	}
 
 	centered := lipgloss.Place(m.w, m.h, lipgloss.Center, lipgloss.Center, splash,
-		lipgloss.WithWhitespaceBackground(style.ActiveTheme.Bg))
+		lipgloss.WithWhitespaceStyle(lipgloss.NewStyle().Background(style.ActiveTheme.Bg)))
 
 	return appStyle.Render(centered)
 }

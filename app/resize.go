@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/term"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 // There is (currently) no support on Windows for detecting resize events, so

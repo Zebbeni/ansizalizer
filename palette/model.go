@@ -4,8 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/style"
@@ -27,14 +26,6 @@ func New(name string, colors color.Palette, w, h int) Model {
 	}
 }
 
-func (m Model) Init() tea.Cmd {
-	return nil
-}
-
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return m, nil
-}
-
 func (m Model) View() string {
 	title := style.SelectedTitle.Render(m.name)
 	description := m.Description()
@@ -54,17 +45,12 @@ func (m Model) Description() string {
 	runes := make([]string, len(m.colors)/2+1)
 	rows := make([]string, 0, m.height)
 	for idx := 0; idx < len(m.colors); idx += 2 {
-		var fg, bg colorful.Color
-		var lipFg, lipBg lipgloss.Color
-
-		fg, _ = colorful.MakeColor(m.colors[idx])
-		lipFg = lipgloss.Color(fg.Hex())
-		blockStyle := lipgloss.NewStyle().Foreground(lipFg)
+		fg, _ := colorful.MakeColor(m.colors[idx])
+		blockStyle := lipgloss.NewStyle().Foreground(lipgloss.Color(fg.Hex()))
 
 		if idx+1 < len(m.colors) {
-			bg, _ = colorful.MakeColor(m.colors[idx+1])
-			lipBg = lipgloss.Color(bg.Hex())
-			blockStyle = blockStyle.Copy().Background(lipBg)
+			bg, _ := colorful.MakeColor(m.colors[idx+1])
+			blockStyle = blockStyle.Copy().Background(lipgloss.Color(bg.Hex()))
 		}
 		runes[idx/2] = blockStyle.Render(string('▀'))
 	}

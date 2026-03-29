@@ -1,6 +1,6 @@
 package app
 
-import "github.com/charmbracelet/bubbles/list"
+import "charm.land/bubbles/v2/list"
 
 type item struct {
 	name  string

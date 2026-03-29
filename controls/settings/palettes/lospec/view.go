@@ -1,8 +1,9 @@
 package lospec
 
 import (
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/lipgloss"
+	"image/color"
+
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -40,29 +41,30 @@ func (m Model) drawColorsInput() string {
 	prompt, placeholder := m.getInputColors(CountForm)
 
 	m.countInput.CharLimit = 3
-	m.countInput.Width = 3
-	m.countInput.PromptStyle = m.countInput.PromptStyle.Foreground(prompt)
-	m.countInput.TextStyle = m.countInput.TextStyle.Foreground(prompt).MaxWidth(3)
-	m.countInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.countInput.Focused() {
-		m.countInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.countInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	m.countInput.SetWidth(3)
+	cStyles := m.countInput.Styles()
+	cStyles.Focused.Prompt = cStyles.Focused.Prompt.Foreground(prompt)
+	cStyles.Focused.Text = cStyles.Focused.Text.Foreground(prompt).MaxWidth(3)
+	cStyles.Focused.Placeholder = cStyles.Focused.Placeholder.Foreground(placeholder)
+	cStyles.Blurred.Prompt = cStyles.Blurred.Prompt.Foreground(prompt)
+	cStyles.Blurred.Text = cStyles.Blurred.Text.Foreground(prompt).MaxWidth(3)
+	cStyles.Blurred.Placeholder = cStyles.Blurred.Placeholder.Foreground(placeholder)
+	cStyles.Cursor.Blink = m.countInput.Focused()
+	m.countInput.SetStyles(cStyles)
 	return style.BgStyle().Width(11).Render(m.countInput.View())
 }
 
 func (m Model) drawTagInput() string {
 	prompt, placeholder := m.getInputColors(TagForm)
 
-	m.tagInput.Width = m.width - 5
-	m.tagInput.PromptStyle = m.countInput.PromptStyle.Copy().Foreground(prompt)
-	m.tagInput.PlaceholderStyle = m.countInput.PlaceholderStyle.Copy().Foreground(placeholder)
-	if m.tagInput.Focused() {
-		m.tagInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.tagInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	m.tagInput.SetWidth(m.width - 5)
+	tStyles := m.tagInput.Styles()
+	tStyles.Focused.Prompt = tStyles.Focused.Prompt.Foreground(prompt)
+	tStyles.Focused.Placeholder = tStyles.Focused.Placeholder.Foreground(placeholder)
+	tStyles.Blurred.Prompt = tStyles.Blurred.Prompt.Foreground(prompt)
+	tStyles.Blurred.Placeholder = tStyles.Blurred.Placeholder.Foreground(placeholder)
+	tStyles.Cursor.Blink = m.tagInput.Focused()
+	m.tagInput.SetStyles(tStyles)
 	return m.tagInput.View()
 }
 
@@ -110,7 +112,7 @@ func (m Model) drawPaletteList() string {
 	return m.paletteList.View()
 }
 
-func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
+func (m Model) getInputColors(state State) (color.Color, color.Color) {
 	if m.IsActive {
 		if m.focus == state {
 			return style.SelectedColor1, style.SelectedColor1

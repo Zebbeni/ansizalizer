@@ -3,7 +3,7 @@ package style
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 type BoxWithLabel struct {
@@ -67,14 +67,14 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 		top = topLeft + topBorderStyler(gapLeft) + renderedLabel + topBorderStyler(gapRight) + topRight
 		bottom = b.BoxStyle.Copy().
 			BorderTop(false).
-			Width(width).
+			Width(width + borderWidth).
 			Render(paddedContent)
 	case lipgloss.Bottom:
 		strings.Repeat(border.Bottom, cellsShort)
 		bottom = botLeft + bottomBorderStyler(gapLeft) + renderedLabel + bottomBorderStyler(gapRight) + botRight
 		top = b.BoxStyle.Copy().
 			BorderBottom(false).
-			Width(width).
+			Width(width + borderWidth).
 			Render(paddedContent)
 	}
 

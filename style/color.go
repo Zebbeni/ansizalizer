@@ -1,17 +1,21 @@
 package style
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"image/color"
+
+	"charm.land/lipgloss/v2"
+)
 
 // These are all set by Refresh() from the active theme.
 // They are kept as exported vars so existing code continues to work.
 var (
-	NormalColor1   lipgloss.TerminalColor
-	NormalColor2   lipgloss.TerminalColor
-	SelectedColor1 lipgloss.TerminalColor
-	SelectedColor2 lipgloss.TerminalColor
-	ExtraDimColor  lipgloss.TerminalColor
-	DimmedColor1   lipgloss.TerminalColor
-	DimmedColor2   lipgloss.TerminalColor
+	NormalColor1   color.Color
+	NormalColor2   color.Color
+	SelectedColor1 color.Color
+	SelectedColor2 color.Color
+	ExtraDimColor  color.Color
+	DimmedColor1   color.Color
+	DimmedColor2   color.Color
 
 	NormalTitle     lipgloss.Style
 	NormalParagraph lipgloss.Style

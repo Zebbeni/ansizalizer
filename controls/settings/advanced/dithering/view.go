@@ -3,8 +3,7 @@ package dithering
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -175,7 +174,7 @@ func (m Model) drawModeTabs() string {
 		winStyle = style.TabWindowHeavyStyle
 	}
 	content := m.drawModeContent()
-	doc.WriteString(winStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - winStyle.GetHorizontalFrameSize()).Render(content))
+	doc.WriteString(winStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row)).Render(content))
 	return doc.String()
 }
 
@@ -230,13 +229,14 @@ func (m Model) drawStrength() string {
 		promptStyle = style.NormalTitle.Copy()
 		textStyle = style.BgStyle().Foreground(style.NormalColor1)
 	}
-	m.strengthInput.PromptStyle = promptStyle
-	m.strengthInput.TextStyle = textStyle
-	if m.strengthInput.Focused() {
-		m.strengthInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.strengthInput.Cursor.SetMode(cursor.CursorHide)
-	}
+
+	styles := m.strengthInput.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Focused.Text = textStyle
+	styles.Blurred.Prompt = promptStyle
+	styles.Blurred.Text = textStyle
+	styles.Cursor.Blink = m.strengthInput.Focused()
+	m.strengthInput.SetStyles(styles)
 	return m.strengthInput.View()
 }
 

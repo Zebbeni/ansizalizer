@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"encoding/json"
 	"os"
@@ -204,9 +204,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // ├────────────────┴────────────────────────────────────────┤
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	if m.state == Splash {
-		return m.renderSplash()
+		return tea.NewView(m.renderSplash())
 	}
 
 	controls := style.ApplyBg(m.renderControls(), 0)
@@ -224,5 +224,5 @@ func (m Model) View() string {
 		appStyle = appStyle.Background(style.ActiveTheme.Bg)
 	}
 
-	return appStyle.Render(all)
+	return tea.NewView(appStyle.Render(all))
 }

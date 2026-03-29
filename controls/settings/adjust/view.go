@@ -1,10 +1,10 @@
 package adjust
 
 import (
+	"image/color"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -15,30 +15,32 @@ var (
 
 func (m Model) drawBrightnessForm() string {
 	prompt, text := m.getInputColors(BrightnessForm)
-	m.brightnessInput.Width = 4
-	m.brightnessInput.PromptStyle = m.brightnessInput.PromptStyle.Copy().Foreground(prompt)
-	m.brightnessInput.TextStyle = m.brightnessInput.TextStyle.Copy().Foreground(text)
-	m.brightnessInput.Cursor.TextStyle = style.BgStyle().Foreground(text)
-	if m.brightnessInput.Focused() {
-		m.brightnessInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.brightnessInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	m.brightnessInput.SetWidth(4)
+
+	styles := m.brightnessInput.Styles()
+	styles.Focused.Prompt = styles.Focused.Prompt.Foreground(prompt)
+	styles.Blurred.Prompt = styles.Blurred.Prompt.Foreground(prompt)
+	styles.Focused.Text = styles.Focused.Text.Foreground(text)
+	styles.Blurred.Text = styles.Blurred.Text.Foreground(text)
+	styles.Cursor.Color = text
+	styles.Cursor.Blink = m.brightnessInput.Focused()
+	m.brightnessInput.SetStyles(styles)
 
 	return inputStyle.Render(m.brightnessInput.View())
 }
 
 func (m Model) drawContrastForm() string {
 	prompt, text := m.getInputColors(ContrastForm)
-	m.contrastInput.Width = 4
-	m.contrastInput.PromptStyle = m.contrastInput.PromptStyle.Copy().Foreground(prompt)
-	m.contrastInput.TextStyle = m.contrastInput.TextStyle.Copy().Foreground(text)
-	m.contrastInput.Cursor.TextStyle = style.BgStyle().Foreground(text)
-	if m.contrastInput.Focused() {
-		m.contrastInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.contrastInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	m.contrastInput.SetWidth(4)
+
+	styles := m.contrastInput.Styles()
+	styles.Focused.Prompt = styles.Focused.Prompt.Foreground(prompt)
+	styles.Blurred.Prompt = styles.Blurred.Prompt.Foreground(prompt)
+	styles.Focused.Text = styles.Focused.Text.Foreground(text)
+	styles.Blurred.Text = styles.Blurred.Text.Foreground(text)
+	styles.Cursor.Color = text
+	styles.Cursor.Blink = m.contrastInput.Focused()
+	m.contrastInput.SetStyles(styles)
 
 	return inputStyle.Render(m.contrastInput.View())
 }
@@ -69,7 +71,7 @@ func (m Model) drawSlider(state State, value int) string {
 	return sliderStyle.Render(left + "|" + right)
 }
 
-func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
+func (m Model) getInputColors(state State) (color.Color, color.Color) {
 	if m.IsActive && m.focus == state {
 		if m.active == state {
 			return style.NormalColor1, style.SelectedColor1

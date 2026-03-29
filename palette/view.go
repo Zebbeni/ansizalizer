@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/lucasb-eyer/go-colorful"
 )
 
@@ -12,17 +12,12 @@ func Palette(palette color.Palette, w, h int) string {
 	runes := make([]string, len(palette)/2+1)
 	rows := make([]string, 0, h)
 	for idx := 0; idx < len(palette); idx += 2 {
-		var fg, bg colorful.Color
-		var lipFg, lipBg lipgloss.Color
-
-		fg, _ = colorful.MakeColor(palette[idx])
-		lipFg = lipgloss.Color(fg.Hex())
-		style := lipgloss.NewStyle().Foreground(lipFg)
+		fg, _ := colorful.MakeColor(palette[idx])
+		style := lipgloss.NewStyle().Foreground(lipgloss.Color(fg.Hex()))
 
 		if idx+1 < len(palette) {
-			bg, _ = colorful.MakeColor(palette[idx+1])
-			lipBg = lipgloss.Color(bg.Hex())
-			style = style.Copy().Background(lipBg)
+			bg, _ := colorful.MakeColor(palette[idx+1])
+			style = style.Copy().Background(lipgloss.Color(bg.Hex()))
 		}
 		runes[idx/2] = style.Render(string('▀'))
 	}

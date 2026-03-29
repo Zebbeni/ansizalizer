@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/viewport"
+	"charm.land/bubbles/v2/help"
+	"charm.land/bubbles/v2/viewport"
 
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/style"
@@ -16,7 +16,7 @@ const (
 )
 
 func (m Model) renderControls() string {
-	vp := viewport.New(controlsWidth, m.leftPanelHeight())
+	vp := viewport.New(viewport.WithWidth(controlsWidth), viewport.WithHeight(m.leftPanelHeight()))
 
 	leftContent := m.controls.View()
 
@@ -39,7 +39,7 @@ var (
 )
 
 func (m Model) renderHelp() string {
-	currentBg := string(style.ActiveTheme.Bg)
+	currentBg := style.ColorHex(style.ActiveTheme.Bg)
 	if helpCache != "" && helpCacheW == m.w && helpCacheBg == currentBg {
 		return helpCache
 	}

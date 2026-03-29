@@ -1,8 +1,7 @@
 package characters
 
 import (
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -76,19 +75,20 @@ func (m Model) drawCharControls() string {
 func (m Model) drawCustomControls() string {
 	nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
 	textStyle := style.BgStyle().Foreground(style.DimmedColor1)
+	cursorBlink := false
 	if m.customInput.Focused() {
 		nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
 		textStyle = style.BgStyle().Foreground(style.SelectedColor1)
-		m.customInput.Cursor.SetMode(cursor.CursorBlink)
+		cursorBlink = true
 	} else if m.focus == SymbolsForm {
 		nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
 		textStyle = style.BgStyle().Foreground(style.NormalColor1)
-		m.customInput.Cursor.SetMode(cursor.CursorHide)
-	} else {
-		m.customInput.Cursor.SetMode(cursor.CursorHide)
 	}
-	m.customInput.PromptStyle = nodeStyle
-	m.customInput.TextStyle = textStyle
+	styles := m.customInput.Styles()
+	styles.Focused.Prompt = nodeStyle
+	styles.Focused.Text = textStyle
+	styles.Cursor.Blink = cursorBlink
+	m.customInput.SetStyles(styles)
 
 	symbolsRow := m.customInput.View()
 	selectionRow := style.BgStyle().PaddingTop(1).Render(m.drawSelectionMode())
@@ -162,20 +162,20 @@ func (m Model) drawColorsButtons() string {
 func (m Model) drawThresholdInput() string {
 	promptStyle := style.DimmedTitle.Copy()
 	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	cursorBlink := false
 	if m.thresholdInput.Focused() {
 		promptStyle = style.SelectedTitle.Copy()
 		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+		cursorBlink = true
 	} else if m.focus == ThresholdForm && m.IsActive {
 		promptStyle = style.NormalTitle.Copy()
 		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
 	}
-	m.thresholdInput.PromptStyle = promptStyle
-	m.thresholdInput.TextStyle = textStyle
-	if m.thresholdInput.Focused() {
-		m.thresholdInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.thresholdInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	styles := m.thresholdInput.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Focused.Text = textStyle
+	styles.Cursor.Blink = cursorBlink
+	m.thresholdInput.SetStyles(styles)
 	thresholdRow := m.thresholdInput.View()
 
 	if m.focus == ThresholdForm || m.thresholdInput.Focused() {

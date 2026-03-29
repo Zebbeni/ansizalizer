@@ -3,7 +3,7 @@ package advanced
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -98,7 +98,7 @@ func (m Model) drawTabs() string {
 	}
 
 	tabBlock := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
-	extW, extH := max(m.width-lipgloss.Width(tabBlock)-2, 0), 1
+	extW, extH := max(m.width-lipgloss.Width(tabBlock), 0), 1
 
 	var extBorder lipgloss.Border
 	if useDoubleContent {
@@ -121,7 +121,7 @@ func (m Model) drawTabs() string {
 	}
 
 	content := m.drawTabContent()
-	doc.WriteString(winStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row) - winStyle.GetHorizontalFrameSize()).Render(content))
+	doc.WriteString(winStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(row)).Render(content))
 	return style.BgStyle().Padding(0).Render(doc.String())
 }
 

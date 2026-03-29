@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/atotto/clipboard"
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
@@ -25,7 +25,7 @@ import (
 )
 
 func (m Model) handleCheckTheme(msg event.CheckThemeMsg) (Model, tea.Cmd) {
-	prevBg := string(style.ActiveTheme.Bg)
+	prevBg := style.ColorHex(style.ActiveTheme.Bg)
 	prevTheme := style.ActiveTheme.Name
 
 	// Update palette colors (don't clear if empty — may be temporarily empty)
@@ -45,7 +45,7 @@ func (m Model) handleCheckTheme(msg event.CheckThemeMsg) (Model, tea.Cmd) {
 		style.SetTheme(prevTheme)
 	}
 
-	newBg := string(style.ActiveTheme.Bg)
+	newBg := style.ColorHex(style.ActiveTheme.Bg)
 	var cmds []tea.Cmd
 
 	if prevBg != newBg || prevTheme != style.ActiveTheme.Name {
@@ -126,7 +126,7 @@ func (m Model) processRenderToViewCmd() tea.Msg {
 	// Compute solid bg for non-transparent themes
 	var solidBg *colorful.Color
 	if !style.ActiveTheme.Transparent {
-		hex := string(style.ActiveTheme.Bg)
+		hex := style.ColorHex(style.ActiveTheme.Bg)
 		c, err := colorful.Hex(hex)
 		if err == nil {
 			solidBg = &c
@@ -349,7 +349,7 @@ func (m Model) handleDebug() (Model, tea.Cmd) {
 	b.WriteString(fmt.Sprintf("Theme: %s (transparent=%v bg=%s)\n\n",
 		style.ThemeNames[style.ActiveTheme.Name],
 		style.ActiveTheme.Transparent,
-		string(style.ActiveTheme.Bg)))
+		style.ColorHex(style.ActiveTheme.Bg)))
 
 	// Viewer imgString
 	b.WriteString("=== VIEWER IMG STRING ===\n")
@@ -358,7 +358,7 @@ func (m Model) handleDebug() (Model, tea.Cmd) {
 
 	// Full ANSI output
 	b.WriteString("=== FULL ANSI OUTPUT ===\n")
-	b.WriteString(m.View())
+	b.WriteString(m.View().Content)
 	b.WriteString("\n=== END ===\n")
 
 	_ = os.WriteFile("debug.log", []byte(b.String()), 0644)

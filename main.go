@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/Zebbeni/ansizalizer/app"
 	"github.com/Zebbeni/ansizalizer/event"

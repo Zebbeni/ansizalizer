@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/event"
@@ -77,7 +77,7 @@ func (m Model) buildWrappedView() string {
 	}
 
 	displayHeight := 3
-	renderVP := viewport.New(m.panelW-2, m.panelH-displayHeight-2)
+	renderVP := viewport.New(viewport.WithWidth(m.panelW-2), viewport.WithHeight(m.panelH-displayHeight-2))
 
 	vpRightStyle := style.BgStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
 	rightContent := vpRightStyle.Copy().Width(m.panelW - 2).Height(m.panelH - 4).Render(imgViewer)

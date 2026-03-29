@@ -6,7 +6,7 @@ import (
 	"math"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // ThemeName identifies a color theme.
@@ -51,15 +51,15 @@ type Theme struct {
 	Transparent bool
 
 	// Core colors
-	Bg lipgloss.Color // app background (ignored if Transparent)
-	Fg lipgloss.Color // primary foreground
+	Bg color.Color // app background (ignored if Transparent)
+	Fg color.Color // primary foreground
 
 	// Semantic foreground colors (all used against Bg or transparent)
-	Selected  lipgloss.Color // focused/highlighted elements
-	Normal    lipgloss.Color // active/confirmed elements
-	Dimmed    lipgloss.Color // unfocused elements
-	ExtraDim  lipgloss.Color // very subtle elements (borders, summaries)
-	Subtle    lipgloss.Color // secondary text
+	Selected  color.Color // focused/highlighted elements
+	Normal    color.Color // active/confirmed elements
+	Dimmed    color.Color // unfocused elements
+	ExtraDim  color.Color // very subtle elements (borders, summaries)
+	Subtle    color.Color // secondary text
 }
 
 var themes = map[ThemeName]Theme{
@@ -188,7 +188,7 @@ func colorToFloat(c color.Color) (float64, float64, float64) {
 	return float64(r) / 65535.0, float64(g) / 65535.0, float64(b) / 65535.0
 }
 
-func floatToHex(r, g, b float64) lipgloss.Color {
+func floatToHex(r, g, b float64) color.Color {
 	return lipgloss.Color(fmt.Sprintf("#%02x%02x%02x",
 		int(math.Round(r*255)),
 		int(math.Round(g*255)),
@@ -196,12 +196,21 @@ func floatToHex(r, g, b float64) lipgloss.Color {
 }
 
 // lerpHex interpolates between (r1,g1,b1) and (r2,g2,b2) by t (0=first, 1=second).
-func lerpHex(r1, g1, b1, r2, g2, b2, t float64) lipgloss.Color {
+func lerpHex(r1, g1, b1, r2, g2, b2, t float64) color.Color {
 	return floatToHex(
 		r1+(r2-r1)*t,
 		g1+(g2-g1)*t,
 		b1+(b2-b1)*t,
 	)
+}
+
+// ColorHex returns a hex string representation of a color for comparison/logging.
+func ColorHex(c color.Color) string {
+	if c == nil {
+		return ""
+	}
+	r, g, b, _ := c.RGBA()
+	return fmt.Sprintf("#%02x%02x%02x", r>>8, g>>8, b>>8)
 }
 
 // GetTheme returns the theme for the given name.
@@ -216,8 +225,8 @@ func ApplyBg(content string, width int) string {
 	if ActiveTheme.Transparent {
 		return content
 	}
-	hex := string(ActiveTheme.Bg)
-	r, g, b := hexToRGB(hex)
+	rf, gf, bf := colorToFloat(ActiveTheme.Bg)
+	r, g, b := int(math.Round(rf*255)), int(math.Round(gf*255)), int(math.Round(bf*255))
 	bgEsc := fmt.Sprintf("\x1b[48;2;%d;%d;%dm", r, g, b)
 
 	// Replace every reset with reset+bg, so subsequent spaces carry the bg

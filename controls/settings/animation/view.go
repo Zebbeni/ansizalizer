@@ -1,8 +1,9 @@
 package animation
 
 import (
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/lipgloss"
+	"image/color"
+
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -13,20 +14,21 @@ var (
 
 func (m Model) drawDelayForm() string {
 	prompt, text := m.getInputColors(DelayForm)
-	m.delayInput.Width = 5
-	m.delayInput.PromptStyle = m.delayInput.PromptStyle.Copy().Foreground(prompt)
-	m.delayInput.TextStyle = m.delayInput.TextStyle.Copy().Foreground(text)
-	m.delayInput.Cursor.TextStyle = style.BgStyle().Foreground(text)
-	if m.delayInput.Focused() {
-		m.delayInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.delayInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	m.delayInput.SetWidth(5)
+
+	styles := m.delayInput.Styles()
+	styles.Focused.Prompt = styles.Focused.Prompt.Foreground(prompt)
+	styles.Blurred.Prompt = styles.Blurred.Prompt.Foreground(prompt)
+	styles.Focused.Text = styles.Focused.Text.Foreground(text)
+	styles.Blurred.Text = styles.Blurred.Text.Foreground(text)
+	styles.Cursor.Color = text
+	styles.Cursor.Blink = m.delayInput.Focused()
+	m.delayInput.SetStyles(styles)
 
 	return inputStyle.Render(m.delayInput.View())
 }
 
-func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
+func (m Model) getInputColors(state State) (color.Color, color.Color) {
 	if m.IsActive && m.focus == state {
 		if m.active == state {
 			return style.NormalColor1, style.SelectedColor1

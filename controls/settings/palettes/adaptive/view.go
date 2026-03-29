@@ -1,8 +1,7 @@
 package adaptive
 
 import (
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -22,22 +21,22 @@ func (m Model) drawTitle() string {
 
 func (m Model) drawInputs() string {
 	promptStyle, textStyle := m.getInputStyles(CountForm)
-	m.countInput.PromptStyle = promptStyle
-	m.countInput.TextStyle = textStyle
-	if m.countInput.Focused() {
-		m.countInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.countInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	countStyles := m.countInput.Styles()
+	countStyles.Focused.Prompt = promptStyle
+	countStyles.Focused.Text = textStyle
+	countStyles.Blurred.Prompt = promptStyle
+	countStyles.Blurred.Text = textStyle
+	countStyles.Cursor.Blink = m.countInput.Focused()
+	m.countInput.SetStyles(countStyles)
 
 	promptStyle, textStyle = m.getInputStyles(IterForm)
-	m.iterInput.PromptStyle = promptStyle
-	m.iterInput.TextStyle = textStyle
-	if m.iterInput.Focused() {
-		m.iterInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.iterInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	iterStyles := m.iterInput.Styles()
+	iterStyles.Focused.Prompt = promptStyle
+	iterStyles.Focused.Text = textStyle
+	iterStyles.Blurred.Prompt = promptStyle
+	iterStyles.Blurred.Text = textStyle
+	iterStyles.Cursor.Blink = m.iterInput.Focused()
+	m.iterInput.SetStyles(iterStyles)
 
 	inputStyle := style.BgStyle().Width(13).AlignHorizontal(lipgloss.Left).PaddingLeft(1)
 	countInput := inputStyle.Render(m.countInput.View())

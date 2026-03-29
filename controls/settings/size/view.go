@@ -1,8 +1,9 @@
 package size
 
 import (
-	"github.com/charmbracelet/bubbles/cursor"
-	"github.com/charmbracelet/lipgloss"
+	"image/color"
+
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -56,23 +57,23 @@ func (m Model) drawModeButtons() string {
 
 func (m Model) drawSizeForms() string {
 	prompt, text := m.getInputColors(WidthForm)
-	m.widthInput.Width = 3
-	m.widthInput.PromptStyle = m.widthInput.PromptStyle.Copy().Foreground(prompt)
-	m.widthInput.TextStyle = m.widthInput.TextStyle.Copy().Foreground(text)
-	if m.widthInput.Focused() {
-		m.widthInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.widthInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	m.widthInput.SetWidth(3)
+	wStyles := m.widthInput.Styles()
+	wStyles.Focused.Prompt = wStyles.Focused.Prompt.Foreground(prompt)
+	wStyles.Focused.Text = wStyles.Focused.Text.Foreground(text)
+	wStyles.Blurred.Prompt = wStyles.Blurred.Prompt.Foreground(prompt)
+	wStyles.Blurred.Text = wStyles.Blurred.Text.Foreground(text)
+	wStyles.Cursor.Blink = m.widthInput.Focused()
+	m.widthInput.SetStyles(wStyles)
 
 	prompt, text = m.getInputColors(HeightForm)
-	m.heightInput.PromptStyle = m.heightInput.PromptStyle.Copy().Foreground(prompt)
-	m.heightInput.TextStyle = m.heightInput.TextStyle.Copy().Foreground(text)
-	if m.heightInput.Focused() {
-		m.heightInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.heightInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	hStyles := m.heightInput.Styles()
+	hStyles.Focused.Prompt = hStyles.Focused.Prompt.Foreground(prompt)
+	hStyles.Focused.Text = hStyles.Focused.Text.Foreground(text)
+	hStyles.Blurred.Prompt = hStyles.Blurred.Prompt.Foreground(prompt)
+	hStyles.Blurred.Text = hStyles.Blurred.Text.Foreground(text)
+	hStyles.Cursor.Blink = m.heightInput.Focused()
+	m.heightInput.SetStyles(hStyles)
 
 	width := inputStyle.Render(m.widthInput.View())
 	height := inputStyle.Render(m.heightInput.View())
@@ -82,19 +83,19 @@ func (m Model) drawSizeForms() string {
 
 func (m Model) drawCharRatioForm() string {
 	prompt, text := m.getInputColors(CharRatioForm)
-	m.charRatioInput.Width = 30
-	m.charRatioInput.PromptStyle = m.charRatioInput.PromptStyle.Copy().Width(20).Foreground(prompt)
-	m.charRatioInput.TextStyle = m.charRatioInput.TextStyle.Copy().Foreground(text)
-	if m.charRatioInput.Focused() {
-		m.charRatioInput.Cursor.SetMode(cursor.CursorBlink)
-	} else {
-		m.charRatioInput.Cursor.SetMode(cursor.CursorHide)
-	}
+	m.charRatioInput.SetWidth(30)
+	crStyles := m.charRatioInput.Styles()
+	crStyles.Focused.Prompt = crStyles.Focused.Prompt.Width(20).Foreground(prompt)
+	crStyles.Focused.Text = crStyles.Focused.Text.Foreground(text)
+	crStyles.Blurred.Prompt = crStyles.Blurred.Prompt.Width(20).Foreground(prompt)
+	crStyles.Blurred.Text = crStyles.Blurred.Text.Foreground(text)
+	crStyles.Cursor.Blink = m.charRatioInput.Focused()
+	m.charRatioInput.SetStyles(crStyles)
 
 	return inputStyle.Copy().Width(28).AlignHorizontal(lipgloss.Left).PaddingTop(1).Render(m.charRatioInput.View())
 }
 
-func (m Model) getInputColors(state State) (lipgloss.TerminalColor, lipgloss.TerminalColor) {
+func (m Model) getInputColors(state State) (color.Color, color.Color) {
 	if m.IsActive && m.focus == state {
 		if m.active == state {
 			return style.NormalColor1, style.SelectedColor1

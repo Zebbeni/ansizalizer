@@ -3,8 +3,8 @@ package adjust
 import (
 	"strconv"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/textinput"
+	"charm.land/lipgloss/v2"
 )
 
 var (
@@ -15,9 +15,15 @@ var (
 func newInput(label string, value int) textinput.Model {
 	input := textinput.New()
 	input.Prompt = label
-	input.PromptStyle = promptStyle
-	input.PlaceholderStyle = placeholderStyle
 	input.CharLimit = 4
 	input.SetValue(strconv.Itoa(value))
+
+	styles := input.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Blurred.Prompt = promptStyle
+	styles.Focused.Placeholder = placeholderStyle
+	styles.Blurred.Placeholder = placeholderStyle
+	input.SetStyles(styles)
+
 	return input
 }

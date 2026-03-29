@@ -1,7 +1,7 @@
 package palettes
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings/palettes/adaptive"
 	"github.com/Zebbeni/ansizalizer/controls/settings/palettes/loader"

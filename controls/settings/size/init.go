@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/textinput"
+	"charm.land/lipgloss/v2"
 )
 
 var (
@@ -16,23 +16,32 @@ var (
 	floatPlaceholderStyle = lipgloss.NewStyle()
 )
 
+
 func newInput(state State, value int) textinput.Model {
-	textinput.New()
 	input := textinput.New()
 	input.Prompt = stateNames[state]
-	input.PromptStyle = promptStyle
-	input.PlaceholderStyle = placeholderStyle
+	styles := input.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Blurred.Prompt = promptStyle
+	styles.Focused.Placeholder = placeholderStyle
+	styles.Blurred.Placeholder = placeholderStyle
+	styles.Cursor.Blink = true
+	input.SetStyles(styles)
 	input.CharLimit = 3
 	input.SetValue(strconv.Itoa(value))
 	return input
 }
 
 func newFloatInput(state State, value float64) textinput.Model {
-	textinput.New()
 	input := textinput.New()
 	input.Prompt = stateNames[state]
-	input.PromptStyle = floatPromptStyle
-	input.PlaceholderStyle = floatPlaceholderStyle
+	styles := input.Styles()
+	styles.Focused.Prompt = floatPromptStyle
+	styles.Blurred.Prompt = floatPromptStyle
+	styles.Focused.Placeholder = floatPlaceholderStyle
+	styles.Blurred.Placeholder = floatPlaceholderStyle
+	styles.Cursor.Blink = true
+	input.SetStyles(styles)
 	input.CharLimit = 5
 	input.SetValue(fmt.Sprintf("%1.2f", value))
 	return input

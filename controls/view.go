@@ -3,13 +3,13 @@ package controls
 import (
 	"path/filepath"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
 func (m Model) drawButtons() string {
-	buttonWidth := (m.width - (numButtons * 2)) / numButtons
+	buttonWidth := m.width / numButtons
 	buttons := make([]string, len(stateOrder))
 	for i, state := range stateOrder {
 		buttonStyle := style.NormalButton

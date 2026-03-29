@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 // CheckThemeMsg is sent when a component changes something that may affect the app theme.

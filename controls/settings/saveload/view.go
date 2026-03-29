@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -101,7 +101,7 @@ func (m Model) drawTabs() string {
 	}
 
 	tabBlock := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
-	extW := max(m.width-lipgloss.Width(tabBlock)-2, 0)
+	extW := max(m.width-lipgloss.Width(tabBlock), 0)
 
 	var extBorder lipgloss.Border
 	if useDoubleContent {
@@ -144,7 +144,7 @@ func (m Model) drawContent() string {
 	if useDoubleContent {
 		winStyle = style.TabWindowHeavyStyle
 	}
-	body := winStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(tabRow) - winStyle.GetHorizontalFrameSize()).Render(content)
+	body := winStyle.Copy().BorderForeground(borderColor).BorderBackground(style.ActiveTheme.Bg).Width(lipgloss.Width(tabRow)).Render(content)
 	return tabRow + "\n" + body
 }
 
@@ -201,8 +201,13 @@ func (m Model) drawSaveContent() string {
 			nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
 			textStyle = style.BgStyle().Foreground(style.NormalColor1)
 		}
-		m.filenameInput.PromptStyle = nodeStyle
-		m.filenameInput.TextStyle = textStyle
+		fnStyles := m.filenameInput.Styles()
+		fnStyles.Focused.Prompt = nodeStyle
+		fnStyles.Focused.Text = textStyle
+		fnStyles.Blurred.Prompt = nodeStyle
+		fnStyles.Blurred.Text = textStyle
+		fnStyles.Cursor.Blink = m.filenameInput.Focused()
+		m.filenameInput.SetStyles(fnStyles)
 		parts = append(parts, m.filenameInput.View())
 	}
 

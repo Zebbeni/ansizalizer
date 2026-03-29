@@ -3,11 +3,11 @@ package dithering
 import (
 	"strconv"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/list"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/makeworld-the-better-one/dither/v2"
 
 	"github.com/Zebbeni/ansizalizer/event"
@@ -85,7 +85,12 @@ func New(w int) Model {
 func newStrengthInput() textinput.Model {
 	input := textinput.New()
 	input.Prompt = "Strength: "
-	input.PromptStyle = lipgloss.NewStyle().Width(12)
+	promptStyle := lipgloss.NewStyle().Width(12)
+	styles := input.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Blurred.Prompt = promptStyle
+	styles.Cursor.Blink = true
+	input.SetStyles(styles)
 	input.CharLimit = 5
 	input.SetValue("1.0")
 	return input

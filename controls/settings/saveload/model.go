@@ -3,10 +3,10 @@ package saveload
 import (
 	"os"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/event"
@@ -92,9 +92,14 @@ func New(w int, saveDir, loadDir string) Model {
 func newFilenameInput() textinput.Model {
 	input := textinput.New()
 	input.Prompt = "Filename "
-	input.PromptStyle = style.NormalButtonNode.Copy().Padding(0, 1, 0, 0)
-	input.PlaceholderStyle = lipgloss.NewStyle()
-	input.Cursor.Blink = true
+	promptStyle := style.NormalButtonNode.Copy().Padding(0, 1, 0, 0)
+	styles := input.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Blurred.Prompt = promptStyle
+	styles.Focused.Placeholder = lipgloss.NewStyle()
+	styles.Blurred.Placeholder = lipgloss.NewStyle()
+	styles.Cursor.Blink = true
+	input.SetStyles(styles)
 	input.SetValue("settings")
 	input.CharLimit = 64
 	return input
