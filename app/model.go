@@ -23,13 +23,16 @@ import (
 type State int
 
 const (
-	Main State = iota
+	Splash State = iota
+	Main
 	Browser
 	Settings
 )
 
 type Model struct {
-	state State
+	state        State
+	splashTicks  int // total animation ticks elapsed (10ms each)
+	splashSpawned int // how many characters have been spawned
 
 	controls controls.Model
 	display  display.Model
@@ -76,7 +79,7 @@ func New() Model {
 	p.Save()
 
 	m := Model{
-		state:    Main,
+		state:    Splash,
 		controls: controls.New(controlsWidth, p.Dirs),
 		display:  display.New(),
 		viewer:   viewer.New(),
@@ -109,16 +112,36 @@ func New() Model {
 }
 
 func (m Model) Init() tea.Cmd {
+	cmds := []tea.Cmd{splashTick()}
 	// This initiates the polling cycle for window size updates
 	// but shouldn't be necessary on non-Windows computers.
 	if env.PollForSizeChange {
-		return pollForSizeChange
+		cmds = append(cmds, pollForSizeChange)
 	}
-	return nil
+	return tea.Batch(cmds...)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
+	case splashTickMsg:
+		if m.state != Splash {
+			return m, nil
+		}
+		m.splashTicks++
+		// Spawn a new character every spawnInterval ticks
+		if m.splashSpawned < splashTotal && m.splashTicks%spawnInterval == 0 {
+			m.splashSpawned++
+		}
+		// End once all characters have landed
+		allSpawned := m.splashSpawned >= splashTotal
+		ticksSinceLastSpawn := m.splashTicks - m.splashSpawned*spawnInterval
+		if allSpawned && ticksSinceLastSpawn >= dropHeight {
+			return m, splashPause()
+		}
+		return m, splashTick()
+	case splashDoneMsg:
+		m.state = Main
+		return m, nil
 	case checkSizeMsg:
 		return m.handleCheckSizeMsg()
 	case tea.WindowSizeMsg:
@@ -150,6 +173,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case event.DisplayMsg:
 		return m.handleDisplayMsg(msg)
 	case tea.KeyMsg:
+		if m.state == Splash {
+			m.state = Main
+			return m, nil
+		}
 		switch {
 		case key.Matches(msg, event.KeyMap.Copy):
 			return m.handleCopy()
@@ -158,6 +185,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, event.KeyMap.Debug):
 			return m.handleDebug()
 		}
+	}
+	if m.state == Splash {
+		return m, nil
 	}
 	return m.handleControlsUpdate(msg)
 }
@@ -175,6 +205,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
 func (m Model) View() string {
+	if m.state == Splash {
+		return m.renderSplash()
+	}
+
 	controls := style.ApplyBg(m.renderControls(), 0)
 	display := style.ApplyBg(m.display.View(), 0)
 	viewer := m.renderViewer()

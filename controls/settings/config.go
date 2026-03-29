@@ -11,8 +11,6 @@ import (
 	"github.com/Zebbeni/ansizalizer/controls/settings/advanced/dithering"
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
-	"github.com/Zebbeni/ansizalizer/debug"
-	"github.com/Zebbeni/ansizalizer/style"
 )
 
 // Config is the JSON-serializable representation of all user-configurable settings.
@@ -180,7 +178,6 @@ func (m Model) ExportConfig() Config {
 	}
 
 	return Config{
-		Theme: m.Theme.ThemeName(),
 		Colors: ColorsConfig{
 			UseTrueColor:   !m.Colors.IsLimited(),
 			AdaptToPalette: m.Colors.AdaptToPalette(),
@@ -270,36 +267,13 @@ func (m *Model) ApplyConfig(cfg Config) {
 
 	m.Alpha.SetConfig(cfg.Alpha.UseAlpha, cfg.Alpha.TrimAlpha)
 
-	// Set theme last so paletted themes have access to the palette colors
-	if cfg.Theme != "" {
-		debug.Log("ApplyConfig: isLimited=%v paletteColors=%d", m.Colors.IsLimited(), len(cfg.Colors.PaletteColors))
-		if m.Colors.IsLimited() {
-			p := m.Colors.GetCurrentPalette().Colors()
-			debug.Log("ApplyConfig: GetCurrentPalette returned %d colors, name=%s", len(p), m.Colors.GetCurrentPalette().Name())
-			if len(p) == 0 && len(cfg.Colors.PaletteColors) > 0 {
-				// Palette wasn't loaded into the model yet — use config colors directly
-				for _, hex := range cfg.Colors.PaletteColors {
-					c, err := colorful.Hex(hex)
-					if err != nil {
-						c, _ = colorful.Hex(fmt.Sprintf("#%s", hex))
-					}
-					p = append(p, c)
-				}
-				debug.Log("ApplyConfig: rebuilt palette from config (%d colors)", len(p))
-			}
-			style.PaletteColors = p
-			debug.Log("ApplyConfig: setting palette colors (%d colors) before theme %s", len(p), cfg.Theme)
-		} else {
-			debug.Log("ApplyConfig: no palette (trueColor), setting theme %s", cfg.Theme)
-		}
-		m.Theme.SetThemeByName(cfg.Theme)
-	}
+	// Theme is intentionally not saved/loaded — a bad palette + paletted theme
+	// could make the UI unreadable and persist across sessions.
 }
 
 // DefaultConfig returns the default settings matching the app's initial state.
 func DefaultConfig() Config {
 	return Config{
-		Theme: "Light on Transparent",
 		Colors: ColorsConfig{
 			UseTrueColor: false,
 			PaletteName:  "teal_orange",

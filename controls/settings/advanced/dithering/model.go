@@ -212,6 +212,42 @@ func orderedMatrixEqual(a, b dither.OrderedDitherMatrix) bool {
 	return true
 }
 
+func (m *Model) selectMatrixListItem(mt MatrixType) {
+	for i, item := range m.matrixList.Items() {
+		if mi, ok := item.(matrixItem); ok && mi.Type == mt {
+			m.matrixList.Select(i)
+			return
+		}
+	}
+}
+
+func (m *Model) selectClusteredDotListItem(ct ClusteredDotType) {
+	for i, item := range m.clusteredDotList.Items() {
+		if ci, ok := item.(clusteredDotItem); ok && ci.Type == ct {
+			m.clusteredDotList.Select(i)
+			return
+		}
+	}
+}
+
+func (m *Model) resetMatrixListCursor() {
+	for mt, matrix := range errorDiffMatrixMap {
+		if matrixEqual(matrix, m.matrix) {
+			m.selectMatrixListItem(mt)
+			return
+		}
+	}
+}
+
+func (m *Model) resetClusteredDotListCursor() {
+	for ct, cdm := range clusteredDotMatrixMap {
+		if orderedMatrixEqual(cdm, m.clusteredDot) {
+			m.selectClusteredDotListItem(ct)
+			return
+		}
+	}
+}
+
 func (m *Model) SetConfig(doDithering, doSerpentine bool, matrixName string) {
 	m.doDithering = doDithering
 	m.doSerpentine = doSerpentine
@@ -219,6 +255,7 @@ func (m *Model) SetConfig(doDithering, doSerpentine bool, matrixName string) {
 		if name == matrixName {
 			if matrix, ok := errorDiffMatrixMap[mt]; ok {
 				m.matrix = matrix
+				m.selectMatrixListItem(mt)
 				return
 			}
 		}
@@ -241,6 +278,7 @@ func (m *Model) SetFullConfig(doDithering, doSerpentine bool, mode DitherMode, m
 		if name == matrixName {
 			if matrix, ok := errorDiffMatrixMap[mt]; ok {
 				m.matrix = matrix
+				m.selectMatrixListItem(mt)
 				break
 			}
 		}
@@ -249,6 +287,7 @@ func (m *Model) SetFullConfig(doDithering, doSerpentine bool, mode DitherMode, m
 		if name == clusteredDotName {
 			if cdm, ok := clusteredDotMatrixMap[ct]; ok {
 				m.clusteredDot = cdm
+				m.selectClusteredDotListItem(ct)
 				break
 			}
 		}

@@ -8,18 +8,6 @@ import (
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-// ▛▜▐▜▐▀▐▝▜▐▜▐ ▐▝▜▐▛▐▀▌
-// ▛▜▐▐▗▟▐▐▄▐▜▐▄▐▐▄▐▄▐▜
-func (m Model) drawTitle() string {
-	title1Runes := []rune{' ', '▛', '▜', '▐', '▜', '▐', '▀', '▐', '▝', '▜', '▐', '▜', '▐', ' ', '▐', '▝', '▜', '▐', '▛', '▐', '▀', '▌'}
-	title2Runes := []rune{' ', '▛', '▜', '▐', '▐', '▗', '▟', '▐', '▐', '▄', '▐', '▜', '▐', '▄', '▐', '▐', '▄', '▐', '▄', '▐', '▀', '▖'}
-	titleStyle := style.BgStyle().Foreground(style.NormalColor1)
-	title1 := titleStyle.Render(string(title1Runes))
-	title2 := titleStyle.Render(string(title2Runes))
-	title := lipgloss.JoinVertical(lipgloss.Left, title1, title2)
-	return style.BgStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Padding(1, 0, 0, 0).Render(title)
-}
-
 func (m Model) drawButtons() string {
 	buttonWidth := (m.width - (numButtons * 2)) / numButtons
 	buttons := make([]string, len(stateOrder))

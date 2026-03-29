@@ -225,6 +225,11 @@ func (m Model) handleKeyMsg(msg tea.KeyMsg) (Model, tea.Cmd) {
 func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 	m.focus = focus
 	m.strengthInput.Blur()
+
+	// Reset list cursors to the actual selection before deactivating
+	m.resetMatrixListCursor()
+	m.resetClusteredDotListCursor()
+
 	m.matrixList.SetDelegate(NewDelegate(false))
 	m.clusteredDotList.SetDelegate(NewDelegate(false))
 
