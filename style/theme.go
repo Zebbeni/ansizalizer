@@ -348,6 +348,6 @@ func Refresh() {
 	FocusTabStyle = bg(lipgloss.NewStyle().Border(FocusTabBorder, true).BorderBackground(t.Bg))
 	FocusActiveTabStyle = bg(lipgloss.NewStyle().Border(FocusActiveTabBorder, true).BorderBackground(t.Bg))
 	InactiveTabOnHeavyStyle = bg(lipgloss.NewStyle().Border(InactiveTabOnHeavyBorder, true).BorderBackground(t.Bg))
-	TabWindowStyle = bg(lipgloss.NewStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().Padding(1, 0).BorderBackground(t.Bg))
-	TabWindowHeavyStyle = bg(lipgloss.NewStyle().Align(lipgloss.Left).Border(heavyWindowBorder()).UnsetBorderTop().Padding(1, 0).BorderBackground(t.Bg))
+	TabWindowStyle = bg(lipgloss.NewStyle().Align(lipgloss.Left).Border(lipgloss.NormalBorder()).UnsetBorderTop().BorderBackground(t.Bg))
+	TabWindowHeavyStyle = bg(lipgloss.NewStyle().Align(lipgloss.Left).Border(heavyWindowBorder()).UnsetBorderTop().BorderBackground(t.Bg))
 }

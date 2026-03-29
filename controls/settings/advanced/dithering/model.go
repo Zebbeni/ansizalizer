@@ -128,10 +128,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	parts := []string{m.drawDitheringOptions()}
+	pad := lipgloss.NewStyle().PaddingLeft(1).PaddingRight(1)
+	parts := []string{pad.Render(m.drawDitheringOptions())}
 	if m.doDithering {
-		parts = append(parts, m.drawSerpentineOptions())
-		parts = append(parts, m.drawStrength())
+		parts = append(parts, pad.Render(m.drawSerpentineOptions()))
+		parts = append(parts, pad.Render(m.drawStrength()))
 		parts = append(parts, m.drawModeTabs())
 	}
 	content := lipgloss.JoinVertical(lipgloss.Left, parts...)
