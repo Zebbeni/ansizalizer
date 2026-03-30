@@ -58,13 +58,21 @@ func (m Model) drawSerpentineOptions() string {
 	return lipgloss.JoinHorizontal(lipgloss.Left, prompt, onNode, offNode)
 }
 
+var tabStates = map[State]bool{
+	ModeMatrix: true, ModeBayer: true, ModeClusteredDot: true,
+	MatrixList: true, ClusteredDotList: true,
+	BayerSize2: true, BayerSize4: true, BayerSize8: true, BayerSize16: true,
+}
+
 func (m Model) drawModeTabs() string {
 	tabs := []style.Tab{
 		{Label: modeTabNames[ModeMatrix], Focused: m.focus == ModeMatrix, Active: m.modeControls == ModeMatrix},
 		{Label: modeTabNames[ModeBayer], Focused: m.focus == ModeBayer, Active: m.modeControls == ModeBayer},
 		{Label: modeTabNames[ModeClusteredDot], Focused: m.focus == ModeClusteredDot, Active: m.modeControls == ModeClusteredDot},
 	}
-	return style.RenderTabs(tabs, m.IsActive, m.drawModeContent(), m.width)
+	// Only pass isActive when focus is on a tab or tab content
+	tabActive := m.IsActive && tabStates[m.focus]
+	return style.RenderTabs(tabs, tabActive, m.drawModeContent(), m.width)
 }
 
 func (m Model) drawModeContent() string {

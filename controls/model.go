@@ -46,6 +46,7 @@ type Model struct {
 	Settings     settings.Model
 	Export       export.Model
 	OpenModal    *filemenu.Result // set when a modal should be opened by the app
+	ShouldQuit   bool             // set when user presses Esc at top level
 
 	width int
 }

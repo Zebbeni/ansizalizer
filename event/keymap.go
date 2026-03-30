@@ -15,6 +15,7 @@ type Map struct {
 	Collapse key.Binding
 	Copy     key.Binding
 	Save     key.Binding
+	Quit     key.Binding
 	Debug    key.Binding
 	Esc      key.Binding
 }
@@ -57,6 +58,9 @@ func InitKeyMap() {
 		Save: key.NewBinding(
 			key.WithKeys("ctrl+s"),
 			key.WithHelp("ctrl+s", "save to file")),
+		Quit: key.NewBinding(
+			key.WithKeys("ctrl+q"),
+			key.WithHelp("ctrl+q", "quit")),
 		Debug: key.NewBinding(
 			key.WithKeys("ctrl+d")),
 		Esc: key.NewBinding(
@@ -67,9 +71,9 @@ func InitKeyMap() {
 }
 
 func (k Map) ShortHelp() []key.Binding {
-	return []key.Binding{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save}
+	return []key.Binding{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save, k.Quit}
 }
 
 func (k Map) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save}}
+	return [][]key.Binding{{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save, k.Quit}}
 }

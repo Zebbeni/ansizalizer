@@ -133,7 +133,14 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 				}
 			case key.Matches(msg, event.KeyMap.Down):
 				if m.focus == FileMenu {
-					m.FileDropdown.Toggle()
+					// Navigate into whichever tab's content is showing
+					if m.showing == Browse || m.showing == Settings {
+						m.active = m.showing
+						m.focus = m.showing
+						if m.showing == Browse {
+							m.FileBrowser.SetActive(true)
+						}
+					}
 					return m, nil
 				}
 				// Re-enter the tab whose content is showing;
@@ -147,7 +154,7 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, event.KeyMap.Esc):
-			return m, tea.Quit
+			m.ShouldQuit = true
 		}
 	}
 	return m, nil

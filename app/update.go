@@ -370,6 +370,14 @@ func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.controls, cmd = m.controls.Update(msg)
 
+	// Check if the controls wants to quit
+	if m.controls.ShouldQuit {
+		m.controls.ShouldQuit = false
+		m.quitConfirm = true
+		m.quitFocusYes = true
+		return m, nil
+	}
+
 	// Check if the controls wants us to open a modal
 	if m.controls.OpenModal != nil {
 		result := m.controls.OpenModal

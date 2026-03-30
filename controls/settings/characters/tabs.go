@@ -10,7 +10,10 @@ func (m Model) drawCharTabs() string {
 		{Label: stateNames[Unicode], Focused: m.focus == Unicode, Active: m.charControls == Unicode},
 		{Label: stateNames[Custom], Focused: m.focus == Custom, Active: m.charControls == Custom},
 	}
-	return style.RenderTabs(tabs, m.IsActive, m.drawCharControls(), m.width)
+	// Only pass isActive when focus is on a tab or inside tab content
+	// (not on ColorBgOn/Off which are above the tabs)
+	tabActive := m.IsActive && m.focus != ColorBgOn && m.focus != ColorBgOff
+	return style.RenderTabs(tabs, tabActive, m.drawCharControls(), m.width)
 }
 
 func max(a, b int) int {

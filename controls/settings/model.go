@@ -48,7 +48,7 @@ type Model struct {
 func New(w int, dirs prefs.Dirs) Model {
 	return Model{
 		active:   None,
-		focus:    Theme,
+		focus:    Colors,
 		expanded: make(map[State]bool),
 
 		Colors:     colors.New(w, dirs.PaletteLoad),
@@ -159,8 +159,7 @@ func (m Model) View() string {
 	adj := m.renderCollapsible(m.Adjust.View(), m.Adjust.Summary(), Adjust)
 	ts := m.renderCollapsible(m.TextStyle.View(), m.TextStyle.Summary(), TextStyle)
 	sam := m.renderCollapsible(m.Advanced.View(), m.Advanced.Summary(), Advanced)
-	thm := m.renderCollapsible(m.Theme.View(), m.Theme.Summary(), Theme)
-	parts := []string{thm, col, char, siz, adj, ts, sam}
+	parts := []string{col, char, siz, adj, ts, sam}
 	if m.Animation.AnimatedImage {
 		parts = append(parts, m.renderCollapsible(m.Animation.View(), m.Animation.Summary(), Animation))
 	}

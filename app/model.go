@@ -35,10 +35,12 @@ type Model struct {
 	splashTicks  int // total animation ticks elapsed (10ms each)
 	splashSpawned int // how many characters have been spawned
 
-	controls controls.Model
-	display  display.Model
-	viewer   viewer.Model
-	modal    *modal.Model // non-nil when a load/save modal is open
+	controls      controls.Model
+	display       display.Model
+	viewer        viewer.Model
+	modal         *modal.Model // non-nil when a load/save modal is open
+	quitConfirm   bool         // true when quit confirmation modal is showing
+	quitFocusYes  bool         // true = Yes focused, false = No focused
 
 	waitingOnExport bool
 	exportQueue     []exportJob
@@ -179,9 +181,19 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.state = Main
 			return m, nil
 		}
-		// Modal captures all input when open
+		// Quit confirmation modal captures all input
+		if m.quitConfirm {
+			return m.handleQuitModalKey(msg)
+		}
+		// Load/save modal captures all input when open
 		if m.modal != nil {
 			return m.handleModalUpdate(msg)
+		}
+		// Ctrl+Q opens quit confirmation from anywhere
+		if key.Matches(msg, event.KeyMap.Quit) {
+			m.quitConfirm = true
+			m.quitFocusYes = true
+			return m, nil
 		}
 		switch {
 		case key.Matches(msg, event.KeyMap.Copy):
@@ -271,6 +283,21 @@ func (m Model) View() tea.View {
 		}
 
 		canvas.Compose(lipgloss.NewCompositor(layers...))
+		rendered = canvas.Render()
+	}
+
+	// Overlay quit confirmation modal
+	if m.quitConfirm {
+		quitView := m.renderQuitModal()
+		qw := lipgloss.Width(quitView)
+		qh := lipgloss.Height(quitView)
+		qx := (m.w - qw) / 2
+		qy := (m.h - qh) / 2
+
+		canvas := lipgloss.NewCanvas(m.w, m.h)
+		base := lipgloss.NewLayer(rendered)
+		overlay := lipgloss.NewLayer(quitView).X(qx).Y(qy).Z(10)
+		canvas.Compose(lipgloss.NewCompositor(base, overlay))
 		rendered = canvas.Render()
 	}
 
