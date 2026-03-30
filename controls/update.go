@@ -1,12 +1,12 @@
 package controls
 
 import (
-	"os"
-
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/filemenu"
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type Direction int
@@ -19,8 +19,54 @@ const (
 )
 
 var navMap = map[Direction]map[State]State{
-	Right: {Browse: Settings, Settings: Export},
-	Left:  {Export: Settings, Settings: Browse},
+	Right: {FileMenu: Browse, Browse: Settings},
+	Left:  {Settings: Browse, Browse: FileMenu},
+}
+
+func (m Model) handleFileMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	m.FileDropdown, _ = m.FileDropdown.Update(msg)
+
+	if result := m.FileDropdown.SelectedResult; result != nil {
+		m.FileDropdown.SelectedResult = nil
+		return m.handleFileMenuResult(*result)
+	}
+
+	if m.FileDropdown.ShouldNavRight {
+		m.FileDropdown.ShouldNavRight = false
+		m.focus = Browse
+		m.active = Menu
+		return m, nil
+	}
+
+	if m.FileDropdown.ShouldClose {
+		m.FileDropdown.ShouldClose = false
+		m.focus = FileMenu
+		m.active = Menu
+		return m, nil
+	}
+
+	if !m.FileDropdown.Open {
+		m.active = Menu
+	}
+	return m, nil
+}
+
+func (m Model) handleFileMenuResult(result filemenu.Result) (Model, tea.Cmd) {
+	switch result.Action {
+	case filemenu.LoadSettings:
+		m.OpenModal = &result
+		return m, nil
+	case filemenu.SaveSettings:
+		m.OpenModal = &result
+		return m, nil
+	case filemenu.Theme:
+		if result.ThemeName != "" {
+			return m, event.BuildCheckThemeCmd(style.PaletteColors, result.ThemeName)
+		}
+	case filemenu.Export:
+		// TODO: implement export modals
+	}
+	return m, nil
 }
 
 func (m Model) handleOpenUpdate(msg tea.Msg) (Model, tea.Cmd) {
@@ -65,6 +111,10 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, event.KeyMap.Enter):
+			if m.focus == FileMenu {
+				m.FileDropdown.Toggle()
+				return m, nil
+			}
 			m.active = m.focus
 			m.showing = m.focus
 			if m.focus == Browse {
@@ -82,6 +132,10 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 					m.focus = next
 				}
 			case key.Matches(msg, event.KeyMap.Down):
+				if m.focus == FileMenu {
+					m.FileDropdown.Toggle()
+					return m, nil
+				}
 				// Re-enter the tab whose content is showing;
 				// focused-but-inactive tabs do not navigate on down.
 				if m.focus == m.showing {
@@ -93,9 +147,7 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, event.KeyMap.Esc):
-			// Quit program if top-level menu is active and escape pressed
-			tea.Quit()
-			os.Exit(0)
+			return m, tea.Quit
 		}
 	}
 	return m, nil

@@ -17,7 +17,7 @@ const (
 )
 
 func (m Model) visibleStates() []State {
-	states := []State{SaveLoad, Theme, Colors, Characters, Size, Adjust, TextStyle, Advanced}
+	states := []State{Theme, Colors, Characters, Size, Adjust, TextStyle, Advanced}
 	if m.Animation.AnimatedImage {
 		states = append(states, Animation)
 	}

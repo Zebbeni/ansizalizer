@@ -8,7 +8,9 @@ import (
 
 	"github.com/Zebbeni/ansizalizer/controls/browser"
 	"github.com/Zebbeni/ansizalizer/controls/export"
+	"github.com/Zebbeni/ansizalizer/controls/filemenu"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
+	// modal import not needed — we use filemenu.Result pointer
 	"github.com/Zebbeni/ansizalizer/global"
 	"github.com/Zebbeni/ansizalizer/prefs"
 )
@@ -17,19 +19,20 @@ type State int
 
 const (
 	Menu State = iota
+	FileMenu
 	Browse
 	Settings
 	Export
 
-	numButtons = 3
+	numButtons = 3 // File, Browse, Settings
 )
 
 var (
-	stateOrder = []State{Browse, Settings, Export}
+	stateOrder = []State{FileMenu, Browse, Settings}
 	stateNames = map[State]string{
+		FileMenu: "File",
 		Browse:   "Browse",
 		Settings: "Settings",
-		Export:   "Export",
 	}
 )
 
@@ -38,9 +41,11 @@ type Model struct {
 	focus   State
 	showing State // which tab's content is displayed (persists when returning to tab bar)
 
-	FileBrowser browser.Model
-	Settings    settings.Model
-	Export      export.Model
+	FileDropdown filemenu.Model
+	FileBrowser  browser.Model
+	Settings     settings.Model
+	Export       export.Model
+	OpenModal    *filemenu.Result // set when a modal should be opened by the app
 
 	width int
 }
@@ -55,9 +60,10 @@ func New(w int, dirs prefs.Dirs) Model {
 		active: Menu,
 		focus:  Browse,
 
-		FileBrowser: fileBrowser,
-		Settings:    settings.New(w, dirs),
-		Export:      export.New(w, dirs),
+		FileDropdown: filemenu.New(w),
+		FileBrowser:  fileBrowser,
+		Settings:     settings.New(w, dirs),
+		Export:       export.New(w, dirs),
 
 		width: w,
 	}
@@ -69,7 +75,7 @@ func (m *Model) RefreshAllStyles() {
 }
 
 func (m Model) DebugState() string {
-	stateNames := map[State]string{Menu: "Menu", Browse: "Browse", Settings: "Settings", Export: "Export"}
+	stateNames := map[State]string{Menu: "Menu", FileMenu: "FileMenu", Browse: "Browse", Settings: "Settings", Export: "Export"}
 	return fmt.Sprintf("Controls: active=%s focus=%s showing=%s", stateNames[m.active], stateNames[m.focus], stateNames[m.showing])
 }
 
@@ -78,6 +84,11 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+	// File dropdown takes priority when open
+	if m.FileDropdown.Open {
+		return m.handleFileMenuUpdate(msg)
+	}
+
 	switch m.active {
 	case Browse:
 		return m.handleOpenUpdate(msg)
@@ -89,16 +100,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m.handleMenuUpdate(msg)
 }
 
-// View displays a row of 3 buttons above 1 of 3 control panels:
-// Browse | Settings | Export
+// ButtonHeight returns the rendered height of the button row.
+func (m Model) ButtonHeight() int {
+	return lipgloss.Height(m.drawButtons())
+}
+
+// View displays a row of buttons above the active control panel.
 func (m Model) View() string {
-	// draw the top three buttons
 	buttons := m.drawButtons()
 	var controls string
 
-	// Show the active tab's content, or the showing tab's content when on the tab bar
 	contentState := m.showing
-	if m.active != Menu {
+	if m.active != Menu && m.active != FileMenu {
 		contentState = m.active
 	}
 

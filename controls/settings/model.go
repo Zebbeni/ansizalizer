@@ -48,7 +48,7 @@ type Model struct {
 func New(w int, dirs prefs.Dirs) Model {
 	return Model{
 		active:   None,
-		focus:    SaveLoad,
+		focus:    Theme,
 		expanded: make(map[State]bool),
 
 		Colors:     colors.New(w, dirs.PaletteLoad),
@@ -90,6 +90,15 @@ func (m Model) DebugState() string {
 func (m *Model) RefreshAllStyles() {
 	m.Colors.RefreshStyles()
 	m.Advanced.RefreshStyles()
+}
+
+// OpenSaveLoadTab opens the SaveLoad panel with the specified tab.
+func (m *Model) OpenSaveLoadTab(loadTab bool) {
+	m.active = SaveLoad
+	m.focus = SaveLoad
+	m.expanded = map[State]bool{SaveLoad: true}
+	m.SaveLoad.IsActive = true
+	m.SaveLoad.SetTab(loadTab)
 }
 
 // buildCheckThemeCmd returns a CheckThemeCmd if the palette or theme may have changed.
@@ -151,8 +160,7 @@ func (m Model) View() string {
 	ts := m.renderCollapsible(m.TextStyle.View(), m.TextStyle.Summary(), TextStyle)
 	sam := m.renderCollapsible(m.Advanced.View(), m.Advanced.Summary(), Advanced)
 	thm := m.renderCollapsible(m.Theme.View(), m.Theme.Summary(), Theme)
-	sl := m.renderCollapsible(m.SaveLoad.View(), m.SaveLoad.Summary(), SaveLoad)
-	parts := []string{sl, thm, col, char, siz, adj, ts, sam}
+	parts := []string{thm, col, char, siz, adj, ts, sam}
 	if m.Animation.AnimatedImage {
 		parts = append(parts, m.renderCollapsible(m.Animation.View(), m.Animation.Summary(), Animation))
 	}

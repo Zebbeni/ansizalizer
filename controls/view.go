@@ -13,19 +13,18 @@ func (m Model) drawButtons() string {
 	buttons := make([]string, len(stateOrder))
 	for i, state := range stateOrder {
 		buttonStyle := style.NormalButton
-		if m.active != Menu {
-			// A tab is handling events
+		if m.active != Menu && m.active != FileMenu {
 			if state == m.active {
 				buttonStyle = style.ActiveButton
 			} else if state == m.focus {
 				buttonStyle = style.FocusButton
 			}
 		} else {
-			// Tab bar has focus; show which tab's content is displayed
 			if state == m.showing && m.showing != Menu {
 				buttonStyle = style.ActiveButton
 			}
-			if state == m.focus {
+			// Don't show focus on File button when dropdown is open
+			if state == m.focus && !m.FileDropdown.Open {
 				buttonStyle = style.FocusButton
 			}
 		}

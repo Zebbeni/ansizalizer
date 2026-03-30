@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/Zebbeni/ansizalizer/controls"
+	"github.com/Zebbeni/ansizalizer/controls/modal"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/display"
@@ -37,6 +38,7 @@ type Model struct {
 	controls controls.Model
 	display  display.Model
 	viewer   viewer.Model
+	modal    *modal.Model // non-nil when a load/save modal is open
 
 	waitingOnExport bool
 	exportQueue     []exportJob
@@ -177,6 +179,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.state = Main
 			return m, nil
 		}
+		// Modal captures all input when open
+		if m.modal != nil {
+			return m.handleModalUpdate(msg)
+		}
 		switch {
 		case key.Matches(msg, event.KeyMap.Copy):
 			return m.handleCopy()
@@ -188,6 +194,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	if m.state == Splash {
 		return m, nil
+	}
+	// Modal also captures non-key messages
+	if m.modal != nil {
+		return m.handleModalUpdate(msg)
 	}
 	return m.handleControlsUpdate(msg)
 }
@@ -206,7 +216,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // └─────────────────────────────────────────────────────────┘
 func (m Model) View() tea.View {
 	if m.state == Splash {
-		return tea.NewView(m.renderSplash())
+		sv := tea.NewView(m.renderSplash())
+		sv.AltScreen = true
+		return sv
 	}
 
 	controls := style.ApplyBg(m.renderControls(), 0)
@@ -224,5 +236,45 @@ func (m Model) View() tea.View {
 		appStyle = appStyle.Background(style.ActiveTheme.Bg)
 	}
 
-	return tea.NewView(appStyle.Render(all))
+	rendered := appStyle.Render(all)
+
+	// Overlay modal centered on screen using Canvas
+	if m.modal != nil && m.modal.Open {
+		modalView := m.modal.View()
+		modalW := lipgloss.Width(modalView)
+		modalH := lipgloss.Height(modalView)
+		mx := (m.w - modalW) / 2
+		my := (m.h - modalH) / 2
+
+		canvas := lipgloss.NewCanvas(m.w, m.h)
+		base := lipgloss.NewLayer(rendered)
+		overlay := lipgloss.NewLayer(modalView).X(mx).Y(my).Z(1)
+		canvas.Compose(lipgloss.NewCompositor(base, overlay))
+		rendered = canvas.Render()
+	}
+
+	// Overlay file dropdown using lipgloss Canvas if open
+	if m.controls.FileDropdown.Open {
+		dropY := m.controls.ButtonHeight()
+
+		canvas := lipgloss.NewCanvas(m.w, m.h)
+		base := lipgloss.NewLayer(rendered)
+		mainMenu := lipgloss.NewLayer(m.controls.FileDropdown.MainMenuView()).X(1).Y(dropY).Z(1)
+
+		layers := []*lipgloss.Layer{base, mainMenu}
+
+		if sub := m.controls.FileDropdown.SubMenuView(); sub != "" {
+			subX := 1 + m.controls.FileDropdown.MainMenuWidth()
+			subY := dropY + m.controls.FileDropdown.SubMenuYOffset()
+			subMenu := lipgloss.NewLayer(sub).X(subX).Y(subY).Z(2)
+			layers = append(layers, subMenu)
+		}
+
+		canvas.Compose(lipgloss.NewCompositor(layers...))
+		rendered = canvas.Render()
+	}
+
+	v := tea.NewView(rendered)
+	v.AltScreen = true
+	return v
 }

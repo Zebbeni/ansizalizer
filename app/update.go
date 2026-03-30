@@ -16,9 +16,10 @@ import (
 	"github.com/lucasb-eyer/go-colorful"
 
 	"github.com/Zebbeni/ansizalizer/app/adapt"
-	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/app/process"
+	"github.com/Zebbeni/ansizalizer/controls/filemenu"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
+	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/prefs"
 	"github.com/Zebbeni/ansizalizer/style"
@@ -368,6 +369,19 @@ func (m Model) handleDebug() (Model, tea.Cmd) {
 func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.controls, cmd = m.controls.Update(msg)
+
+	// Check if the controls wants us to open a modal
+	if m.controls.OpenModal != nil {
+		result := m.controls.OpenModal
+		m.controls.OpenModal = nil
+		switch result.Action {
+		case filemenu.LoadSettings:
+			m = m.openLoadModal()
+		case filemenu.SaveSettings:
+			m = m.openSaveModal()
+		}
+	}
+
 	m.savePrefs()
 	return m, cmd
 }

@@ -25,10 +25,9 @@ var States = []State{
 	Advanced,
 	Animation,
 	Alpha,
-	SaveLoad,
 }
 
-var stateOrder = []State{Colors, Characters, Size, Adjust, TextStyle, Advanced, Animation, Alpha, SaveLoad}
+var stateOrder = []State{Colors, Characters, Size, Adjust, TextStyle, Advanced, Animation, Alpha}
 
 var stateTitles = map[State]string{
 	Colors:     "Colors",

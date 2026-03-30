@@ -139,6 +139,16 @@ func (m Model) View() string {
 	return m.drawContent()
 }
 
+func (m *Model) SetTab(loadTab bool) {
+	if loadTab {
+		m.tab = LoadTab
+		m.focus = LoadTabSelect
+	} else {
+		m.tab = SaveTab
+		m.focus = SaveTabSelect
+	}
+}
+
 func (m *Model) ResetFocus() {
 	m.focus = LoadTabSelect
 	m.filenameInput.Blur()
