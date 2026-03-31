@@ -103,6 +103,20 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.IsActive = false
 			m.ShouldClose = true
 		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		if next, hasNext := navMap[Right][m.focus]; hasNext {
+			return m.setFocus(next)
+		}
+		// Focused but inactive tab doesn't navigate on down
+		if m.focus == UsePalette && m.mode != UsePalette {
+			return m, cmd
+		}
+		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			return m.setFocus(next)
+		} else {
+			m.IsActive = false
+			m.ShouldClose = true
+		}
 	}
 	return m, cmd
 }

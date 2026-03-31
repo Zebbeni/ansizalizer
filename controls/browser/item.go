@@ -8,6 +8,7 @@ import (
 
 	"charm.land/bubbles/v2/list"
 
+	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
@@ -69,6 +70,9 @@ func getItems(extensions map[string]bool, dir string) []list.Item {
 			fileItems = append(fileItems, fileItem)
 		}
 	}
+
+	debug.Log("getItems(%s): %d dirs, %d files, %d total entries from os.ReadDir",
+		dir, len(dirItems)-1, len(fileItems), len(entries))
 
 	return append(dirItems, fileItems...)
 }

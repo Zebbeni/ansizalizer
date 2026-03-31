@@ -18,7 +18,7 @@ func settingsToOptions(s settings.Model) ansiart.Options {
 
 func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansiart.Options {
 	isTrueColor, _, palette := s.Colors.GetSelected()
-	mode, charMode, colorBg, customChars := s.Characters.Selected()
+	mode, charMode, customChars := s.Characters.Selected()
 	dimType, width, height, charRatio := s.Size.Info()
 	doDither, doSerpentine, ditherMatrix := s.Advanced.Dithering()
 
@@ -28,14 +28,14 @@ func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansiart.
 		Height:    height,
 		CharRatio: charRatio,
 
-		CharacterMode: convertCharMode(mode),
-		AsciiCharSet:  convertAsciiCharSet(charMode),
-		UnicodeCharSet: convertUnicodeCharSet(charMode),
-		CustomChars:   customChars,
-		ColorBg:              colorBg,
+		CharacterMode:        convertCharMode(mode),
+		AsciiCharSet:         convertAsciiCharSet(charMode),
+		UnicodeCharSet:       convertUnicodeCharSet(charMode),
+		CustomChars:          customChars,
 		SolidBackgroundColor: solidBg,
 		SelectionMode:        convertSelectionMode(s.Characters.SelectionMode()),
-		FgBgThreshold:        s.Characters.FgBgThreshold(),
+		RandomSeed:           s.Characters.RandomSeed(),
+		VarianceThreshold:    s.Characters.VarianceThreshold(),
 
 		TrueColor:      isTrueColor,
 		AdaptToPalette: s.Colors.AdaptToPalette(),
@@ -59,8 +59,9 @@ func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansiart.
 			Strikethrough: s.TextStyle.Strikethrough(),
 		},
 
-		OutputAlpha: s.Alpha.ShouldOutputAlpha(),
-		TrimAlpha:   s.Alpha.TrimAlpha(),
+		OutputAlpha:    s.Alpha.ShouldOutputAlpha(),
+		TrimAlpha:      s.Alpha.TrimAlpha(),
+		AlphaThreshold: s.Alpha.AlphaThreshold(),
 	}
 
 	if !isTrueColor {
@@ -124,12 +125,14 @@ func convertUnicodeCharSet(s characters.State) ansiart.UnicodeCharSet {
 
 func convertSelectionMode(s characters.State) ansiart.SelectionMode {
 	switch s {
+	case characters.LightVariance:
+		return ansiart.LightVariance
 	case characters.Sequence:
 		return ansiart.Repeat
 	case characters.Random:
 		return ansiart.Random
 	default:
-		return ansiart.DarkToLight
+		return ansiart.DarkVariance
 	}
 }
 

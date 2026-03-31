@@ -44,10 +44,10 @@ type CharactersConfig struct {
 	Mode          string `json:"mode"`
 	AsciiMode     string `json:"asciiMode"`
 	UnicodeMode   string `json:"unicodeMode"`
-	ColorBg        bool    `json:"colorBg"`
-	FgBgThreshold  float64 `json:"fgBgThreshold"`
-	SelectionMode  string  `json:"selectionMode"`
-	CustomChars    string  `json:"customChars"`
+	SelectionMode     string  `json:"selectionMode"`
+	CustomChars       string  `json:"customChars"`
+	RandomSeed        int64   `json:"randomSeed,omitempty"`
+	VarianceThreshold float64 `json:"varianceThreshold,omitempty"`
 }
 
 type SizeConfig struct {
@@ -78,8 +78,9 @@ type AnimationConfig struct {
 }
 
 type AlphaConfig struct {
-	UseAlpha  bool `json:"useAlpha"`
-	TrimAlpha bool `json:"trimAlpha"`
+	UseAlpha       bool    `json:"useAlpha"`
+	TrimAlpha      bool    `json:"trimAlpha"`
+	AlphaThreshold float64 `json:"alphaThreshold,omitempty"`
 }
 
 // character state name maps for serialization
@@ -125,12 +126,14 @@ var unicodeModeFromName = map[string]characters.State{
 }
 
 var selectionModeNames = map[characters.State]string{
-	characters.Variance: "DarkToLight",
-	characters.Sequence:    "Sequence",
-	characters.Random:      "Random",
+	characters.DarkVariance:  "DarkToLight",
+	characters.LightVariance: "LightToDark",
+	characters.Sequence:      "Sequence",
+	characters.Random:        "Random",
 }
 var selectionModeFromName = map[string]characters.State{
-	"DarkToLight": characters.Variance,
+	"DarkToLight": characters.DarkVariance,
+	"LightToDark": characters.LightVariance,
 	"Sequence":    characters.Sequence,
 	"Random":      characters.Random,
 }
@@ -158,7 +161,7 @@ var ditherModeFromName = map[string]dithering.DitherMode{
 }
 
 func (m Model) ExportConfig() Config {
-	mode, charMode, colorBg, customChars := m.Characters.Selected()
+	mode, charMode, customChars := m.Characters.Selected()
 	selMode := m.Characters.SelectionMode()
 	sizeMode, width, height, charRatio := m.Size.Info()
 	doDither, doSerpentine, _ := m.Advanced.Dithering()
@@ -188,9 +191,9 @@ func (m Model) ExportConfig() Config {
 			Mode:          charModeNames[mode],
 			AsciiMode:     asciiModeNames[charMode],
 			UnicodeMode:   unicodeModeNames[charMode],
-			ColorBg:        colorBg,
-			FgBgThreshold:  m.Characters.FgBgThreshold(),
 			SelectionMode: selectionModeNames[selMode],
+			RandomSeed:        m.Characters.RandomSeed(),
+			VarianceThreshold: m.Characters.VarianceThreshold(),
 			CustomChars:   string(customChars),
 		},
 		Size: SizeConfig{
@@ -223,8 +226,9 @@ func (m Model) ExportConfig() Config {
 			DelayMs: m.Animation.DelayMs(),
 		},
 		Alpha: AlphaConfig{
-			UseAlpha:  m.Alpha.ShouldOutputAlpha(),
-			TrimAlpha: m.Alpha.TrimAlpha(),
+			UseAlpha:       m.Alpha.ShouldOutputAlpha(),
+			TrimAlpha:      m.Alpha.TrimAlpha(),
+			AlphaThreshold: m.Alpha.AlphaThreshold(),
 		},
 	}
 }
@@ -248,9 +252,12 @@ func (m *Model) ApplyConfig(cfg Config) {
 	asciiMode := asciiModeFromName[cfg.Characters.AsciiMode]
 	unicodeMode := unicodeModeFromName[cfg.Characters.UnicodeMode]
 	selMode := selectionModeFromName[cfg.Characters.SelectionMode]
-	m.Characters.SetConfig(charMode, asciiMode, unicodeMode, selMode, cfg.Characters.ColorBg, cfg.Characters.CustomChars)
-	if cfg.Characters.FgBgThreshold > 0 {
-		m.Characters.SetFgBgThreshold(cfg.Characters.FgBgThreshold)
+	m.Characters.SetConfig(charMode, asciiMode, unicodeMode, selMode, cfg.Characters.CustomChars)
+	if cfg.Characters.RandomSeed != 0 {
+		m.Characters.SetRandomSeed(cfg.Characters.RandomSeed)
+	}
+	if cfg.Characters.VarianceThreshold > 0 {
+		m.Characters.SetVarianceThreshold(cfg.Characters.VarianceThreshold)
 	}
 
 	sizeMode := sizeModeFromName[cfg.Size.Mode]
@@ -266,6 +273,9 @@ func (m *Model) ApplyConfig(cfg Config) {
 	m.Animation.SetDelayMs(cfg.Animation.DelayMs)
 
 	m.Alpha.SetConfig(cfg.Alpha.UseAlpha, cfg.Alpha.TrimAlpha)
+	if cfg.Alpha.AlphaThreshold > 0 {
+		m.Alpha.SetAlphaThreshold(cfg.Alpha.AlphaThreshold)
+	}
 
 	// Theme is intentionally not saved/loaded — a bad palette + paletted theme
 	// could make the UI unreadable and persist across sessions.
@@ -288,8 +298,6 @@ func DefaultConfig() Config {
 			Mode:          "Unicode",
 			UnicodeMode:   "Half",
 			AsciiMode:     "AZ",
-			ColorBg:        true,
-			FgBgThreshold:  0.15,
 			SelectionMode: "DarkToLight",
 			CustomChars:   "/%A",
 		},

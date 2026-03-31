@@ -26,7 +26,8 @@ type Model struct {
 
 	ShouldClose bool
 
-	width int
+	width  int
+	height int // list height; 0 = default (18)
 }
 
 func New(exts map[string]bool, w int) Model {
@@ -90,6 +91,13 @@ func (m Model) ActiveFilename() string {
 
 func (m Model) SelectedFilename() string {
 	return filepath.Base(m.SelectedFile)
+}
+
+func (m *Model) SetHeight(h int) {
+	m.height = h
+	for i := range m.lists {
+		m.lists[i].SetHeight(h)
+	}
 }
 
 func (m *Model) RefreshStyles() {

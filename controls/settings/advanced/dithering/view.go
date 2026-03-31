@@ -119,12 +119,15 @@ func (m Model) drawBayerSizeButtons() string {
 func (m Model) drawStrength() string {
 	promptStyle := style.DimmedTitle.Copy()
 	textStyle := style.BgStyle().Foreground(style.DimmedColor1)
+	cursorColor := style.DimmedColor1
 	if m.strengthInput.Focused() {
 		promptStyle = style.SelectedTitle.Copy()
 		textStyle = style.BgStyle().Foreground(style.SelectedColor1)
+		cursorColor = style.SelectedColor1
 	} else if m.focus == StrengthForm && m.IsActive {
 		promptStyle = style.NormalTitle.Copy()
 		textStyle = style.BgStyle().Foreground(style.NormalColor1)
+		cursorColor = style.NormalColor1
 	}
 
 	styles := m.strengthInput.Styles()
@@ -132,8 +135,10 @@ func (m Model) drawStrength() string {
 	styles.Focused.Text = textStyle
 	styles.Blurred.Prompt = promptStyle
 	styles.Blurred.Text = textStyle
-	styles.Cursor.Blink = m.strengthInput.Focused()
+	styles.Cursor.Blink = true
+	styles.Cursor.Color = cursorColor
 	m.strengthInput.SetStyles(styles)
+	m.strengthInput.SetVirtualCursor(m.strengthInput.Focused())
 	return m.strengthInput.View()
 }
 

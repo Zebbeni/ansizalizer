@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	Width  = 50
-	Height = 20
+	Width      = 50
+	Height     = 20
+	BatchWidth  = 106
+	BatchHeight = 30
 )
 
 type Kind int
@@ -23,6 +25,8 @@ type Kind int
 const (
 	LoadKind Kind = iota
 	SaveKind
+	ExportFileKind
+	ExportBatchKind
 )
 
 type Focus int
@@ -32,12 +36,22 @@ const (
 	FocusInput
 	FocusConfirm
 	FocusCancel
+	FocusSourcePanel  // source panel focused (not browsing)
+	FocusSourceBrowser // browsing inside source panel
+	FocusSubDirsYes
+	FocusSubDirsNo
+	FocusDestPanel    // dest panel focused (not browsing)
+	FocusDestBrowser  // browsing inside dest panel
 )
 
 // Result is set when the user confirms an action.
 type Result struct {
-	Kind Kind
-	Path string // full file path for load or save
+	Kind            Kind
+	Path            string // full file path for load or save
+	SourcePath      string // for export
+	DestinationPath string // for export
+	IsDir           bool   // for export batch
+	UseSubDirs      bool   // for export batch
 }
 
 type Model struct {
@@ -50,6 +64,12 @@ type Model struct {
 
 	dir   string // current directory for save
 	width int
+
+	// Export-specific fields
+	sourceFile  string       // source file path for ExportFileKind
+	sourceBrowser browser.Model // source directory browser for ExportBatchKind
+	destBrowser   browser.Model // destination directory browser
+	useSubDirs    bool          // include subdirectories in batch export
 }
 
 var jsonExtensions = map[string]bool{".json": true}
@@ -82,6 +102,32 @@ func NewSave(settingsDir string) Model {
 	}
 }
 
+func NewExportFile(sourceFile, destDir string) Model {
+	destBrowser := browser.NewAtDir(destDir, nil, Width-4)
+	return Model{
+		Kind:        ExportFileKind,
+		Open:        true,
+		focus:       FocusDestBrowser,
+		destBrowser: destBrowser,
+		sourceFile:  sourceFile,
+		width:       Width,
+	}
+}
+
+func NewExportBatch(sourceDir, destDir string) Model {
+	panelW := (BatchWidth - 9) / 2 // each panel's content width
+	sourceBrowser := browser.NewAtDir(sourceDir, nil, panelW)
+	destBrowser := browser.NewAtDir(destDir, nil, panelW)
+	return Model{
+		Kind:          ExportBatchKind,
+		Open:          true,
+		focus:         FocusSourcePanel,
+		sourceBrowser: sourceBrowser,
+		destBrowser:   destBrowser,
+		width:         BatchWidth,
+	}
+}
+
 func (m Model) GetResult() *Result {
 	return m.result
 }
@@ -96,6 +142,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 		return m.updateLoad(msg)
 	case SaveKind:
 		return m.updateSave(msg)
+	case ExportFileKind:
+		return m.updateExportFile(msg)
+	case ExportBatchKind:
+		return m.updateExportBatch(msg)
 	}
 	return m, nil
 }
@@ -201,6 +251,11 @@ func (m Model) updateSave(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	w, h := Width, Height
+	if m.Kind == ExportBatchKind {
+		w, h = BatchWidth, BatchHeight
+	}
+
 	var title, body string
 
 	switch m.Kind {
@@ -210,26 +265,47 @@ func (m Model) View() string {
 	case SaveKind:
 		title = "Save Settings"
 		body = m.saveView()
+	case ExportFileKind:
+		title = "Export Current File"
+		body = m.exportFileView()
+	case ExportBatchKind:
+		title = "Batch Export"
+		body = m.exportBatchView()
 	}
-
-	titleRendered := style.SelectedTitle.Copy().
-		Width(Width - 6).
-		AlignHorizontal(lipgloss.Center).
-		Render(title)
 
 	buttons := m.renderButtons()
 
-	content := lipgloss.JoinVertical(lipgloss.Center,
-		titleRendered,
-		"",
-		body,
-		"",
-		buttons,
-	)
+	if m.Kind == ExportBatchKind {
+		// Use BoxWithLabel for the outer modal
+		content := lipgloss.JoinVertical(lipgloss.Center, body, "", buttons)
+
+		textStyle := style.BgStyle().
+			AlignHorizontal(lipgloss.Center).
+			Padding(0, 1).
+			Foreground(style.SelectedColor1)
+		borderStyle := style.BgStyle().
+			Border(style.HeavyBorder()).
+			BorderForeground(style.SelectedColor1).
+			BorderBackground(style.ActiveTheme.Bg)
+
+		renderer := style.BoxWithLabel{
+			BoxStyle:   borderStyle,
+			LabelStyle: textStyle,
+		}
+		return style.ApplyBg(renderer.Render(title, content, w-2), 0)
+	}
+
+	// Standard modal for load/save/export-file
+	titleRendered := style.SelectedTitle.Copy().
+		Width(w - 6).
+		AlignHorizontal(lipgloss.Center).
+		Render(title)
+
+	content := lipgloss.JoinVertical(lipgloss.Center, titleRendered, "", body, "", buttons)
 
 	border := style.BgStyle().
-		Width(Width).
-		Height(Height).
+		Width(w).
+		Height(h).
 		Border(style.HeavyBorder()).
 		BorderForeground(style.SelectedColor1).
 		BorderBackground(style.ActiveTheme.Bg).
@@ -257,9 +333,11 @@ func (m Model) loadView() string {
 func (m Model) saveView() string {
 	promptStyle := style.DimmedTitle.Copy()
 	textSt := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	cursorColor := style.DimmedColor1
 	if m.input.Focused() {
 		promptStyle = style.SelectedTitle.Copy()
 		textSt = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+		cursorColor = style.SelectedColor1
 	}
 
 	styles := m.input.Styles()
@@ -267,16 +345,21 @@ func (m Model) saveView() string {
 	styles.Focused.Text = textSt
 	styles.Blurred.Prompt = promptStyle.Width(12)
 	styles.Blurred.Text = textSt
-	styles.Cursor.Blink = m.input.Focused()
+	styles.Cursor.Blink = true
+	styles.Cursor.Color = cursorColor
 	m.input.SetStyles(styles)
+	m.input.SetVirtualCursor(m.input.Focused())
 
 	return m.input.View()
 }
 
 func (m Model) renderButtons() string {
 	confirmLabel := "  Load  "
-	if m.Kind == SaveKind {
+	switch m.Kind {
+	case SaveKind:
 		confirmLabel = "  Save  "
+	case ExportFileKind, ExportBatchKind:
+		confirmLabel = " Export "
 	}
 
 	confirmStyle := style.NormalButton

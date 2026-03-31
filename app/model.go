@@ -41,6 +41,7 @@ type Model struct {
 	modal         *modal.Model // non-nil when a load/save modal is open
 	quitConfirm   bool         // true when quit confirmation modal is showing
 	quitFocusYes  bool         // true = Yes focused, false = No focused
+	showHelp      bool         // true when help tooltips are visible
 
 	waitingOnExport bool
 	exportQueue     []exportJob
@@ -195,6 +196,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.quitFocusYes = true
 			return m, nil
 		}
+		// Ctrl+H toggles help tooltips
+		if key.Matches(msg, event.KeyMap.Help) {
+			m.showHelp = !m.showHelp
+			return m, nil
+		}
 		switch {
 		case key.Matches(msg, event.KeyMap.Copy):
 			return m.handleCopy()
@@ -284,6 +290,21 @@ func (m Model) View() tea.View {
 
 		canvas.Compose(lipgloss.NewCompositor(layers...))
 		rendered = canvas.Render()
+	}
+
+	// Overlay help tooltip to the right of the controls panel
+	if m.showHelp && !m.controls.FileDropdown.Open {
+		if helpText := m.controls.HelpText(); helpText != "" {
+			tooltip := style.RenderTooltip(helpText)
+			tx := controlsWidth + 1
+			ty := m.controls.ButtonHeight() + 1
+
+			canvas := lipgloss.NewCanvas(m.w, m.h)
+			base := lipgloss.NewLayer(rendered)
+			overlay := lipgloss.NewLayer(tooltip).X(tx).Y(ty).Z(5)
+			canvas.Compose(lipgloss.NewCompositor(base, overlay))
+			rendered = canvas.Render()
+		}
 	}
 
 	// Overlay quit confirmation modal

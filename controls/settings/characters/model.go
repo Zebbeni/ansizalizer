@@ -6,7 +6,6 @@ import (
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/event"
 )
@@ -28,11 +27,11 @@ const (
 	UnicodeShadeMed
 	UnicodeShadeHeavy
 	SymbolsForm
-	Variance
+	DarkVariance
+	LightVariance
 	Sequence
 	Random
-	ColorBgOff
-	ColorBgOn
+	SeedForm
 	ThresholdForm
 )
 
@@ -43,11 +42,10 @@ type Model struct {
 	charControls  State
 	unicodeMode   State
 	asciiMode     State
-	colorBg        bool
-	fgBgThreshold  float64
-	thresholdInput textinput.Model
 	selectionMode  State
 	customInput    textinput.Model
+	seedInput      textinput.Model
+	thresholdInput textinput.Model
 	ShouldClose   bool
 	IsActive      bool
 	width         int
@@ -61,11 +59,10 @@ func New(w int) Model {
 		charControls:  Unicode,
 		asciiMode:     AsciiAz,
 		unicodeMode:   UnicodeHalf,
-		colorBg:        true,
-		fgBgThreshold:  0.15,
-		thresholdInput: newThresholdInput(0.15),
-		selectionMode:  Variance,
-		customInput:   newInput("Symbols", "/%A"),
+		selectionMode: DarkVariance,
+		customInput:    newInput("Symbols ", "/%A"),
+		seedInput:      newInput("Seed ", "42"),
+		thresholdInput: newInput("Threshold ", "0.0"),
 		ShouldClose:   false,
 		IsActive:      false,
 		width:         w,
@@ -81,6 +78,10 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case SymbolsForm:
 		if m.customInput.Focused() {
 			return m.handleSymbolsFormUpdate(msg)
+		}
+	case SeedForm:
+		if m.seedInput.Focused() {
+			return m.handleSeedFormUpdate(msg)
 		}
 	case ThresholdForm:
 		if m.thresholdInput.Focused() {
@@ -103,14 +104,11 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	colorsButtons := m.drawColorsButtons()
-	charTabs := m.drawCharTabs()
-	return lipgloss.JoinVertical(lipgloss.Top, colorsButtons, charTabs)
+	return m.drawCharTabs()
 }
 
-// Selected returns the mode, charMode, whether to use background color, and the
-// current set of custom-defined characters
-func (m Model) Selected() (State, State, bool, []rune) {
+// Selected returns the mode, charMode, and the current set of custom-defined characters
+func (m Model) Selected() (State, State, []rune) {
 	var charMode State
 
 	switch m.mode {
@@ -122,40 +120,42 @@ func (m Model) Selected() (State, State, bool, []rune) {
 		charMode = Custom
 	}
 
-	return m.mode, charMode, m.colorBg, []rune(m.customInput.Value())
+	return m.mode, charMode, []rune(m.customInput.Value())
 }
 
 func (m Model) SelectionMode() State {
 	return m.selectionMode
 }
 
-func newThresholdInput(value float64) textinput.Model {
-	input := textinput.New()
-	input.Prompt = " Char Threshold "
-	input.CharLimit = 5
-	input.SetValue(strconv.FormatFloat(value, 'f', 2, 64))
-	return input
+func (m *Model) SetRandomSeed(seed int64) {
+	m.seedInput.SetValue(strconv.FormatInt(seed, 10))
 }
 
-func (m Model) FgBgThreshold() float64 {
+func (m Model) VarianceThreshold() float64 {
 	val, err := strconv.ParseFloat(m.thresholdInput.Value(), 64)
-	if err != nil || val <= 0 {
-		return 0.15
+	if err != nil || val < 0 {
+		return 0
 	}
 	return val
 }
 
-func (m *Model) SetFgBgThreshold(t float64) {
-	m.fgBgThreshold = t
+func (m *Model) SetVarianceThreshold(t float64) {
 	m.thresholdInput.SetValue(strconv.FormatFloat(t, 'f', 2, 64))
 }
 
-func (m *Model) SetConfig(mode, asciiMode, unicodeMode, selectionMode State, colorBg bool, customChars string) {
+func (m Model) RandomSeed() int64 {
+	val, err := strconv.ParseInt(m.seedInput.Value(), 10, 64)
+	if err != nil {
+		return 42
+	}
+	return val
+}
+
+func (m *Model) SetConfig(mode, asciiMode, unicodeMode, selectionMode State, customChars string) {
 	m.mode = mode
 	m.charControls = mode
 	m.asciiMode = asciiMode
 	m.unicodeMode = unicodeMode
-	m.colorBg = colorBg
 	m.selectionMode = selectionMode
 	m.customInput.SetValue(customChars)
 }
@@ -167,11 +167,6 @@ func (m *Model) ResetFocus() {
 }
 
 func (m Model) Summary() string {
-	colors := "Colors: FG Only"
-	if m.colorBg {
-		colors = "Colors: FG + BG"
-	}
-
 	var chars string
 	switch m.mode {
 	case Ascii:
@@ -186,7 +181,7 @@ func (m Model) Summary() string {
 		chars = "Chars: " + val
 	}
 
-	summary := colors + "\n" + chars
+	summary := chars
 	if m.mode == Custom {
 		summary += "\nMode: " + stateNames[m.selectionMode]
 	}

@@ -108,6 +108,47 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch {
+	case key.Matches(msg, event.KeyMap.Tab):
+		// Try Right first
+		switch m.focus {
+		case LoadTabSelect:
+			m.focus = SaveTabSelect
+			return m, nil
+		case SaveButton:
+			m.focus = CancelButton
+			return m, nil
+		case LoadConfirmButton:
+			m.focus = CancelButton
+			return m, nil
+		}
+		// Fall through to Down logic
+		switch m.focus {
+		case LoadTabSelect:
+			if m.tab != LoadTab {
+				return m, nil
+			}
+			m.focus = LoadInput
+		case SaveTabSelect:
+			if m.tab != SaveTab {
+				return m, nil
+			}
+			m.focus = DirInput
+		case DirInput:
+			if m.dirChosen {
+				m.focus = FilenameForm
+			}
+		case FilenameForm:
+			if m.filenameInput.Value() != "" {
+				m.focus = SaveButton
+			}
+		case SaveButton, CancelButton, LoadConfirmButton:
+			m.ShouldClose = true
+		case LoadInput:
+			if m.selectedLoadFile != "" {
+				m.focus = LoadConfirmButton
+			}
+		}
+		return m, nil
 	case key.Matches(msg, event.KeyMap.Left):
 		switch m.focus {
 		case SaveTabSelect:

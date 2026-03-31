@@ -19,8 +19,8 @@ var (
 	navMap = map[Direction]map[State]State{
 		Right: {AlphaYes: AlphaNo, TrimAlphaYes: TrimAlphaNo},
 		Left:  {AlphaNo: AlphaYes, TrimAlphaNo: TrimAlphaYes},
-		Up:    {TrimAlphaYes: AlphaYes, TrimAlphaNo: AlphaNo},
-		Down:  {AlphaYes: TrimAlphaYes, AlphaNo: TrimAlphaNo},
+		Up:    {TrimAlphaYes: AlphaYes, TrimAlphaNo: AlphaNo, ThresholdForm: TrimAlphaYes},
+		Down:  {AlphaYes: TrimAlphaYes, AlphaNo: TrimAlphaNo, TrimAlphaYes: ThresholdForm, TrimAlphaNo: ThresholdForm},
 	}
 )
 
@@ -41,6 +41,13 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			return m.setFocus(next)
+		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		if next, hasNext := navMap[Right][m.focus]; hasNext {
+			return m.setFocus(next)
+		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
@@ -85,6 +92,9 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.trimAlpha = true
 	case TrimAlphaNo:
 		m.trimAlpha = false
+	case ThresholdForm:
+		m.thresholdInput.Focus()
+		return m, nil
 	}
 	return m, event.StartRenderToViewCmd
 }

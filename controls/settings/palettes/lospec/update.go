@@ -71,7 +71,13 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 		m.sortType = m.focus
 		return m.searchLospec(0)
 	case List:
-		m.palette, _ = m.paletteList.SelectedItem().(palette.Model)
+		selected, _ := m.paletteList.SelectedItem().(palette.Model)
+		if m.IsSelected && selected.Name() == m.palette.Name() {
+			// Already selected — navigate up to Lospec tab
+			m.ShouldUnfocus = true
+			return m, nil
+		}
+		m.palette = selected
 		m.IsSelected = true
 		return m, event.StartRenderToViewCmd
 	}
@@ -90,6 +96,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		}
 	case key.Matches(msg, event.KeyMap.Down):
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			if next == List {
+				m.SetListActive(true)
+			}
+			m.focus = next
+		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		if next, hasNext := navMap[Right][m.focus]; hasNext {
+			m.focus = next
+		} else if next, hasNext := navMap[Down][m.focus]; hasNext {
 			if next == List {
 				m.SetListActive(true)
 			}

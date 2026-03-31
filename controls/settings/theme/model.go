@@ -136,6 +136,14 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			}
 		}
 		m.ShouldClose = true
+	case key.Matches(msg, event.KeyMap.Tab):
+		for i, t := range themeOrder {
+			if t == m.focus && i+1 < len(themeOrder) {
+				m.focus = themeOrder[i+1]
+				return m, nil
+			}
+		}
+		m.ShouldClose = true
 	case key.Matches(msg, event.KeyMap.Up):
 		for i, t := range themeOrder {
 			if t == m.focus {

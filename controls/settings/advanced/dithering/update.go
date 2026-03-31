@@ -206,6 +206,31 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		} else {
 			m.ShouldClose = true
 		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		if next, hasNext := navMap[Right][m.focus]; hasNext {
+			return m.setFocus(next)
+		}
+		if !m.doDithering {
+			m.ShouldClose = true
+			return m, nil
+		}
+		// Activate tab if focused but not active
+		switch m.focus {
+		case ModeMatrix:
+			m.modeControls = ModeMatrix
+			m.ditherMode = Matrix
+		case ModeBayer:
+			m.modeControls = ModeBayer
+			m.ditherMode = Bayer
+		case ModeClusteredDot:
+			m.modeControls = ModeClusteredDot
+			m.ditherMode = ClusteredDot
+		}
+		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			return m.setFocus(next)
+		} else {
+			m.ShouldClose = true
+		}
 	}
 	return m, nil
 }

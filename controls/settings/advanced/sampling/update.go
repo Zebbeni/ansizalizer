@@ -28,6 +28,13 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		return m, nil
 	}
 
+	// Tab behaves like Down in the list
+	if key.Matches(msg, event.KeyMap.Tab) {
+		m.list.CursorDown()
+		m.list.SetDelegate(NewDelegate(true))
+		return m, nil
+	}
+
 	var cmd tea.Cmd
 	m.list, cmd = m.list.Update(msg)
 	m.list.SetDelegate(NewDelegate(true))

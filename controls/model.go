@@ -59,7 +59,7 @@ func New(w int, dirs prefs.Dirs) Model {
 
 	return Model{
 		active: Menu,
-		focus:  Browse,
+		focus:  FileMenu,
 
 		FileDropdown: filemenu.New(w),
 		FileBrowser:  fileBrowser,

@@ -23,8 +23,9 @@ func (m Model) drawBrightnessForm() string {
 	styles.Focused.Text = styles.Focused.Text.Foreground(text)
 	styles.Blurred.Text = styles.Blurred.Text.Foreground(text)
 	styles.Cursor.Color = text
-	styles.Cursor.Blink = m.brightnessInput.Focused()
+	styles.Cursor.Blink = true
 	m.brightnessInput.SetStyles(styles)
+	m.brightnessInput.SetVirtualCursor(m.brightnessInput.Focused())
 
 	return inputStyle.Render(m.brightnessInput.View())
 }
@@ -39,8 +40,9 @@ func (m Model) drawContrastForm() string {
 	styles.Focused.Text = styles.Focused.Text.Foreground(text)
 	styles.Blurred.Text = styles.Blurred.Text.Foreground(text)
 	styles.Cursor.Color = text
-	styles.Cursor.Blink = m.contrastInput.Focused()
+	styles.Cursor.Blink = true
 	m.contrastInput.SetStyles(styles)
+	m.contrastInput.SetVirtualCursor(m.contrastInput.Focused())
 
 	return inputStyle.Render(m.contrastInput.View())
 }

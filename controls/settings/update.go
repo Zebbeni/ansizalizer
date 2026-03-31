@@ -243,6 +243,13 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 				break
 			}
 		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		for i, s := range states {
+			if s == m.focus && i+1 < len(states) {
+				m.focus = states[i+1]
+				break
+			}
+		}
 	case key.Matches(msg, event.KeyMap.Up):
 		for i, s := range states {
 			if s == m.focus {

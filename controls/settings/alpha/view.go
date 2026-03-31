@@ -29,6 +29,31 @@ func (m Model) drawAlphaOptions() string {
 	return lipgloss.JoinHorizontal(lipgloss.Left, title, yesNode, noNode)
 }
 
+func (m Model) drawThresholdInput() string {
+	promptStyle := style.DimmedTitle.Copy()
+	textSt := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	cursorColor := style.DimmedColor1
+	if m.thresholdInput.Focused() {
+		promptStyle = style.SelectedTitle.Copy()
+		textSt = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+		cursorColor = style.SelectedColor1
+	} else if m.focus == ThresholdForm && m.IsActive {
+		promptStyle = style.NormalTitle.Copy()
+		textSt = lipgloss.NewStyle().Foreground(style.NormalColor1)
+		cursorColor = style.NormalColor1
+	}
+	styles := m.thresholdInput.Styles()
+	styles.Focused.Prompt = promptStyle.PaddingLeft(1)
+	styles.Focused.Text = textSt
+	styles.Blurred.Prompt = promptStyle.PaddingLeft(1)
+	styles.Blurred.Text = textSt
+	styles.Cursor.Blink = true
+	styles.Cursor.Color = cursorColor
+	m.thresholdInput.SetStyles(styles)
+	m.thresholdInput.SetVirtualCursor(m.thresholdInput.Focused())
+	return m.thresholdInput.View()
+}
+
 func (m Model) drawAlphaTrimOptions() string {
 	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Trim Output:")
 

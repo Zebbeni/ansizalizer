@@ -6,6 +6,8 @@ import (
 
 	"charm.land/bubbles/v2/textinput"
 	"charm.land/lipgloss/v2"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
@@ -26,6 +28,7 @@ func newInput(state State, value int) textinput.Model {
 	styles.Focused.Placeholder = placeholderStyle
 	styles.Blurred.Placeholder = placeholderStyle
 	styles.Cursor.Blink = true
+	styles.Cursor.Color = style.SelectedColor1
 	input.SetStyles(styles)
 	input.CharLimit = 3
 	input.SetValue(strconv.Itoa(value))
@@ -41,6 +44,7 @@ func newFloatInput(state State, value float64) textinput.Model {
 	styles.Focused.Placeholder = floatPlaceholderStyle
 	styles.Blurred.Placeholder = floatPlaceholderStyle
 	styles.Cursor.Blink = true
+	styles.Cursor.Color = style.SelectedColor1
 	input.SetStyles(styles)
 	input.CharLimit = 5
 	input.SetValue(fmt.Sprintf("%1.2f", value))

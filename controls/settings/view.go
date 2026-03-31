@@ -8,9 +8,9 @@ import (
 
 func (m Model) renderWithBorder(content string, state State, collapsed bool) string {
 	renderColor := style.DimmedColor1
-	if m.active == state {
+	if m.IsActive && m.active == state {
 		renderColor = style.NormalColor1
-	} else if m.focus == state {
+	} else if m.IsActive && m.focus == state {
 		renderColor = style.SelectedColor1
 	}
 
@@ -19,7 +19,7 @@ func (m Model) renderWithBorder(content string, state State, collapsed bool) str
 		Padding(0, 1, 0, 1).
 		Foreground(renderColor)
 	border := lipgloss.RoundedBorder()
-	if m.focus == state && m.active != state {
+	if m.IsActive && m.focus == state && m.active != state {
 		border = style.HeavyBorder()
 	}
 	borderStyle := style.BgStyle().

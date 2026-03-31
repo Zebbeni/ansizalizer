@@ -64,7 +64,10 @@ func (m Model) handleFileMenuResult(result filemenu.Result) (Model, tea.Cmd) {
 			return m, event.BuildCheckThemeCmd(style.PaletteColors, result.ThemeName)
 		}
 	case filemenu.Export:
-		// TODO: implement export modals
+		m.OpenModal = &result
+	case filemenu.Quit:
+		m.ShouldQuit = true
+		return m, nil
 	}
 	return m, nil
 }
@@ -87,6 +90,7 @@ func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 	if m.Settings.ShouldClose {
 		m.Settings.ShouldClose = false
+		m.Settings.IsActive = false
 		m.active = Menu
 	}
 
@@ -117,9 +121,7 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			}
 			m.active = m.focus
 			m.showing = m.focus
-			if m.focus == Browse {
-				m.FileBrowser.SetActive(true)
-			}
+			m.activateShowing()
 
 		case key.Matches(msg, event.KeyMap.Nav):
 			switch {
@@ -132,25 +134,15 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 					m.focus = next
 				}
 			case key.Matches(msg, event.KeyMap.Down):
-				if m.focus == FileMenu {
-					// Navigate into whichever tab's content is showing
-					if m.showing == Browse || m.showing == Settings {
-						m.active = m.showing
-						m.focus = m.showing
-						if m.showing == Browse {
-							m.FileBrowser.SetActive(true)
-						}
-					}
+				m.enterShowing()
+			case key.Matches(msg, event.KeyMap.Tab):
+				// Try Right first
+				if next, hasNext := navMap[Right][m.focus]; hasNext {
+					m.focus = next
 					return m, nil
 				}
-				// Re-enter the tab whose content is showing;
-				// focused-but-inactive tabs do not navigate on down.
-				if m.focus == m.showing {
-					m.active = m.focus
-					if m.focus == Browse {
-						m.FileBrowser.SetActive(true)
-					}
-				}
+				// Fall through to Down logic
+				m.enterShowing()
 			}
 
 		case key.Matches(msg, event.KeyMap.Esc):
@@ -158,4 +150,23 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	}
 	return m, nil
+}
+
+// activateShowing sets the active-state flags for whichever content is showing.
+func (m *Model) activateShowing() {
+	if m.showing == Browse {
+		m.FileBrowser.SetActive(true)
+	}
+	if m.showing == Settings {
+		m.Settings.IsActive = true
+	}
+}
+
+// enterShowing navigates from the button bar into the showing content.
+func (m *Model) enterShowing() {
+	if m.showing == Browse || m.showing == Settings {
+		m.active = m.showing
+		m.focus = m.showing
+		m.activateShowing()
+	}
 }

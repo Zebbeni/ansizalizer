@@ -18,8 +18,8 @@ const (
 
 var navMap = map[Direction]map[State]State{
 	Right: {
-		Ascii:             Unicode,
-		Unicode:           Custom,
+		Unicode:           Ascii,
+		Ascii:             Custom,
 		AsciiAz:           AsciiNums,
 		AsciiNums:         AsciiSpec,
 		AsciiSpec:         AsciiAll,
@@ -28,13 +28,12 @@ var navMap = map[Direction]map[State]State{
 		UnicodeQuart:      UnicodeShadeLight,
 		UnicodeShadeLight: UnicodeShadeMed,
 		UnicodeShadeMed:   UnicodeShadeHeavy,
-		ColorBgOff:          ColorBgOn,
-		Variance:       Sequence,
-		Sequence:          Random,
+		DarkVariance:      LightVariance,
+		Sequence:           Random,
 	},
 	Left: {
-		Unicode:           Ascii,
-		Custom:            Unicode,
+		Ascii:             Unicode,
+		Custom:            Ascii,
 		AsciiAll:          AsciiSpec,
 		AsciiSpec:         AsciiNums,
 		AsciiNums:         AsciiAz,
@@ -43,14 +42,10 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeLight: UnicodeQuart,
 		UnicodeQuart:      UnicodeHalf,
 		UnicodeHalf:       UnicodeFull,
-		ColorBgOn:          ColorBgOff,
+		LightVariance:     DarkVariance,
 		Random:            Sequence,
-		Sequence:          Variance,
 	},
 	Up: {
-		Ascii:             ColorBgOff,
-		Unicode:           ColorBgOff,
-		Custom:            ColorBgOff,
 		AsciiAz:           Ascii,
 		AsciiNums:         Ascii,
 		AsciiSpec:         Ascii,
@@ -62,17 +57,24 @@ var navMap = map[Direction]map[State]State{
 		UnicodeShadeMed:   Unicode,
 		UnicodeShadeHeavy: Unicode,
 		SymbolsForm:       Custom,
-		Variance:       SymbolsForm,
-		Sequence:          SymbolsForm,
-		Random:            SymbolsForm,
+		// DarkVariance/LightVariance Up is context-dependent — handled in handleNav
+		Sequence:           DarkVariance,
+		Random:             DarkVariance,
+		SeedForm:           Random,
+		ThresholdForm:      DarkVariance,
 	},
 	Down: {
-		ColorBgOff:  Ascii,
-		ColorBgOn:   Ascii,
-		Ascii:       AsciiAz,
-		Unicode:     UnicodeShadeMed,
-		Custom:      SymbolsForm,
-		SymbolsForm: Variance,
+		Ascii:         AsciiAz,
+		Unicode:       UnicodeShadeMed,
+		Custom:        SymbolsForm,
+		SymbolsForm:   DarkVariance,
+		AsciiAz:       DarkVariance,
+		AsciiNums:     DarkVariance,
+		AsciiSpec:     DarkVariance,
+		AsciiAll:      DarkVariance,
+		DarkVariance:  Sequence,
+		LightVariance: Sequence,
+		ThresholdForm: Sequence,
 	},
 }
 
@@ -80,23 +82,6 @@ var (
 	asciiCharModeMap   = map[State]bool{AsciiAz: true, AsciiNums: true, AsciiSpec: true, AsciiAll: true}
 	unicodeCharModeMap = map[State]bool{UnicodeFull: true, UnicodeHalf: true, UnicodeQuart: true, UnicodeShadeLight: true, UnicodeShadeMed: true, UnicodeShadeHeavy: true}
 )
-
-func (m Model) handleThresholdFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
-	if keyMsg, ok := msg.(tea.KeyMsg); ok {
-		switch {
-		case key.Matches(keyMsg, event.KeyMap.Enter):
-			m.thresholdInput.Blur()
-			m.fgBgThreshold = m.FgBgThreshold()
-			return m, event.StartRenderToViewCmd
-		case key.Matches(keyMsg, event.KeyMap.Esc):
-			m.thresholdInput.Blur()
-		}
-	}
-
-	var cmd tea.Cmd
-	m.thresholdInput, cmd = m.thresholdInput.Update(msg)
-	return m, cmd
-}
 
 func (m Model) handleSymbolsFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
@@ -111,6 +96,38 @@ func (m Model) handleSymbolsFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 	var cmd tea.Cmd
 	m.customInput, cmd = m.customInput.Update(msg)
+	return m, cmd
+}
+
+func (m Model) handleThresholdFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.thresholdInput.Blur()
+			return m, event.StartRenderToViewCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.thresholdInput.Blur()
+		}
+	}
+
+	var cmd tea.Cmd
+	m.thresholdInput, cmd = m.thresholdInput.Update(msg)
+	return m, cmd
+}
+
+func (m Model) handleSeedFormUpdate(msg tea.Msg) (Model, tea.Cmd) {
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		switch {
+		case key.Matches(keyMsg, event.KeyMap.Enter):
+			m.seedInput.Blur()
+			return m, event.StartRenderToViewCmd
+		case key.Matches(keyMsg, event.KeyMap.Esc):
+			m.seedInput.Blur()
+		}
+	}
+
+	var cmd tea.Cmd
+	m.seedInput, cmd = m.seedInput.Update(msg)
 	return m, cmd
 }
 
@@ -132,18 +149,17 @@ func (m Model) handleEnter() (Model, tea.Cmd) {
 	case Custom:
 		m.mode = Custom
 		m.charControls = Custom
-	case ThresholdForm:
-		m.thresholdInput.Focus()
-		return m, nil
 	case SymbolsForm:
 		m.mode = Custom
 		m.customInput.Focus()
-	case Variance, Sequence, Random:
+	case SeedForm:
+		m.seedInput.Focus()
+		return m, nil
+	case ThresholdForm:
+		m.thresholdInput.Focus()
+		return m, nil
+	case DarkVariance, LightVariance, Sequence, Random:
 		m.selectionMode = m.active
-	case ColorBgOff:
-		m.colorBg = false
-	case ColorBgOn:
-		m.colorBg = true
 	default:
 		switch m.charControls {
 		case Ascii:
@@ -174,13 +190,13 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Up):
-		// ThresholdForm goes up to the row above it in the current tab
-		if m.focus == ThresholdForm {
+		// DarkVariance/LightVariance goes up to the row above based on active tab
+		if m.focus == DarkVariance || m.focus == LightVariance {
 			switch m.charControls {
 			case Ascii:
-				return m.setFocus(AsciiAz)
+				return m.setFocus(m.asciiMode)
 			case Custom:
-				return m.setFocus(m.selectionMode)
+				return m.setFocus(SymbolsForm)
 			}
 		}
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
@@ -197,13 +213,30 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 				return m, nil
 			}
 		}
-		// Navigate down to ThresholdForm from Ascii buttons or Custom selection modes (when visible)
-		if m.colorBg {
-			if _, ok := asciiCharModeMap[m.focus]; ok && m.charControls == Ascii {
-				return m.setFocus(ThresholdForm)
-			}
-			if m.selectionMode == Variance && (m.focus == Variance || m.focus == Sequence || m.focus == Random) {
-				return m.setFocus(ThresholdForm)
+		// Navigate to threshold input from DarkVar/LightVar when a variance mode is selected
+		if (m.focus == DarkVariance || m.focus == LightVariance) &&
+			(m.selectionMode == DarkVariance || m.selectionMode == LightVariance) {
+			return m.setFocus(ThresholdForm)
+		}
+		// Navigate to seed input from Sequence/Random when Random is selected
+		if (m.focus == Sequence || m.focus == Random) && m.selectionMode == Random {
+			return m.setFocus(SeedForm)
+		}
+		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			return m.setFocus(next)
+		} else {
+			m.IsActive = false
+			m.ShouldClose = true
+		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		if next, hasNext := navMap[Right][m.focus]; hasNext {
+			return m.setFocus(next)
+		}
+		// Focused but inactive tabs don't navigate on down
+		switch m.focus {
+		case Ascii, Unicode, Custom:
+			if m.charControls != m.focus {
+				return m, nil
 			}
 		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {

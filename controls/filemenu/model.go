@@ -16,6 +16,7 @@ const (
 	SaveSettings
 	Theme
 	Export
+	Quit
 )
 
 type SubItem int
@@ -32,13 +33,14 @@ const (
 	ExportBatchProcess
 )
 
-var menuItems = []Item{LoadSettings, SaveSettings, Theme, Export}
+var menuItems = []Item{LoadSettings, SaveSettings, Theme, Export, Quit}
 
 var menuLabels = map[Item]string{
 	LoadSettings: "Load Settings",
 	SaveSettings: "Save Settings",
 	Theme:        "Theme         ▸",
 	Export:       "Export        ▸",
+	Quit:         "Quit",
 }
 
 var hasSubmenu = map[Item]bool{Theme: true, Export: true}
@@ -148,6 +150,13 @@ func (m Model) handleMainMenuKey(msg tea.KeyMsg) (Model, tea.Cmd) {
 		m.Open = false
 		m.subOpen = -1
 		m.ShouldNavRight = true
+	case key.Matches(msg, event.KeyMap.Tab):
+		for i, item := range menuItems {
+			if item == m.focus && i+1 < len(menuItems) {
+				m.focus = menuItems[i+1]
+				return m, nil
+			}
+		}
 	case key.Matches(msg, event.KeyMap.Esc), key.Matches(msg, event.KeyMap.Left):
 		m.Open = false
 		m.subOpen = -1
@@ -164,7 +173,7 @@ func (m Model) handleSelect() (Model, tea.Cmd) {
 	case Export:
 		m.subOpen = Export
 		m.subFocus = 0
-	case LoadSettings, SaveSettings:
+	case LoadSettings, SaveSettings, Quit:
 		m.SelectedResult = &Result{Action: m.focus}
 		m.Open = false
 		m.subOpen = -1
@@ -181,6 +190,10 @@ func (m Model) handleSubMenuKey(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.subFocus--
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		if m.subFocus+1 < len(items) {
+			m.subFocus++
+		}
+	case key.Matches(msg, event.KeyMap.Tab):
 		if m.subFocus+1 < len(items) {
 			m.subFocus++
 		}

@@ -33,6 +33,10 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			m.focus = next
 		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			m.focus = next
+		}
 	case key.Matches(msg, event.KeyMap.Up):
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			m.focus = next

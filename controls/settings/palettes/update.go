@@ -72,13 +72,13 @@ func (m Model) handleLoaderUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleLospecUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Lospec, cmd = m.Lospec.Update(msg)
-	if m.Lospec.IsSelected {
-		m.selected = Lospec
-	} else if m.Lospec.ShouldUnfocus {
+	if m.Lospec.ShouldUnfocus {
 		m.Lospec.IsActive = false
 		m.Lospec.ShouldUnfocus = false
 		m.Lospec.SetListActive(false)
 		m.focus = Lospec
+	} else if m.Lospec.IsSelected {
+		m.selected = Lospec
 	} else if m.Lospec.ShouldClose {
 		m.Lospec.IsActive = false
 		m.Lospec.ShouldClose = false
@@ -126,6 +126,23 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Down):
+		// Focused but inactive tabs don't navigate on down
+		switch m.focus {
+		case Adapt, Load, Lospec:
+			if m.controls != m.focus {
+				return m, nil
+			}
+		}
+		if next, hasNext := navMap[Down][m.focus]; hasNext {
+			return m.setFocus(next)
+		} else {
+			m.IsActive = false
+			m.ShouldClose = true
+		}
+	case key.Matches(msg, event.KeyMap.Tab):
+		if next, hasNext := navMap[Right][m.focus]; hasNext {
+			return m.setFocus(next)
+		}
 		// Focused but inactive tabs don't navigate on down
 		switch m.focus {
 		case Adapt, Load, Lospec:

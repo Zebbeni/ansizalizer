@@ -73,8 +73,8 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 	m.FileBrowser, cmd = m.FileBrowser.Update(msg)
 
-	if m.FileBrowser.ActiveFile != m.paletteFilepath {
-		m.paletteFilepath = m.FileBrowser.ActiveFile
+	if m.FileBrowser.SelectedFile != "" && m.FileBrowser.SelectedFile != m.paletteFilepath {
+		m.paletteFilepath = m.FileBrowser.SelectedFile
 
 		name := strings.Split(filepath.Base(m.paletteFilepath), ".hex")[0]
 		colors, err := parsePaletteFile(m.paletteFilepath)

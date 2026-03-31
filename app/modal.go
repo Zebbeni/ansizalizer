@@ -24,6 +24,22 @@ func (m Model) openSaveModal() Model {
 	return m
 }
 
+func (m Model) openExportFileModal() Model {
+	sourceFile := m.controls.FileBrowser.SelectedFile
+	destDir := m.controls.Export.Destination.GetSelected()
+	md := modal.NewExportFile(sourceFile, destDir)
+	m.modal = &md
+	return m
+}
+
+func (m Model) openExportBatchModal() Model {
+	sourceDir := m.controls.FileBrowser.SelectedDir
+	destDir := m.controls.Export.Destination.GetSelected()
+	md := modal.NewExportBatch(sourceDir, destDir)
+	m.modal = &md
+	return m
+}
+
 func (m Model) handleModalUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	md, cmd := m.modal.Update(msg)
 	m.modal = &md
@@ -73,6 +89,14 @@ func (m Model) handleModalResult(result modal.Result) (Model, tea.Cmd) {
 		}
 		filename := filepath.Base(result.Path)
 		return m, event.BuildDisplayCmd("saved " + filename)
+
+	case modal.ExportFileKind, modal.ExportBatchKind:
+		return m, event.BuildStartExportCmd(event.StartExportMsg{
+			SourcePath:      result.SourcePath,
+			DestinationPath: result.DestinationPath,
+			IsDir:           result.IsDir,
+			UseSubDirs:      result.UseSubDirs,
+		})
 	}
 
 	return m, nil

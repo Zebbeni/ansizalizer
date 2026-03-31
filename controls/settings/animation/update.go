@@ -56,6 +56,8 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	switch {
 	case key.Matches(msg, event.KeyMap.Up):
 		m.ShouldClose = true
+	case key.Matches(msg, event.KeyMap.Tab):
+		// No Right or Down mappings — Tab is a no-op
 	}
 	return m, nil
 }

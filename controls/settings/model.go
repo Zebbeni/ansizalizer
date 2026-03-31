@@ -41,6 +41,7 @@ type Model struct {
 
 	ShouldUnfocus bool
 	ShouldClose   bool
+	IsActive      bool // true when the settings panel has focus from the controls level
 
 	width int
 }

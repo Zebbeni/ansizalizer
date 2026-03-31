@@ -11,6 +11,7 @@ import (
 	"github.com/makeworld-the-better-one/dither/v2"
 
 	"github.com/Zebbeni/ansizalizer/event"
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type State int
@@ -90,6 +91,7 @@ func newStrengthInput() textinput.Model {
 	styles.Focused.Prompt = promptStyle
 	styles.Blurred.Prompt = promptStyle
 	styles.Cursor.Blink = true
+	styles.Cursor.Color = style.SelectedColor1
 	input.SetStyles(styles)
 	input.CharLimit = 5
 	input.SetValue("1.0")

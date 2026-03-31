@@ -1,21 +1,24 @@
 package characters
 
 import (
+	"image/color"
+
 	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
-	stateOrder         = []State{Ascii, Unicode, Custom}
+	stateOrder         = []State{Unicode, Ascii, Custom}
 	asciiButtonOrder   = []State{AsciiAz, AsciiNums, AsciiSpec, AsciiAll}
 	unicodeButtonOrder = []State{UnicodeFull, UnicodeHalf, UnicodeQuart, UnicodeShadeLight, UnicodeShadeMed, UnicodeShadeHeavy}
 
-	selectionModeOrder = []State{Variance, Sequence, Random}
+	varianceModes  = []State{DarkVariance, LightVariance}
+	sequenceModes  = []State{Sequence, Random}
 
 	stateNames = map[State]string{
 		Ascii:             "Ascii",
-		Unicode:           "Unicode",
+		Unicode:           "Block",
 		Custom:            "Custom",
 		AsciiAz:           "AZ",
 		AsciiNums:         "0-9",
@@ -27,9 +30,8 @@ var (
 		UnicodeShadeLight: "░",
 		UnicodeShadeMed:   "▒",
 		UnicodeShadeHeavy: "▓",
-		ColorBgOff:        "FG",
-		ColorBgOn:         "FG + BG",
-		Variance:          "Variance",
+		DarkVariance:      "Dark Var",
+		LightVariance:     "Light Var",
 		Sequence:          "Repeat",
 		Random:            "Random",
 	}
@@ -64,125 +66,109 @@ func (m Model) drawCharControls() string {
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
-	if m.charControls == Ascii && m.colorBg {
-		thresholdRow := style.BgStyle().PaddingTop(1).Render(m.drawThresholdInput())
-		return lipgloss.JoinVertical(lipgloss.Left, row, thresholdRow)
+	if m.charControls == Ascii {
+		paddedRow := lipgloss.NewStyle().PaddingTop(1).Render(row)
+		selectionRow := style.BgStyle().PaddingTop(1).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(m.drawSelectionMode())
+		return lipgloss.JoinVertical(lipgloss.Center, paddedRow, selectionRow)
 	}
 
-	return row
+	// Unicode/Block: top and bottom padding
+	return lipgloss.NewStyle().Padding(1, 0).Render(row)
+}
+
+func (m Model) inputStyles(state State, focused bool) (lipgloss.Style, lipgloss.Style, color.Color) {
+	promptStyle := style.DimmedTitle.Copy()
+	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	cursorColor := style.DimmedColor1
+	if focused {
+		promptStyle = style.SelectedTitle.Copy()
+		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+		cursorColor = style.SelectedColor1
+	} else if m.focus == state && m.IsActive {
+		promptStyle = style.NormalTitle.Copy()
+		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
+		cursorColor = style.NormalColor1
+	}
+	return promptStyle, textStyle, cursorColor
 }
 
 func (m Model) drawCustomControls() string {
-	nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
-	textStyle := style.BgStyle().Foreground(style.DimmedColor1)
-	cursorBlink := false
-	if m.customInput.Focused() {
-		nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
-		textStyle = style.BgStyle().Foreground(style.SelectedColor1)
-		cursorBlink = true
-	} else if m.focus == SymbolsForm {
-		nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
-		textStyle = style.BgStyle().Foreground(style.NormalColor1)
-	}
+	promptStyle, textStyle, cursorColor := m.inputStyles(SymbolsForm, m.customInput.Focused())
 	styles := m.customInput.Styles()
-	styles.Focused.Prompt = nodeStyle
+	styles.Focused.Prompt = promptStyle
 	styles.Focused.Text = textStyle
-	styles.Cursor.Blink = cursorBlink
+	styles.Blurred.Prompt = promptStyle
+	styles.Blurred.Text = textStyle
+	styles.Cursor.Blink = true
+	styles.Cursor.Color = cursorColor
 	m.customInput.SetStyles(styles)
+	m.customInput.SetVirtualCursor(m.customInput.Focused())
 
-	symbolsRow := m.customInput.View()
-	selectionRow := style.BgStyle().PaddingTop(1).Render(m.drawSelectionMode())
-
-	if m.colorBg && m.selectionMode == Variance {
-		thresholdRow := style.BgStyle().PaddingTop(1).Render(m.drawThresholdInput())
-		return lipgloss.JoinVertical(lipgloss.Center, symbolsRow, selectionRow, thresholdRow)
-	}
+	symbolsRow := lipgloss.NewStyle().PaddingTop(1).Render(m.customInput.View())
+	selectionRow := style.BgStyle().PaddingTop(1).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(m.drawSelectionMode())
 
 	return lipgloss.JoinVertical(lipgloss.Center, symbolsRow, selectionRow)
 }
 
-var modeDescriptions = map[State]string{
-	Variance: "Select by color variance left: less, right: more",
-	Sequence: "Repeat chars in order",
-	Random:   "Assign chars randomly",
+func (m Model) drawThresholdInput() string {
+	promptStyle, textSt, cursorColor := m.inputStyles(ThresholdForm, m.thresholdInput.Focused())
+	styles := m.thresholdInput.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Focused.Text = textSt
+	styles.Blurred.Prompt = promptStyle
+	styles.Blurred.Text = textSt
+	styles.Cursor.Blink = true
+	styles.Cursor.Color = cursorColor
+	m.thresholdInput.SetStyles(styles)
+	m.thresholdInput.SetVirtualCursor(m.thresholdInput.Focused())
+	return m.thresholdInput.View()
+}
+
+func (m Model) drawSeedInput() string {
+	promptStyle, textSt, cursorColor := m.inputStyles(SeedForm, m.seedInput.Focused())
+	styles := m.seedInput.Styles()
+	styles.Focused.Prompt = promptStyle
+	styles.Focused.Text = textSt
+	styles.Blurred.Prompt = promptStyle
+	styles.Blurred.Text = textSt
+	styles.Cursor.Blink = true
+	styles.Cursor.Color = cursorColor
+	m.seedInput.SetStyles(styles)
+	m.seedInput.SetVirtualCursor(m.seedInput.Focused())
+	return m.seedInput.View()
 }
 
 func (m Model) drawSelectionMode() string {
-	buttons := make([]string, len(selectionModeOrder))
-	for i, state := range selectionModeOrder {
-		buttonStyle := style.NormalButtonNode
-		if m.IsActive && state == m.focus {
-			buttonStyle = style.FocusButtonNode
-		} else if state == m.selectionMode {
-			buttonStyle = style.ActiveButtonNode
+	renderRow := func(modes []State) string {
+		buttons := make([]string, len(modes))
+		for i, state := range modes {
+			buttonStyle := style.NormalButtonNode
+			if m.IsActive && state == m.focus {
+				buttonStyle = style.FocusButtonNode
+			} else if state == m.selectionMode {
+				buttonStyle = style.ActiveButtonNode
+			}
+			buttons[i] = buttonStyle.Render(stateNames[state])
 		}
-		buttons[i] = buttonStyle.Render(stateNames[state])
+		return lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 	}
 
-	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
+	row1 := renderRow(varianceModes)
+	parts := []string{row1}
 
-	// Show description for focused mode or when threshold is focused
-	showFocus := m.focus
-	if m.focus == ThresholdForm || m.thresholdInput.Focused() {
-		showFocus = Variance
-	}
-	if desc, ok := modeDescriptions[showFocus]; ok {
-		descInner := style.DimmedTitle.Copy().Italic(true).Render(desc)
-		descText := lipgloss.NewStyle().PaddingTop(1).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(descInner)
-		return lipgloss.JoinVertical(lipgloss.Left, row, descText)
+	// Show threshold input when a variance mode is selected
+	if m.selectionMode == DarkVariance || m.selectionMode == LightVariance {
+		parts = append(parts, m.drawThresholdInput())
 	}
 
-	return row
+	row2 := renderRow(sequenceModes)
+	parts = append(parts, row2)
+
+	// Show seed input when Random is selected
+	if m.selectionMode == Random {
+		parts = append(parts, m.drawSeedInput())
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Center, parts...)
 }
 
-func (m Model) drawColorsButtons() string {
-	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Colors:")
-
-	oneStyle := style.NormalButtonNode
-	if m.IsActive && ColorBgOff == m.focus {
-		oneStyle = style.FocusButtonNode
-	} else if !m.colorBg {
-		oneStyle = style.ActiveButtonNode
-	}
-	oneButton := oneStyle.Render("FG")
-	oneButton = style.BgStyle().Width(5).AlignHorizontal(lipgloss.Center).Render(oneButton)
-
-	twoStyle := style.NormalButtonNode
-	if m.IsActive && ColorBgOn == m.focus {
-		twoStyle = style.FocusButtonNode
-	} else if m.colorBg {
-		twoStyle = style.ActiveButtonNode
-	}
-	twoButton := twoStyle.Render("FG + BG")
-	twoButton = style.BgStyle().Width(9).AlignHorizontal(lipgloss.Center).Render(twoButton)
-
-	return lipgloss.JoinHorizontal(lipgloss.Left, title, oneButton, twoButton)
-}
-
-func (m Model) drawThresholdInput() string {
-	promptStyle := style.DimmedTitle.Copy()
-	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
-	cursorBlink := false
-	if m.thresholdInput.Focused() {
-		promptStyle = style.SelectedTitle.Copy()
-		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
-		cursorBlink = true
-	} else if m.focus == ThresholdForm && m.IsActive {
-		promptStyle = style.NormalTitle.Copy()
-		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
-	}
-	styles := m.thresholdInput.Styles()
-	styles.Focused.Prompt = promptStyle
-	styles.Focused.Text = textStyle
-	styles.Cursor.Blink = cursorBlink
-	m.thresholdInput.SetStyles(styles)
-	thresholdRow := m.thresholdInput.View()
-
-	if m.focus == ThresholdForm || m.thresholdInput.Focused() {
-		desc := style.DimmedTitle.Copy().Italic(true).Render("Variance threshold for displaying characters.")
-		descRow := lipgloss.NewStyle().PaddingLeft(1).PaddingTop(1).Width(m.width - 4).Render(desc)
-		return lipgloss.JoinVertical(lipgloss.Left, thresholdRow, descRow)
-	}
-
-	return thresholdRow
-}

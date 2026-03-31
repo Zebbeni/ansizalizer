@@ -2,16 +2,30 @@ package viewer
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/charmbracelet/x/ansi"
 
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/style"
 )
+
+// cropWidth truncates each line of s to maxWidth visual columns,
+// handling ANSI escape sequences correctly.
+func cropWidth(s string, maxWidth int) string {
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		if lipgloss.Width(line) > maxWidth {
+			lines[i] = ansi.Truncate(line, maxWidth, "")
+		}
+	}
+	return strings.Join(lines, "\n")
+}
 
 type Model struct {
 	imgString   string
@@ -66,6 +80,15 @@ func (m Model) buildWrappedView() string {
 	}
 
 	imgWidth, imgHeight := lipgloss.Size(imgString)
+
+	// Crop image to fit the viewer width to prevent text wrapping.
+	// Account for the border box (2 chars) and the viewport border (2 chars).
+	maxWidth := m.panelW - 6
+	if imgWidth > maxWidth && maxWidth > 0 {
+		imgString = cropWidth(imgString, maxWidth)
+		imgWidth = maxWidth
+	}
+
 	imgViewer := imgString
 
 	if imgHeight > 1 && imgWidth > 4 {

@@ -18,8 +18,6 @@ var (
 		HeightForm:    "Height",
 		CharRatioForm: "Char Size Ratio (Width/Height)",
 	}
-
-	inputStyle = style.BgStyle().Width(14).AlignHorizontal(lipgloss.Left)
 )
 
 func (m Model) drawModeButtons() string {
@@ -56,25 +54,30 @@ func (m Model) drawModeButtons() string {
 }
 
 func (m Model) drawSizeForms() string {
-	prompt, text := m.getInputColors(WidthForm)
+	wPrompt, wText, wCursor := m.getInputStyles(WidthForm)
 	m.widthInput.SetWidth(3)
 	wStyles := m.widthInput.Styles()
-	wStyles.Focused.Prompt = wStyles.Focused.Prompt.Foreground(prompt)
-	wStyles.Focused.Text = wStyles.Focused.Text.Foreground(text)
-	wStyles.Blurred.Prompt = wStyles.Blurred.Prompt.Foreground(prompt)
-	wStyles.Blurred.Text = wStyles.Blurred.Text.Foreground(text)
+	wStyles.Focused.Prompt = wPrompt.Width(8).PaddingLeft(1)
+	wStyles.Focused.Text = wText
+	wStyles.Blurred.Prompt = wPrompt.Width(8).PaddingLeft(1)
+	wStyles.Blurred.Text = wText
 	wStyles.Cursor.Blink = m.widthInput.Focused()
+	wStyles.Cursor.Color = wCursor
 	m.widthInput.SetStyles(wStyles)
+	m.widthInput.SetVirtualCursor(m.widthInput.Focused())
 
-	prompt, text = m.getInputColors(HeightForm)
+	hPrompt, hText, hCursor := m.getInputStyles(HeightForm)
 	hStyles := m.heightInput.Styles()
-	hStyles.Focused.Prompt = hStyles.Focused.Prompt.Foreground(prompt)
-	hStyles.Focused.Text = hStyles.Focused.Text.Foreground(text)
-	hStyles.Blurred.Prompt = hStyles.Blurred.Prompt.Foreground(prompt)
-	hStyles.Blurred.Text = hStyles.Blurred.Text.Foreground(text)
+	hStyles.Focused.Prompt = hPrompt.Width(8).PaddingLeft(1)
+	hStyles.Focused.Text = hText
+	hStyles.Blurred.Prompt = hPrompt.Width(8).PaddingLeft(1)
+	hStyles.Blurred.Text = hText
 	hStyles.Cursor.Blink = m.heightInput.Focused()
+	hStyles.Cursor.Color = hCursor
 	m.heightInput.SetStyles(hStyles)
+	m.heightInput.SetVirtualCursor(m.heightInput.Focused())
 
+	inputStyle := style.BgStyle().Width(14).AlignHorizontal(lipgloss.Left)
 	width := inputStyle.Render(m.widthInput.View())
 	height := inputStyle.Render(m.heightInput.View())
 
@@ -82,17 +85,37 @@ func (m Model) drawSizeForms() string {
 }
 
 func (m Model) drawCharRatioForm() string {
-	prompt, text := m.getInputColors(CharRatioForm)
+	crPrompt, crText, crCursor := m.getInputStyles(CharRatioForm)
 	m.charRatioInput.SetWidth(30)
 	crStyles := m.charRatioInput.Styles()
-	crStyles.Focused.Prompt = crStyles.Focused.Prompt.Width(20).Foreground(prompt)
-	crStyles.Focused.Text = crStyles.Focused.Text.Foreground(text)
-	crStyles.Blurred.Prompt = crStyles.Blurred.Prompt.Width(20).Foreground(prompt)
-	crStyles.Blurred.Text = crStyles.Blurred.Text.Foreground(text)
+	crStyles.Focused.Prompt = crPrompt.Width(20).PaddingLeft(1)
+	crStyles.Focused.Text = crText
+	crStyles.Blurred.Prompt = crPrompt.Width(20).PaddingLeft(1)
+	crStyles.Blurred.Text = crText
 	crStyles.Cursor.Blink = m.charRatioInput.Focused()
+	crStyles.Cursor.Color = crCursor
 	m.charRatioInput.SetStyles(crStyles)
+	m.charRatioInput.SetVirtualCursor(m.charRatioInput.Focused())
 
-	return inputStyle.Copy().Width(28).AlignHorizontal(lipgloss.Left).PaddingTop(1).Render(m.charRatioInput.View())
+	return style.BgStyle().Width(28).AlignHorizontal(lipgloss.Left).PaddingTop(1).Render(m.charRatioInput.View())
+}
+
+func (m Model) getInputStyles(state State) (lipgloss.Style, lipgloss.Style, color.Color) {
+	promptStyle := style.DimmedTitle.Copy()
+	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
+	cursorColor := style.DimmedColor1
+	if m.IsActive && m.focus == state {
+		if m.active == state {
+			promptStyle = style.SelectedTitle.Copy()
+			textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
+			cursorColor = style.SelectedColor1
+		} else {
+			promptStyle = style.NormalTitle.Copy()
+			textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
+			cursorColor = style.NormalColor1
+		}
+	}
+	return promptStyle, textStyle, cursorColor
 }
 
 func (m Model) getInputColors(state State) (color.Color, color.Color) {

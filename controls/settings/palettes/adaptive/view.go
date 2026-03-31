@@ -28,6 +28,7 @@ func (m Model) drawInputs() string {
 	countStyles.Blurred.Text = textStyle
 	countStyles.Cursor.Blink = m.countInput.Focused()
 	m.countInput.SetStyles(countStyles)
+	m.countInput.SetVirtualCursor(m.countInput.Focused())
 
 	promptStyle, textStyle = m.getInputStyles(IterForm)
 	iterStyles := m.iterInput.Styles()
@@ -37,6 +38,7 @@ func (m Model) drawInputs() string {
 	iterStyles.Blurred.Text = textStyle
 	iterStyles.Cursor.Blink = m.iterInput.Focused()
 	m.iterInput.SetStyles(iterStyles)
+	m.iterInput.SetVirtualCursor(m.iterInput.Focused())
 
 	inputStyle := style.BgStyle().Width(13).AlignHorizontal(lipgloss.Left).PaddingLeft(1)
 	countInput := inputStyle.Render(m.countInput.View())

@@ -18,6 +18,7 @@ func newInput(prompt string, value string) textinput.Model {
 	styles.Focused.Placeholder = lipgloss.NewStyle()
 	styles.Blurred.Placeholder = lipgloss.NewStyle()
 	styles.Cursor.Blink = true
+	styles.Cursor.Color = style.SelectedColor1
 	input.SetStyles(styles)
 
 	input.SetValue(value)

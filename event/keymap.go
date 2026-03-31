@@ -11,11 +11,13 @@ type Map struct {
 	Left     key.Binding
 	Up       key.Binding
 	Down     key.Binding
+	Tab      key.Binding
 	Expand   key.Binding
 	Collapse key.Binding
 	Copy     key.Binding
 	Save     key.Binding
 	Quit     key.Binding
+	Help     key.Binding
 	Debug    key.Binding
 	Esc      key.Binding
 }
@@ -29,7 +31,7 @@ func InitKeyMap() {
 			key.WithHelp("↲/enter", "select/expand menu"),
 		),
 		Nav: key.NewBinding(
-			key.WithKeys("up", "down", "right", "left"),
+			key.WithKeys("up", "down", "right", "left", "tab"),
 			key.WithHelp("↕/↔", "navigate"),
 		),
 		Right: key.NewBinding(
@@ -43,6 +45,10 @@ func InitKeyMap() {
 		),
 		Down: key.NewBinding(
 			key.WithKeys("down"),
+		),
+		Tab: key.NewBinding(
+			key.WithKeys("tab"),
+			key.WithHelp("tab", "next"),
 		),
 		Expand: key.NewBinding(
 			key.WithKeys("+", "="),
@@ -61,6 +67,9 @@ func InitKeyMap() {
 		Quit: key.NewBinding(
 			key.WithKeys("ctrl+q"),
 			key.WithHelp("ctrl+q", "quit")),
+		Help: key.NewBinding(
+			key.WithKeys("ctrl+h"),
+			key.WithHelp("ctrl+h", "help")),
 		Debug: key.NewBinding(
 			key.WithKeys("ctrl+d")),
 		Esc: key.NewBinding(
@@ -71,9 +80,9 @@ func InitKeyMap() {
 }
 
 func (k Map) ShortHelp() []key.Binding {
-	return []key.Binding{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save, k.Quit}
+	return []key.Binding{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save, k.Quit, k.Help}
 }
 
 func (k Map) FullHelp() [][]key.Binding {
-	return [][]key.Binding{{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save, k.Quit}}
+	return [][]key.Binding{{k.Nav, k.Enter, k.Esc, k.Expand, k.Collapse, k.Copy, k.Save, k.Quit, k.Help}}
 }

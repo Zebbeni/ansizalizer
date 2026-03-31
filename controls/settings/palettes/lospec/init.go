@@ -5,6 +5,8 @@ import (
 	"charm.land/lipgloss/v2"
 
 	"charm.land/bubbles/v2/textinput"
+
+	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
@@ -22,6 +24,7 @@ func newInput(state State, value string) textinput.Model {
 	styles.Focused.Placeholder = placeholderStyle
 	styles.Blurred.Placeholder = placeholderStyle
 	styles.Cursor.Blink = true
+	styles.Cursor.Color = style.SelectedColor1
 	input.SetStyles(styles)
 	input.SetValue(value)
 	return input

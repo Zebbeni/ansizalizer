@@ -22,8 +22,9 @@ func (m Model) drawDelayForm() string {
 	styles.Focused.Text = styles.Focused.Text.Foreground(text)
 	styles.Blurred.Text = styles.Blurred.Text.Foreground(text)
 	styles.Cursor.Color = text
-	styles.Cursor.Blink = m.delayInput.Focused()
+	styles.Cursor.Blink = true
 	m.delayInput.SetStyles(styles)
+	m.delayInput.SetVirtualCursor(m.delayInput.Focused())
 
 	return inputStyle.Render(m.delayInput.View())
 }

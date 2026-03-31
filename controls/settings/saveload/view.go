@@ -89,6 +89,7 @@ func (m Model) drawSaveContent() string {
 		fnStyles.Blurred.Text = textStyle
 		fnStyles.Cursor.Blink = m.filenameInput.Focused()
 		m.filenameInput.SetStyles(fnStyles)
+		m.filenameInput.SetVirtualCursor(m.filenameInput.Focused())
 		parts = append(parts, m.filenameInput.View())
 	}
 

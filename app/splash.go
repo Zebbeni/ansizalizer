@@ -91,7 +91,7 @@ func (m Model) renderSplash() string {
 
 	var copyrightRow string
 	if m.splashSpawned >= splashTotal {
-		copyrightRow = copyrightStyle.Width(blockWidth).AlignHorizontal(lipgloss.Center).Render(copyrightText)
+		copyrightRow = copyrightStyle.Width(blockWidth).AlignHorizontal(lipgloss.Center).PaddingTop(1).Render(copyrightText)
 	} else {
 		copyrightRow = style.BgStyle().Width(blockWidth).Render("")
 	}

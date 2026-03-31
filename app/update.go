@@ -387,6 +387,13 @@ func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			m = m.openLoadModal()
 		case filemenu.SaveSettings:
 			m = m.openSaveModal()
+		case filemenu.Export:
+			switch result.ExportSub {
+			case filemenu.ExportCurrentFile:
+				m = m.openExportFileModal()
+			case filemenu.ExportBatchProcess:
+				m = m.openExportBatchModal()
+			}
 		}
 	}
 

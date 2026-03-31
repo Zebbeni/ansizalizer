@@ -51,6 +51,7 @@ func (m Model) drawColorsInput() string {
 	cStyles.Blurred.Placeholder = cStyles.Blurred.Placeholder.Foreground(placeholder)
 	cStyles.Cursor.Blink = m.countInput.Focused()
 	m.countInput.SetStyles(cStyles)
+	m.countInput.SetVirtualCursor(m.countInput.Focused())
 	return style.BgStyle().Width(11).Render(m.countInput.View())
 }
 
@@ -65,6 +66,7 @@ func (m Model) drawTagInput() string {
 	tStyles.Blurred.Placeholder = tStyles.Blurred.Placeholder.Foreground(placeholder)
 	tStyles.Cursor.Blink = m.tagInput.Focused()
 	m.tagInput.SetStyles(tStyles)
+	m.tagInput.SetVirtualCursor(m.tagInput.Focused())
 	return m.tagInput.View()
 }
 
