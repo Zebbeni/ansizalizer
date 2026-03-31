@@ -7,17 +7,11 @@ import (
 )
 
 var (
-	stateOrder = []State{CountForm, IterForm}
 	stateNames = map[State]string{
 		CountForm: "Colors",
 		IterForm:  "Passes",
 	}
 )
-
-func (m Model) drawTitle() string {
-	title := style.DimmedTitle.Copy().Italic(true).Render("Generate palette From image")
-	return style.BgStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
-}
 
 func (m Model) drawInputs() string {
 	promptStyle, textStyle := m.getInputStyles(CountForm)

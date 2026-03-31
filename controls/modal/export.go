@@ -88,7 +88,7 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 		if m.sourceBrowser.ShouldClose {
 			m.sourceBrowser.ShouldClose = false
 			m.sourceBrowser.SetActive(false)
-			m.focus = FocusSourcePanel
+			m.focus = FocusSourceSelect
 		}
 		return m, cmd
 	}
@@ -100,7 +100,7 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 		if m.destBrowser.ShouldClose {
 			m.destBrowser.ShouldClose = false
 			m.destBrowser.SetActive(false)
-			m.focus = FocusDestPanel
+			m.focus = FocusDestSelect
 		}
 		return m, cmd
 	}
@@ -114,24 +114,30 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 	case key.Matches(keyMsg, event.KeyMap.Enter):
 		switch m.focus {
 		case FocusSourcePanel:
-			m.focus = FocusSourceBrowser
-			m.sourceBrowser.SetActive(true)
+			m.focus = FocusSourceSelect
+		case FocusSourceSelect:
+			// Confirm source directory and tab to next item
+			m.confirmedSrc = m.sourceBrowser.SelectedDir
+			m.focus = FocusDestPanel
 		case FocusDestPanel:
-			m.focus = FocusDestBrowser
-			m.destBrowser.SetActive(true)
-		case FocusSubDirsYes:
-			m.useSubDirs = true
-		case FocusSubDirsNo:
-			m.useSubDirs = false
+			m.focus = FocusDestSelect
+		case FocusDestSelect:
+			// Confirm dest directory and tab to next item
+			m.confirmedDest = m.destBrowser.SelectedDir
+			m.focus = FocusSubDirsYes
+		case FocusSubDirsYes, FocusSubDirsNo:
+			m.useSubDirs = !m.useSubDirs
 		case FocusConfirm:
-			m.result = &Result{
-				Kind:            ExportBatchKind,
-				SourcePath:      m.sourceBrowser.SelectedDir,
-				DestinationPath: m.destBrowser.SelectedDir,
-				IsDir:           true,
-				UseSubDirs:      m.useSubDirs,
+			if m.confirmedSrc != "" && m.confirmedDest != "" {
+				m.result = &Result{
+					Kind:            ExportBatchKind,
+					SourcePath:      m.confirmedSrc,
+					DestinationPath: m.confirmedDest,
+					IsDir:           true,
+					UseSubDirs:      m.useSubDirs,
+				}
+				m.Open = false
 			}
-			m.Open = false
 		case FocusCancel:
 			m.Open = false
 		}
@@ -140,8 +146,12 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 		switch m.focus {
 		case FocusSourcePanel:
 			m.focus = FocusDestPanel
-		case FocusSubDirsYes:
-			m.focus = FocusSubDirsNo
+		case FocusSourceSelect:
+			m.focus = FocusDestPanel
+		case FocusDestSelect:
+			m.focus = FocusSubDirsYes
+		case FocusSubDirsYes, FocusSubDirsNo:
+			m.focus = FocusConfirm
 		case FocusConfirm:
 			m.focus = FocusCancel
 		}
@@ -150,7 +160,9 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 		switch m.focus {
 		case FocusDestPanel:
 			m.focus = FocusSourcePanel
-		case FocusSubDirsNo:
+		case FocusDestSelect:
+			m.focus = FocusSourcePanel
+		case FocusConfirm:
 			m.focus = FocusSubDirsYes
 		case FocusCancel:
 			m.focus = FocusConfirm
@@ -158,14 +170,26 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 
 	case key.Matches(keyMsg, event.KeyMap.Down):
 		switch m.focus {
-		case FocusSourcePanel, FocusDestPanel:
-			m.focus = FocusSubDirsYes
+		case FocusSourcePanel:
+			m.focus = FocusSourceSelect
+		case FocusSourceSelect:
+			m.focus = FocusSourceBrowser
+			m.sourceBrowser.SetActive(true)
+		case FocusDestPanel:
+			m.focus = FocusDestSelect
+		case FocusDestSelect:
+			m.focus = FocusDestBrowser
+			m.destBrowser.SetActive(true)
 		case FocusSubDirsYes, FocusSubDirsNo:
 			m.focus = FocusConfirm
 		}
 
 	case key.Matches(keyMsg, event.KeyMap.Up):
 		switch m.focus {
+		case FocusSourceSelect:
+			m.focus = FocusSourcePanel
+		case FocusDestSelect:
+			m.focus = FocusDestPanel
 		case FocusSubDirsYes, FocusSubDirsNo:
 			m.focus = FocusSourcePanel
 		case FocusConfirm, FocusCancel:
@@ -173,9 +197,25 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 		}
 
 	case key.Matches(keyMsg, event.KeyMap.Esc):
-		m.Open = false
+		switch m.focus {
+		case FocusSourceSelect:
+			m.focus = FocusSourcePanel
+		case FocusDestSelect:
+			m.focus = FocusDestPanel
+		default:
+			m.Open = false
+		}
 	}
 	return m, nil
+}
+
+func (m Model) renderSelectButton(dir string, focused bool) string {
+	label := "Select " + filepath.Base(dir) + "/"
+	btnStyle := style.DimmedTitle.Copy()
+	if focused {
+		btnStyle = style.SelectedTitle.Copy()
+	}
+	return btnStyle.AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 2).Render(label)
 }
 
 func (m Model) renderPanel(title, content string, focused, active bool, w, h int) string {
@@ -218,18 +258,34 @@ func (m Model) exportBatchView() string {
 
 	// Source panel
 	srcFocused := m.focus == FocusSourcePanel
-	srcActive := m.focus == FocusSourceBrowser
-	srcBox := m.renderPanel("Source", m.sourceBrowser.View(), srcFocused, srcActive, panelW, panelH)
+	srcActive := m.focus == FocusSourceBrowser || m.focus == FocusSourceSelect
+	srcSelectBtn := m.renderSelectButton(m.sourceBrowser.SelectedDir, m.focus == FocusSourceSelect)
+	srcContent := lipgloss.JoinVertical(lipgloss.Left, srcSelectBtn, m.sourceBrowser.View())
+	srcBox := m.renderPanel("Source", srcContent, srcFocused, srcActive, panelW, panelH)
+	srcConfirmed := m.confirmedSrc
+	if srcConfirmed == "" {
+		srcConfirmed = "(not selected)"
+	} else {
+		srcConfirmed = filepath.Base(srcConfirmed) + "/"
+	}
 	srcDir := style.DimmedTitle.Copy().Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
-		Render(filepath.Base(m.sourceBrowser.SelectedDir) + "/")
+		Render(srcConfirmed)
 	srcPanel := lipgloss.JoinVertical(lipgloss.Center, srcBox, srcDir)
 
 	// Destination panel
 	destFocused := m.focus == FocusDestPanel
-	destActive := m.focus == FocusDestBrowser
-	destBox := m.renderPanel("Destination", m.destBrowser.View(), destFocused, destActive, panelW, panelH)
+	destActive := m.focus == FocusDestBrowser || m.focus == FocusDestSelect
+	destSelectBtn := m.renderSelectButton(m.destBrowser.SelectedDir, m.focus == FocusDestSelect)
+	destContent := lipgloss.JoinVertical(lipgloss.Left, destSelectBtn, m.destBrowser.View())
+	destBox := m.renderPanel("Destination", destContent, destFocused, destActive, panelW, panelH)
+	destConfirmed := m.confirmedDest
+	if destConfirmed == "" {
+		destConfirmed = "(not selected)"
+	} else {
+		destConfirmed = filepath.Base(destConfirmed) + "/"
+	}
 	destDir := style.DimmedTitle.Copy().Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
-		Render(filepath.Base(m.destBrowser.SelectedDir) + "/")
+		Render(destConfirmed)
 	destPanel := lipgloss.JoinVertical(lipgloss.Center, destBox, destDir)
 
 	// Side by side panels with 1 char left margin
@@ -237,24 +293,8 @@ func (m Model) exportBatchView() string {
 	panels := lipgloss.NewStyle().PaddingLeft(1).Render(panelRow)
 
 	// Subdirectories toggle
-	subTitle := style.DimmedTitle.Copy().Render("Include Subdirectories:")
-	yesStyle := style.NormalButtonNode
-	if m.focus == FocusSubDirsYes {
-		yesStyle = style.FocusButtonNode
-	} else if m.useSubDirs {
-		yesStyle = style.ActiveButtonNode
-	}
-	noStyle := style.NormalButtonNode
-	if m.focus == FocusSubDirsNo {
-		noStyle = style.FocusButtonNode
-	} else if !m.useSubDirs {
-		noStyle = style.ActiveButtonNode
-	}
-	subRow := lipgloss.JoinHorizontal(lipgloss.Left,
-		subTitle,
-		style.BgStyle().PaddingLeft(1).Render(yesStyle.Render("Yes")),
-		style.BgStyle().PaddingLeft(1).Render(noStyle.Render("No")),
-	)
+	subFocused := m.focus == FocusSubDirsYes || m.focus == FocusSubDirsNo
+	subRow := style.RenderCheckbox("Include Subdirectories", m.useSubDirs, subFocused)
 
 	// Description
 	descStyle := style.DimmedTitle.Copy().Italic(true).

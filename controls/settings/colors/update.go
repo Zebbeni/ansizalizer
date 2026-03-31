@@ -18,21 +18,19 @@ const (
 
 var navMap = map[Direction]map[State]State{
 	Right: {
-		UseTrueColor: UsePalette,
-		AdaptOn:      AdaptOff,
-	},
-	Left: {
-		UsePalette: UseTrueColor,
-		AdaptOff:   AdaptOn,
-	},
-	Up: {
-		AdaptOn:  UsePalette,
-		AdaptOff: UsePalette,
-		Palette:  AdaptOn,
-	},
-	Down: {
 		UseTrueColor: AdaptOn,
 		UsePalette:   AdaptOn,
+	},
+	Left: {
+		AdaptOn:  UsePalette,
+		AdaptOff: UsePalette,
+	},
+	Up: {
+		Palette: UsePalette,
+	},
+	Down: {
+		UseTrueColor: Palette,
+		UsePalette:   Palette,
 		AdaptOn:      Palette,
 		AdaptOff:     Palette,
 	},
@@ -56,14 +54,14 @@ func (m Model) handlePaletteUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	switch m.focus {
-	case UsePalette:
-		m.mode = UsePalette
-	case UseTrueColor:
-		m.mode = UseTrueColor
-	case AdaptOn:
-		m.adaptToPalette = true
-	case AdaptOff:
-		m.adaptToPalette = false
+	case UsePalette, UseTrueColor:
+		if m.mode == UseTrueColor {
+			m.mode = UsePalette
+		} else {
+			m.mode = UseTrueColor
+		}
+	case AdaptOn, AdaptOff:
+		m.adaptToPalette = !m.adaptToPalette
 	}
 	return m, event.StartRenderToViewCmd
 }
@@ -76,9 +74,12 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 
 func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
+	isPaletteMode := m.mode == UsePalette
+
 	switch {
 	case key.Matches(msg, event.KeyMap.Right):
-		if next, hasNext := navMap[Right][m.focus]; hasNext {
+		// Right from palette toggle → Adapt (only if palette mode shows Adapt)
+		if next, hasNext := navMap[Right][m.focus]; hasNext && isPaletteMode {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Left):
@@ -86,6 +87,9 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Up):
+		if m.focus == AdaptOn || m.focus == AdaptOff {
+			return m.setFocus(UsePalette)
+		}
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
 			return m.setFocus(next)
 		} else {
@@ -93,8 +97,13 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
-		// Focused but inactive tab doesn't navigate on down
-		if m.focus == UsePalette && m.mode != UsePalette {
+		// From toggles row, go to palette tabs (only in palette mode)
+		if m.focus == UseTrueColor || m.focus == UsePalette || m.focus == AdaptOn || m.focus == AdaptOff {
+			if isPaletteMode {
+				return m.setFocus(Palette)
+			}
+			m.IsActive = false
+			m.ShouldClose = true
 			return m, cmd
 		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
@@ -104,12 +113,12 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Tab):
-		if next, hasNext := navMap[Right][m.focus]; hasNext {
+		// Tab: try right first, then down
+		if next, hasNext := navMap[Right][m.focus]; hasNext && isPaletteMode {
 			return m.setFocus(next)
 		}
-		// Focused but inactive tab doesn't navigate on down
-		if m.focus == UsePalette && m.mode != UsePalette {
-			return m, cmd
+		if isPaletteMode && (m.focus == UseTrueColor || m.focus == UsePalette || m.focus == AdaptOn || m.focus == AdaptOff) {
+			return m.setFocus(Palette)
 		}
 		if next, hasNext := navMap[Down][m.focus]; hasNext {
 			return m.setFocus(next)

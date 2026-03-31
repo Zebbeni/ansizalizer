@@ -207,13 +207,41 @@ func (m Model) handleStartExportMsg(msg event.StartExportMsg) (Model, tea.Cmd) {
 	m.exportIndex = 0
 	m.exportQueue = exportQueue
 	m.waitingOnExport = true
+	m.overwriteAllChoice = OverwriteUndecided
+	m.overwriteModal = nil
 
 	return m, tea.Batch(event.StartRenderToExportCmd, event.BuildDisplayCmd(fmt.Sprintf("%d jobs queued", len(exportQueue))))
+}
+
+func (m Model) skipCurrentExport() (Model, tea.Cmd) {
+	m.exportIndex++
+	displayMsg := fmt.Sprintf("%d/%d exports completed (skipped)", m.exportIndex, len(m.exportQueue))
+	displayCmd := event.BuildDisplayCmd(displayMsg)
+
+	if m.exportIndex >= len(m.exportQueue) {
+		m.waitingOnExport = false
+		return m, displayCmd
+	}
+	return m, tea.Batch(event.StartRenderToExportCmd, displayCmd)
 }
 
 func (m Model) handleRenderToExportMsg() (Model, tea.Cmd) {
 
 	currentJob := m.exportQueue[m.exportIndex]
+
+	// Check if destination already exists
+	destToCheck := currentJob.destinationPath
+	if process.IsGIFFile(currentJob.sourcePath) {
+		destToCheck = strings.TrimSuffix(currentJob.destinationPath, ".ansi")
+	}
+	if _, err := os.Stat(destToCheck); err == nil && !m.overwriteApproved {
+		if m.overwriteAllChoice == OverwriteSkip {
+			return m.skipCurrentExport()
+		} else if m.overwriteAllChoice != OverwriteYes {
+			m.overwriteModal = newOverwriteModal(destToCheck)
+			return m, nil
+		}
+	}
 
 	if process.IsGIFFile(currentJob.sourcePath) {
 		frames, _ := process.RenderGIFFile(m.controls.Settings, currentJob.sourcePath)
@@ -243,6 +271,7 @@ func (m Model) handleRenderToExportMsg() (Model, tea.Cmd) {
 	}
 
 	m.exportIndex += 1
+	m.overwriteApproved = false // reset for next file
 	displayMsg := fmt.Sprintf("%d/%d exports completed", m.exportIndex, len(m.exportQueue))
 	displayCmd := event.BuildDisplayCmd(displayMsg)
 

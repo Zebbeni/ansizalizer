@@ -129,14 +129,10 @@ func (m Model) handleEsc() (Model, tea.Cmd) {
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	m.active = m.focus
 	switch m.active {
-	case DitherOn:
-		m.doDithering = true
-	case DitherOff:
-		m.doDithering = false
-	case SerpentineOn:
-		m.doSerpentine = true
-	case SerpentineOff:
-		m.doSerpentine = false
+	case DitherOn, DitherOff:
+		m.doDithering = !m.doDithering
+	case SerpentineOn, SerpentineOff:
+		m.doSerpentine = !m.doSerpentine
 	case ModeMatrix:
 		m.ditherMode = Matrix
 		m.modeControls = ModeMatrix

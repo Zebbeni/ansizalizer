@@ -55,7 +55,7 @@ func getItems(extensions map[string]bool, dir string) []list.Item {
 	fileItems := make([]list.Item, 0)
 
 	for _, e := range entries {
-		path := fmt.Sprintf("%s/%s", dir, e.Name())
+		path := filepath.Join(dir, e.Name())
 
 		if e.IsDir() {
 			name := e.Name()
@@ -73,6 +73,9 @@ func getItems(extensions map[string]bool, dir string) []list.Item {
 
 	debug.Log("getItems(%s): %d dirs, %d files, %d total entries from os.ReadDir",
 		dir, len(dirItems)-1, len(fileItems), len(entries))
+	for _, e := range entries {
+		debug.Log("  entry: %s (isDir=%v)", e.Name(), e.IsDir())
+	}
 
 	return append(dirItems, fileItems...)
 }

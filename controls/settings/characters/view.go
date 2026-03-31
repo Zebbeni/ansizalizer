@@ -66,14 +66,16 @@ func (m Model) drawCharControls() string {
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
+	centeredRow := lipgloss.NewStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(row)
+
 	if m.charControls == Ascii {
-		paddedRow := lipgloss.NewStyle().PaddingTop(1).Render(row)
+		paddedRow := lipgloss.NewStyle().PaddingTop(1).Render(centeredRow)
 		selectionRow := style.BgStyle().PaddingTop(1).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(m.drawSelectionMode())
 		return lipgloss.JoinVertical(lipgloss.Center, paddedRow, selectionRow)
 	}
 
 	// Unicode/Block: top and bottom padding
-	return lipgloss.NewStyle().Padding(1, 0).Render(row)
+	return lipgloss.NewStyle().Padding(1, 0).Render(centeredRow)
 }
 
 func (m Model) inputStyles(state State, focused bool) (lipgloss.Style, lipgloss.Style, color.Color) {

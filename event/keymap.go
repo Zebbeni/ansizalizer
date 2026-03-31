@@ -69,7 +69,7 @@ func InitKeyMap() {
 			key.WithHelp("ctrl+q", "quit")),
 		Help: key.NewBinding(
 			key.WithKeys("ctrl+h"),
-			key.WithHelp("ctrl+h", "help")),
+			key.WithHelp("ctrl+h", "help on/off")),
 		Debug: key.NewBinding(
 			key.WithKeys("ctrl+d")),
 		Esc: key.NewBinding(

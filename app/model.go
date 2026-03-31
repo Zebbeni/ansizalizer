@@ -43,9 +43,12 @@ type Model struct {
 	quitFocusYes  bool         // true = Yes focused, false = No focused
 	showHelp      bool         // true when help tooltips are visible
 
-	waitingOnExport bool
-	exportQueue     []exportJob
-	exportIndex     int
+	waitingOnExport    bool
+	exportQueue        []exportJob
+	exportIndex        int
+	overwriteModal     *OverwriteModal // non-nil when awaiting overwrite decision
+	overwriteAllChoice OverwriteChoice // remembered choice when "Apply to all" is checked
+	overwriteApproved  bool            // true when current file was approved for overwrite
 
 	prefs prefs.Prefs
 
@@ -102,6 +105,7 @@ func New() Model {
 	} else if cfg, err := settings.LoadConfig(prefs.LatestSettingsPath()); err == nil {
 		m.controls.Settings.ApplyConfig(cfg)
 		m.controls.Settings.SaveLoad.SetStatus("Loaded latest.json")
+		debug.Log("Startup: loaded latest.json, chars mode=%s", cfg.Characters.Mode)
 	}
 
 	// Sync palette to style package so paletted themes work at startup
@@ -186,6 +190,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.quitConfirm {
 			return m.handleQuitModalKey(msg)
 		}
+		// Overwrite modal captures input during export
+		if m.overwriteModal != nil {
+			m.overwriteModal.Update(msg)
+			if m.overwriteModal.choice != OverwriteUndecided {
+				return m.handleOverwriteChoice()
+			}
+			return m, nil
+		}
 		// Load/save modal captures all input when open
 		if m.modal != nil {
 			return m.handleModalUpdate(msg)
@@ -241,7 +253,7 @@ func (m Model) View() tea.View {
 
 	controls := style.ApplyBg(m.renderControls(), 0)
 	display := style.ApplyBg(m.display.View(), 0)
-	viewer := m.renderViewer()
+	viewer := style.ApplyBg(m.renderViewer(), 0)
 	help := m.renderHelp() // already has ApplyBg baked into cache
 
 	leftPanel := controls
@@ -305,6 +317,21 @@ func (m Model) View() tea.View {
 			canvas.Compose(lipgloss.NewCompositor(base, overlay))
 			rendered = canvas.Render()
 		}
+	}
+
+	// Overlay overwrite confirmation modal during export
+	if m.overwriteModal != nil {
+		owView := m.overwriteModal.View()
+		owW := lipgloss.Width(owView)
+		owH := lipgloss.Height(owView)
+		owX := (m.w - owW) / 2
+		owY := (m.h - owH) / 2
+
+		canvas := lipgloss.NewCanvas(m.w, m.h)
+		base := lipgloss.NewLayer(rendered)
+		overlay := lipgloss.NewLayer(owView).X(owX).Y(owY).Z(8)
+		canvas.Compose(lipgloss.NewCompositor(base, overlay))
+		rendered = canvas.Render()
 	}
 
 	// Overlay quit confirmation modal

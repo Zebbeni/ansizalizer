@@ -85,16 +85,15 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	title := m.drawTitle()
 	inputs := m.drawInputs()
 	generate := m.drawGenerateButton()
 	if len(m.palette.Colors()) == 0 {
-		return lipgloss.JoinVertical(lipgloss.Top, title, inputs, generate)
+		return lipgloss.JoinVertical(lipgloss.Top, inputs, generate)
 	}
 
-	palette := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(m.palette.View())
+	generated := lipgloss.NewStyle().Padding(0, 1, 0, 1).Render(m.palette.View())
 	saveButton := m.drawSaveButton()
-	content := lipgloss.JoinVertical(lipgloss.Top, title, inputs, generate, palette, saveButton)
+	content := lipgloss.JoinVertical(lipgloss.Top, inputs, generate, generated, saveButton)
 	return content
 }
 

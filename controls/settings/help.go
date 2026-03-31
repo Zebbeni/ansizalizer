@@ -25,7 +25,7 @@ func (m Model) HelpText() string {
 	// Top-level settings focus
 	switch m.focus {
 	case Colors:
-		return "Choose between true color and palette-based rendering. Select palettes from Lospec, files, or generated from the current image."
+		return "Toggle limited palette mode and choose palettes from Lospec, files, or generated from the current image."
 	case Characters:
 		return "Select character mode: Block (unicode), Ascii, or Custom symbols. Each mode offers different visual styles for rendering."
 	case Size:

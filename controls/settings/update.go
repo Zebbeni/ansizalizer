@@ -67,6 +67,7 @@ func (m Model) handleSizeUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		m.Size.ShouldClose = false
 	}
 	if m.Size.ShouldUnfocus {
+		m.Size.ShouldUnfocus = false
 		return m.handleSettingsUpdate(msg)
 	}
 	return m, cmd
@@ -174,6 +175,7 @@ func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	m.Alpha, cmd = m.Alpha.Update(msg)
 
 	if m.Alpha.ShouldUnfocus {
+		m.Alpha.ShouldUnfocus = false
 		m.active = None
 		return m.handleSettingsUpdate(msg)
 	}

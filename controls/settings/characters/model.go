@@ -7,6 +7,7 @@ import (
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 
+	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -152,6 +153,7 @@ func (m Model) RandomSeed() int64 {
 }
 
 func (m *Model) SetConfig(mode, asciiMode, unicodeMode, selectionMode State, customChars string) {
+	debug.Log("Characters.SetConfig: mode=%d asciiMode=%d unicodeMode=%d", mode, asciiMode, unicodeMode)
 	m.mode = mode
 	m.charControls = mode
 	m.asciiMode = asciiMode

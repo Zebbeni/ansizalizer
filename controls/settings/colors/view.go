@@ -6,48 +6,17 @@ import (
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-func (m Model) drawPaletteToggles() string {
-	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Mode:")
+func (m Model) drawToggles() string {
+	paletteFocused := m.IsActive && (m.focus == UseTrueColor || m.focus == UsePalette)
+	paletteBox := style.RenderCheckbox("Limited Palette", m.mode == UsePalette, paletteFocused)
 
-	trueColorStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == UseTrueColor {
-		trueColorStyle = style.FocusButtonNode
-	} else if m.mode == UseTrueColor {
-		trueColorStyle = style.ActiveButtonNode
+	if m.mode != UsePalette {
+		return lipgloss.NewStyle().PaddingLeft(1).Render(paletteBox)
 	}
-	trueColorNode := trueColorStyle.Render("True Color")
-	trueColorNode = style.BgStyle().PaddingLeft(1).Render(trueColorNode)
 
-	palettedStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == UsePalette {
-		palettedStyle = style.FocusButtonNode
-	} else if m.mode == UsePalette {
-		palettedStyle = style.ActiveButtonNode
-	}
-	palettedNode := palettedStyle.Render("Palette")
-	palettedNode = style.BgStyle().PaddingLeft(1).Render(palettedNode)
+	adaptFocused := m.IsActive && (m.focus == AdaptOn || m.focus == AdaptOff)
+	adaptBox := style.RenderCheckbox("Adapt", m.adaptToPalette, adaptFocused)
 
-	return lipgloss.JoinHorizontal(lipgloss.Left, title, trueColorNode, palettedNode)
-}
-
-func (m Model) drawAdaptToggle() string {
-	title := style.DimmedTitle.Copy().Padding(0, 1).Render("Adapt to Palette:")
-
-	onStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == AdaptOn {
-		onStyle = style.FocusButtonNode
-	} else if m.adaptToPalette {
-		onStyle = style.ActiveButtonNode
-	}
-	onNode := style.BgStyle().Width(4).Render(onStyle.Render("On"))
-
-	offStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == AdaptOff {
-		offStyle = style.FocusButtonNode
-	} else if !m.adaptToPalette {
-		offStyle = style.ActiveButtonNode
-	}
-	offNode := offStyle.Render("Off")
-
-	return lipgloss.JoinHorizontal(lipgloss.Left, title, onNode, offNode)
+	return lipgloss.NewStyle().PaddingLeft(1).Render(
+		lipgloss.JoinHorizontal(lipgloss.Left, paletteBox, "  ", adaptBox))
 }

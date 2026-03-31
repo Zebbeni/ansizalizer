@@ -13,49 +13,13 @@ var modeTabNames = map[State]string{
 }
 
 func (m Model) drawDitheringOptions() string {
-	prompt := style.DimmedTitle.Render("Dithering:")
-	prompt = style.BgStyle().Width(12).Render(prompt)
-
-	nodeStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == DitherOn {
-		nodeStyle = style.FocusButtonNode
-	} else if m.doDithering {
-		nodeStyle = style.ActiveButtonNode
-	}
-	onNode := style.BgStyle().Width(4).Render(nodeStyle.Copy().Render("On"))
-
-	nodeStyle = style.NormalButtonNode
-	if m.IsActive && m.focus == DitherOff {
-		nodeStyle = style.FocusButtonNode
-	} else if !m.doDithering {
-		nodeStyle = style.ActiveButtonNode
-	}
-	offNode := nodeStyle.Copy().Render("Off")
-
-	return lipgloss.JoinHorizontal(lipgloss.Left, prompt, onNode, offNode)
+	focused := m.IsActive && (m.focus == DitherOn || m.focus == DitherOff)
+	return style.RenderCheckbox("Dithering", m.doDithering, focused)
 }
 
 func (m Model) drawSerpentineOptions() string {
-	prompt := style.DimmedTitle.Render("Serpentine:")
-	prompt = style.BgStyle().Width(12).Render(prompt)
-
-	nodeStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == SerpentineOn {
-		nodeStyle = style.FocusButtonNode
-	} else if m.doSerpentine {
-		nodeStyle = style.ActiveButtonNode
-	}
-	onNode := style.BgStyle().Width(4).Render(nodeStyle.Copy().Render("On"))
-
-	nodeStyle = style.NormalButtonNode
-	if m.IsActive && m.focus == SerpentineOff {
-		nodeStyle = style.FocusButtonNode
-	} else if !m.doSerpentine {
-		nodeStyle = style.ActiveButtonNode
-	}
-	offNode := nodeStyle.Copy().Render("Off")
-
-	return lipgloss.JoinHorizontal(lipgloss.Left, prompt, onNode, offNode)
+	focused := m.IsActive && (m.focus == SerpentineOn || m.focus == SerpentineOff)
+	return style.RenderCheckbox("Serpentine", m.doSerpentine, focused)
 }
 
 var tabStates = map[State]bool{

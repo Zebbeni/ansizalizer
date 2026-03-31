@@ -36,12 +36,14 @@ const (
 	FocusInput
 	FocusConfirm
 	FocusCancel
-	FocusSourcePanel  // source panel focused (not browsing)
+	FocusSourcePanel   // source panel focused (not browsing)
+	FocusSourceSelect  // "Select <dir>?" button above source browser
 	FocusSourceBrowser // browsing inside source panel
 	FocusSubDirsYes
 	FocusSubDirsNo
-	FocusDestPanel    // dest panel focused (not browsing)
-	FocusDestBrowser  // browsing inside dest panel
+	FocusDestPanel     // dest panel focused (not browsing)
+	FocusDestSelect    // "Select <dir>?" button above dest browser
+	FocusDestBrowser   // browsing inside dest panel
 )
 
 // Result is set when the user confirms an action.
@@ -70,6 +72,8 @@ type Model struct {
 	sourceBrowser browser.Model // source directory browser for ExportBatchKind
 	destBrowser   browser.Model // destination directory browser
 	useSubDirs    bool          // include subdirectories in batch export
+	confirmedSrc  string        // confirmed source directory
+	confirmedDest string        // confirmed destination directory
 }
 
 var jsonExtensions = map[string]bool{".json": true}

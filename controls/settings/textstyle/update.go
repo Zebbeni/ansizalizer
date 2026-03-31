@@ -76,22 +76,14 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 
 func (m Model) handleEnter() (Model, tea.Cmd) {
 	switch m.focus {
-	case BoldOn:
-		m.bold = true
-	case BoldOff:
-		m.bold = false
-	case ItalicOn:
-		m.italic = true
-	case ItalicOff:
-		m.italic = false
-	case UnderlineOn:
-		m.underline = true
-	case UnderlineOff:
-		m.underline = false
-	case StrikethroughOn:
-		m.strikethrough = true
-	case StrikethroughOff:
-		m.strikethrough = false
+	case BoldOn, BoldOff:
+		m.bold = !m.bold
+	case ItalicOn, ItalicOff:
+		m.italic = !m.italic
+	case UnderlineOn, UnderlineOff:
+		m.underline = !m.underline
+	case StrikethroughOn, StrikethroughOff:
+		m.strikethrough = !m.strikethrough
 	}
 	return m, event.StartRenderToViewCmd
 }

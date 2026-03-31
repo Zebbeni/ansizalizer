@@ -15,12 +15,8 @@ type State int
 
 const (
 	Input State = iota
-	AlphaYes
-	AlphaNo
 	UseAlpha
 	TrimAlpha
-	TrimAlphaYes
-	TrimAlphaNo
 	ThresholdForm
 )
 
@@ -42,7 +38,7 @@ func New(w int) Model {
 	input.SetValue("0.0")
 
 	return Model{
-		focus:          AlphaYes,
+		focus:          ThresholdForm,
 		useAlpha:       true,
 		trimAlpha:      false,
 		thresholdInput: input,
@@ -92,10 +88,10 @@ func (m Model) handleThresholdUpdate(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	content := make([]string, 0, 5)
+	content = append(content, m.drawThresholdInput())
 	content = append(content, m.drawAlphaOptions())
-	content = append(content, m.drawAlphaTrimOptions())
 	if m.useAlpha {
-		content = append(content, m.drawThresholdInput())
+		content = append(content, m.drawAlphaTrimOptions())
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, content...)
@@ -127,19 +123,16 @@ func (m *Model) SetConfig(useAlpha, trimAlpha bool) {
 }
 
 func (m *Model) ResetFocus() {
-	m.focus = AlphaYes
+	m.focus = ThresholdForm
 }
 
 func (m Model) Summary() string {
-	if !m.useAlpha {
-		return "Alpha: Off"
-	}
-	s := "Alpha: On"
-	if m.trimAlpha {
-		s += " | Trim: Yes"
-	}
-	if t := m.AlphaThreshold(); t > 0 {
-		s += " | Thresh: " + m.thresholdInput.Value()
+	s := "Thresh: " + m.thresholdInput.Value()
+	if m.useAlpha {
+		s += " | Transparent"
+		if m.trimAlpha {
+			s += " | Trim"
+		}
 	}
 	return s
 }

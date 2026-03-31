@@ -3,14 +3,12 @@ package alpha
 // HelpText returns contextual help for the currently focused alpha item.
 func (m Model) HelpText() string {
 	switch m.focus {
-	case AlphaYes:
-		return "Enable alpha channel support. Transparent pixels render as empty space."
-	case AlphaNo:
-		return "Disable alpha. All pixels render as opaque, ignoring transparency."
-	case TrimAlphaYes, TrimAlphaNo:
+	case UseAlpha:
+		return "Toggle transparency. When enabled, pixels below the alpha threshold render as empty space."
+	case TrimAlpha:
 		return "Trim removes leading/trailing transparent rows and columns from the output."
 	case ThresholdForm:
-		return "Pixels with opacity below this threshold are treated as transparent. 0 = only fully transparent, 0.5 = half-transparent and below."
+		return "Pixels with opacity below this threshold are treated as transparent. 0 = only fully transparent pixels, 1 = all pixels treated as transparent."
 	}
 	return ""
 }

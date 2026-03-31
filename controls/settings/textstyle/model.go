@@ -66,12 +66,13 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) View() string {
 	rows := []string{
-		m.drawToggle("Bold:", BoldOn, BoldOff, m.bold),
-		m.drawToggle("Italic:", ItalicOn, ItalicOff, m.italic),
-		m.drawToggle("Underline:", UnderlineOn, UnderlineOff, m.underline),
-		m.drawToggle("Strikethrough:", StrikethroughOn, StrikethroughOff, m.strikethrough),
+		m.drawToggle("Bold", BoldOn, BoldOff, m.bold),
+		m.drawToggle("Italic", ItalicOn, ItalicOff, m.italic),
+		m.drawToggle("Underline", UnderlineOn, UnderlineOff, m.underline),
+		m.drawToggle("Strikethrough", StrikethroughOn, StrikethroughOff, m.strikethrough),
 	}
-	return lipgloss.JoinVertical(lipgloss.Left, rows...)
+	content := lipgloss.JoinVertical(lipgloss.Left, rows...)
+	return lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Render(content)
 }
 
 func (m Model) Bold() bool          { return m.bold }
@@ -118,25 +119,20 @@ func (m Model) Summary() string {
 }
 
 func (m Model) drawToggle(title string, onState, offState State, value bool) string {
-	label := style.DimmedTitle.Copy().PaddingLeft(1).Width(16).Render(title)
-
-	onStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == onState {
-		onStyle = style.FocusButtonNode
-	} else if value {
-		onStyle = style.ActiveButtonNode
+	focused := m.IsActive && (m.focus == onState || m.focus == offState)
+	checkChar := "☐"
+	if value {
+		checkChar = "🗹"
 	}
-	onNode := style.BgStyle().PaddingLeft(1).Render(onStyle.Render("On"))
-
-	offStyle := style.NormalButtonNode
-	if m.IsActive && m.focus == offState {
-		offStyle = style.FocusButtonNode
-	} else if !value {
-		offStyle = style.ActiveButtonNode
+	labelStyle := style.DimmedTitle.Copy()
+	checkStyle := style.DimmedTitle.Copy()
+	if focused {
+		labelStyle = style.NormalTitle.Copy()
+		checkStyle = style.SelectedTitle.Copy()
 	}
-	offNode := style.BgStyle().PaddingLeft(1).Render(offStyle.Render("Off"))
-
-	return lipgloss.JoinHorizontal(lipgloss.Left, label, onNode, offNode)
+	label := labelStyle.Width(16).PaddingLeft(1).Render(title)
+	check := checkStyle.Render(checkChar)
+	return lipgloss.JoinHorizontal(lipgloss.Left, label, check)
 }
 
 func (m Model) DebugState() string {
