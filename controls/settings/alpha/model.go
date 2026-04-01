@@ -23,7 +23,7 @@ type Model struct {
 	useAlpha       bool
 	trimAlpha      bool
 	thresholdInput numberinput.Model
-	ShouldUnfocus  bool
+	ShouldClose    bool
 	IsActive       bool
 	width          int
 	AlphaImage     bool

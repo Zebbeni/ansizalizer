@@ -33,7 +33,7 @@ func (m Model) openExportFileModal() Model {
 }
 
 func (m Model) openPrefsModal() Model {
-	md := modal.NewPrefs(m.prefs.App.ShowHelp, m.prefs.App.RestoreTheme, m.prefs.App.RestoreSettings)
+	md := modal.NewPrefs(m.prefs.App.ShowHelp, m.prefs.App.RestoreTheme, m.prefs.App.RestoreSettings, !m.prefs.App.SkipSplash)
 	m.modal = &md
 	return m
 }
@@ -100,6 +100,7 @@ func (m Model) handleModalResult(result modal.Result) (Model, tea.Cmd) {
 		m.prefs.App.ShowHelp = result.ShowHelp
 		m.prefs.App.RestoreTheme = result.RestoreTheme
 		m.prefs.App.RestoreSettings = result.RestoreSettings
+		m.prefs.App.SkipSplash = !result.SplashOnStart
 		m.showHelp = result.ShowHelp
 		if result.RestoreTheme {
 			m.prefs.App.LastTheme = style.ThemeNames[style.ActiveTheme.Name]

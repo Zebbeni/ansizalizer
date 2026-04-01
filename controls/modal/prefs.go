@@ -24,18 +24,23 @@ func (m Model) updatePrefs(msg tea.Msg) (Model, tea.Cmd) {
 			m.prefsRestoreTheme = !m.prefsRestoreTheme
 		case FocusPrefsRestoreSettings:
 			m.prefsRestoreSettings = !m.prefsRestoreSettings
+		case FocusPrefsSkipSplash:
+			m.prefsSplashOnStart = !m.prefsSplashOnStart
 		case FocusPrefsClose:
 			m.result = &Result{
 				Kind:            PrefsKind,
 				ShowHelp:        m.prefsShowHelp,
 				RestoreTheme:    m.prefsRestoreTheme,
 				RestoreSettings: m.prefsRestoreSettings,
+				SplashOnStart:   m.prefsSplashOnStart,
 			}
 			m.Open = false
 		}
 	case key.Matches(keyMsg, event.KeyMap.Down), key.Matches(keyMsg, event.KeyMap.Tab):
 		switch m.focus {
 		case FocusPrefsShowHelp:
+			m.focus = FocusPrefsSkipSplash
+		case FocusPrefsSkipSplash:
 			m.focus = FocusPrefsRestoreTheme
 		case FocusPrefsRestoreTheme:
 			m.focus = FocusPrefsRestoreSettings
@@ -44,8 +49,10 @@ func (m Model) updatePrefs(msg tea.Msg) (Model, tea.Cmd) {
 		}
 	case key.Matches(keyMsg, event.KeyMap.Up):
 		switch m.focus {
-		case FocusPrefsRestoreTheme:
+		case FocusPrefsSkipSplash:
 			m.focus = FocusPrefsShowHelp
+		case FocusPrefsRestoreTheme:
+			m.focus = FocusPrefsSkipSplash
 		case FocusPrefsRestoreSettings:
 			m.focus = FocusPrefsRestoreTheme
 		case FocusPrefsClose:
@@ -57,6 +64,7 @@ func (m Model) updatePrefs(msg tea.Msg) (Model, tea.Cmd) {
 			ShowHelp:        m.prefsShowHelp,
 			RestoreTheme:    m.prefsRestoreTheme,
 			RestoreSettings: m.prefsRestoreSettings,
+			SplashOnStart:   m.prefsSplashOnStart,
 		}
 		m.Open = false
 	}
@@ -71,14 +79,17 @@ func (m Model) prefsView() string {
 		AlignHorizontal(lipgloss.Center).
 		Render("Settings applied on each app start.")
 
-	labelWidth := 27 // wide enough for "Restore Previous Settings"
+	labelWidth := 27
 	showHelp := style.RenderCheckboxFixedWidth("Show Help",
 		m.prefsShowHelp, m.focus == FocusPrefsShowHelp, labelWidth)
 
-	restoreTheme := style.RenderCheckboxFixedWidth("Restore Previous Theme",
+	splashOnStart := style.RenderCheckboxFixedWidth("Splash Screen on Start",
+		m.prefsSplashOnStart, m.focus == FocusPrefsSkipSplash, labelWidth)
+
+	restoreTheme := style.RenderCheckboxFixedWidth("Restore Theme on Start",
 		m.prefsRestoreTheme, m.focus == FocusPrefsRestoreTheme, labelWidth)
 
-	restoreSettings := style.RenderCheckboxFixedWidth("Restore Previous Settings",
+	restoreSettings := style.RenderCheckboxFixedWidth("Restore Settings on Start",
 		m.prefsRestoreSettings, m.focus == FocusPrefsRestoreSettings, labelWidth)
 
 	closeStyle := style.NormalButton
@@ -88,5 +99,5 @@ func (m Model) prefsView() string {
 	closeBtn := closeStyle.Render(" Close ")
 
 	return lipgloss.JoinVertical(lipgloss.Center,
-		desc, "", showHelp, restoreTheme, restoreSettings, "", closeBtn)
+		desc, "", showHelp, splashOnStart, restoreTheme, restoreSettings, "", closeBtn)
 }

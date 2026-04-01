@@ -57,7 +57,7 @@ func (m Model) renderQuitModal() string {
 		Border(style.HeavyBorder()).
 		BorderForeground(style.SelectedColor1).
 		BorderBackground(style.ActiveTheme.Bg).
-		Padding(1, 2)
+		Padding(1, 2, 0)
 
 	renderer := style.BoxWithLabel{
 		BoxStyle:   borderStyle,

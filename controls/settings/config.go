@@ -26,6 +26,7 @@ type Config struct {
 	Alpha      AlphaConfig      `json:"alpha"`
 }
 
+// TextStyleConfig holds text decoration flags (bold, italic, etc.) for ANSI output.
 type TextStyleConfig struct {
 	Bold          bool `json:"bold"`
 	Italic        bool `json:"italic"`
@@ -33,6 +34,8 @@ type TextStyleConfig struct {
 	Strikethrough bool `json:"strikethrough"`
 }
 
+// ColorsConfig holds color mode settings, including true-color vs. palette mode
+// and optional palette name and hex color values.
 type ColorsConfig struct {
 	UseTrueColor   bool     `json:"useTrueColor"`
 	AdaptToPalette bool     `json:"adaptToPalette"`
@@ -40,6 +43,7 @@ type ColorsConfig struct {
 	PaletteColors []string `json:"paletteColors,omitempty"`
 }
 
+// CharactersConfig holds character set selection and ordering options for rendering.
 type CharactersConfig struct {
 	Mode          string `json:"mode"`
 	AsciiMode     string `json:"asciiMode"`
@@ -50,6 +54,7 @@ type CharactersConfig struct {
 	VarianceThreshold float64 `json:"varianceThreshold,omitempty"`
 }
 
+// SizeConfig holds output dimensions and scaling mode (fit, fill, or stretch).
 type SizeConfig struct {
 	Mode      string  `json:"mode"`
 	Width     int     `json:"width"`
@@ -57,11 +62,13 @@ type SizeConfig struct {
 	CharRatio float64 `json:"charRatio"`
 }
 
+// AdjustConfig holds brightness and contrast adjustment values.
 type AdjustConfig struct {
 	Brightness int `json:"brightness"`
 	Contrast   int `json:"contrast"`
 }
 
+// AdvancedConfig holds sampling and dithering options for the rendering pipeline.
 type AdvancedConfig struct {
 	SamplingFunction   string `json:"samplingFunction"`
 	Dithering          bool   `json:"dithering"`
@@ -73,10 +80,12 @@ type AdvancedConfig struct {
 	ClusteredDotMatrix string  `json:"clusteredDotMatrix,omitempty"`
 }
 
+// AnimationConfig holds GIF animation playback settings.
 type AnimationConfig struct {
 	DelayMs int `json:"delayMs"`
 }
 
+// AlphaConfig holds transparency handling options for images with alpha channels.
 type AlphaConfig struct {
 	UseAlpha       bool    `json:"useAlpha"`
 	TrimAlpha      bool    `json:"trimAlpha"`
@@ -160,6 +169,8 @@ var ditherModeFromName = map[string]dithering.DitherMode{
 	"ClusteredDot": dithering.ClusteredDot,
 }
 
+// ExportConfig serializes the current settings Model into a Config struct
+// suitable for JSON persistence.
 func (m Model) ExportConfig() Config {
 	mode, _, customChars := m.Characters.Selected()
 	selMode := m.Characters.SelectionMode()
@@ -233,6 +244,9 @@ func (m Model) ExportConfig() Config {
 	}
 }
 
+// ApplyConfig deserializes a Config struct and applies all its values to the
+// settings Model. Theme is intentionally excluded to avoid persisting an
+// unreadable UI state.
 func (m *Model) ApplyConfig(cfg Config) {
 	m.Colors.SetMode(cfg.Colors.UseTrueColor)
 	m.Colors.SetAdaptToPalette(cfg.Colors.AdaptToPalette)
@@ -337,6 +351,7 @@ func DefaultConfig() Config {
 	}
 }
 
+// SaveConfig writes the given Config as indented JSON to the specified file path.
 func SaveConfig(cfg Config, path string) error {
 	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
@@ -345,6 +360,7 @@ func SaveConfig(cfg Config, path string) error {
 	return os.WriteFile(path, data, 0644)
 }
 
+// LoadConfig reads a JSON file at the given path and deserializes it into a Config.
 func LoadConfig(path string) (Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {

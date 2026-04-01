@@ -118,6 +118,15 @@ func (m Model) buildCheckThemeCmd() tea.Cmd {
 func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	m.Advanced.ShowDithering = m.Colors.IsLimited()
 
+	// If focus is on a hidden submenu (e.g. Alpha/Animation disappeared after
+	// a render cleared AlphaImage/AnimatedImage), reset to the last visible state.
+	if m.focus == Alpha && !m.Alpha.AlphaImage || m.focus == Animation && !m.Animation.AnimatedImage {
+		states := m.visibleStates()
+		if len(states) > 0 {
+			m.focus = states[len(states)-1]
+		}
+	}
+
 	switch m.active {
 	case Colors:
 		m, cmd := m.handleColorsUpdate(msg)
@@ -136,8 +145,18 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	case Advanced:
 		return m.handleAdvancedUpdate(msg)
 	case Animation:
+		if !m.Animation.AnimatedImage {
+			m.active = None
+			m.Animation.IsActive = false
+			return m, nil
+		}
 		return m.handleAnimationUpdate(msg)
 	case Alpha:
+		if !m.Alpha.AlphaImage {
+			m.active = None
+			m.Alpha.IsActive = false
+			return m, nil
+		}
 		return m.handleAlphaUpdate(msg)
 	case Theme:
 		return m.handleThemeUpdate(msg)

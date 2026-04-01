@@ -8,6 +8,7 @@ import (
 
 const prefsFileName = "prefs.json"
 
+// Dirs holds persisted directory paths used by the various file browsers.
 type Dirs struct {
 	Browse       string `json:"browse,omitempty"`
 	ExportSource string `json:"exportSource,omitempty"`
@@ -22,9 +23,11 @@ type AppPrefs struct {
 	ShowHelp        bool   `json:"showHelp"`
 	RestoreTheme    bool   `json:"restoreTheme"`
 	RestoreSettings bool   `json:"restoreSettings"`
+	SkipSplash      bool   `json:"skipSplash"`
 	LastTheme       string `json:"lastTheme,omitempty"`
 }
 
+// Prefs is the top-level container for all user preferences persisted to disk.
 type Prefs struct {
 	Dirs Dirs     `json:"dirs"`
 	App  AppPrefs `json:"app"`
@@ -60,6 +63,8 @@ func prefsPath() (string, error) {
 	return filepath.Join(dir, prefsFileName), nil
 }
 
+// Load reads user preferences from the config directory, returning zero-value
+// Prefs if the file is missing or cannot be parsed.
 func Load() Prefs {
 	path, err := prefsPath()
 	if err != nil {
@@ -76,6 +81,7 @@ func Load() Prefs {
 	return p
 }
 
+// Save writes the current preferences to the config directory as JSON.
 func (p Prefs) Save() {
 	path, err := prefsPath()
 	if err != nil {

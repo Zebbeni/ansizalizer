@@ -58,6 +58,7 @@ const (
 	FocusPrefsShowHelp
 	FocusPrefsRestoreTheme
 	FocusPrefsRestoreSettings
+	FocusPrefsSkipSplash
 	FocusPrefsClose
 )
 
@@ -72,6 +73,7 @@ type Result struct {
 	ShowHelp        bool   // for preferences
 	RestoreTheme    bool   // for preferences
 	RestoreSettings bool   // for preferences
+	SplashOnStart   bool   // for preferences
 }
 
 type Model struct {
@@ -98,6 +100,7 @@ type Model struct {
 	prefsShowHelp        bool
 	prefsRestoreTheme    bool
 	prefsRestoreSettings bool
+	prefsSplashOnStart   bool
 }
 
 var jsonExtensions = map[string]bool{".json": true}
@@ -174,7 +177,7 @@ func NewExportBatch(sourceDir, destDir string) Model {
 	}
 }
 
-func NewPrefs(showHelp, restoreTheme, restoreSettings bool) Model {
+func NewPrefs(showHelp, restoreTheme, restoreSettings, splashOnStart bool) Model {
 	return Model{
 		Kind:                 PrefsKind,
 		Open:                 true,
@@ -183,6 +186,7 @@ func NewPrefs(showHelp, restoreTheme, restoreSettings bool) Model {
 		prefsShowHelp:        showHelp,
 		prefsRestoreTheme:    restoreTheme,
 		prefsRestoreSettings: restoreSettings,
+		prefsSplashOnStart:   splashOnStart,
 	}
 }
 

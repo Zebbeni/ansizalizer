@@ -41,9 +41,8 @@ type Model struct {
 	heightInput    numberinput.Model
 	charRatioInput numberinput.Model
 
-	ShouldUnfocus bool
-	ShouldClose   bool
-	IsActive      bool
+	ShouldClose bool
+	IsActive    bool
 }
 
 func New() Model {
@@ -55,9 +54,8 @@ func New() Model {
 		heightInput:    newInput(HeightForm, 50),
 		charRatioInput: newFloatInput(CharRatioForm, DEFAULT_CHAR_W_TO_H_RATIO),
 
-		ShouldUnfocus: false,
-		ShouldClose:   false,
-		IsActive:      false,
+		ShouldClose: false,
+		IsActive:    false,
 	}
 }
 

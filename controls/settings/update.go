@@ -34,14 +34,26 @@ func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	return m, nil
 }
 
+// handleChildClose deactivates the current sub-component. If the triggering
+// message was a navigation key (Up/Down/Tab), re-dispatch it so the parent
+// settings list continues navigating. Esc just closes without re-dispatch.
+func (m Model) handleChildClose(msg tea.Msg, cmd tea.Cmd) (Model, tea.Cmd) {
+	m.active = None
+	if keyMsg, ok := msg.(tea.KeyMsg); ok {
+		if key.Matches(keyMsg, event.KeyMap.Nav) {
+			return m.handleSettingsUpdate(msg)
+		}
+	}
+	return m, cmd
+}
+
 func (m Model) handleColorsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Colors, cmd = m.Colors.Update(msg)
-
 	if m.Colors.ShouldClose {
-		m.active = None
 		m.Colors.IsActive = false
 		m.Colors.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -49,11 +61,10 @@ func (m Model) handleColorsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleCharactersUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Characters, cmd = m.Characters.Update(msg)
-
 	if m.Characters.ShouldClose {
-		m.active = None
 		m.Characters.IsActive = false
 		m.Characters.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -62,13 +73,9 @@ func (m Model) handleSizeUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Size, cmd = m.Size.Update(msg)
 	if m.Size.ShouldClose {
-		m.active = None
 		m.Size.IsActive = false
 		m.Size.ShouldClose = false
-	}
-	if m.Size.ShouldUnfocus {
-		m.Size.ShouldUnfocus = false
-		return m.handleSettingsUpdate(msg)
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -77,9 +84,9 @@ func (m Model) handleAdjustUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Adjust, cmd = m.Adjust.Update(msg)
 	if m.Adjust.ShouldClose {
-		m.active = None
 		m.Adjust.IsActive = false
 		m.Adjust.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -88,9 +95,9 @@ func (m Model) handleTextStyleUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.TextStyle, cmd = m.TextStyle.Update(msg)
 	if m.TextStyle.ShouldClose {
-		m.active = None
 		m.TextStyle.IsActive = false
 		m.TextStyle.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -98,10 +105,10 @@ func (m Model) handleTextStyleUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleAdvancedUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Advanced, cmd = m.Advanced.Update(msg)
-
 	if m.Advanced.ShouldClose {
-		m.active = None
+		m.Advanced.IsActive = false
 		m.Advanced.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -110,9 +117,9 @@ func (m Model) handleAnimationUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Animation, cmd = m.Animation.Update(msg)
 	if m.Animation.ShouldClose {
-		m.active = None
 		m.Animation.IsActive = false
 		m.Animation.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -120,11 +127,10 @@ func (m Model) handleAnimationUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleThemeUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Theme, cmd = m.Theme.Update(msg)
-
 	if m.Theme.ShouldClose {
-		m.active = None
 		m.Theme.IsActive = false
 		m.Theme.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -163,9 +169,9 @@ func (m Model) handleSaveLoadUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			m.SaveLoad.SetStatus("Loaded " + filename)
 			return m, tea.Batch(event.StartRenderToViewCmd, event.BuildDisplayCmd("settings loaded"))
 		}
-		m.active = None
 		m.SaveLoad.IsActive = false
 		m.SaveLoad.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }
@@ -173,11 +179,10 @@ func (m Model) handleSaveLoadUpdate(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) handleAlphaUpdate(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.Alpha, cmd = m.Alpha.Update(msg)
-
-	if m.Alpha.ShouldUnfocus {
-		m.Alpha.ShouldUnfocus = false
-		m.active = None
-		return m.handleSettingsUpdate(msg)
+	if m.Alpha.ShouldClose {
+		m.Alpha.IsActive = false
+		m.Alpha.ShouldClose = false
+		return m.handleChildClose(msg, cmd)
 	}
 	return m, cmd
 }

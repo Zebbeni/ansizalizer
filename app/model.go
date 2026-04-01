@@ -91,8 +91,13 @@ func New() Model {
 	}
 	p.Save()
 
+	startState := Splash
+	if p.App.SkipSplash {
+		startState = Main
+	}
+
 	m := Model{
-		state:    Splash,
+		state:    startState,
 		controls: controls.New(controlsWidth, p.Dirs),
 		display:  display.New(),
 		viewer:   viewer.New(),
