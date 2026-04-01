@@ -2,6 +2,7 @@ package modal
 
 import (
 	"path/filepath"
+	"strings"
 
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
@@ -14,15 +15,16 @@ import (
 // --- Export Current File ---
 
 func (m Model) updateExportFile(msg tea.Msg) (Model, tea.Cmd) {
+	// Browser active
 	if m.focus == FocusDestBrowser {
 		var cmd tea.Cmd
 		m.destBrowser, cmd = m.destBrowser.Update(msg)
 		if m.destBrowser.ShouldClose {
 			m.destBrowser.ShouldClose = false
-			if m.destBrowser.SelectedDir != "" {
-				m.focus = FocusConfirm
-			}
+			m.destBrowser.SetActive(false)
+			m.focus = FocusDestSelect
 		}
+		m.confirmedDest = m.destBrowser.SelectedDir
 		return m, cmd
 	}
 
@@ -33,49 +35,128 @@ func (m Model) updateExportFile(msg tea.Msg) (Model, tea.Cmd) {
 
 	switch {
 	case key.Matches(keyMsg, event.KeyMap.Enter):
-		if m.focus == FocusConfirm {
+		switch m.focus {
+		case FocusDestPanel:
+			m.focus = FocusDestSelect
+		case FocusDestSelect:
+			m.confirmedDest = m.destBrowser.SelectedDir
+			m.focus = FocusConfirm
+		case FocusConfirm:
 			m.result = &Result{
 				Kind:            ExportFileKind,
 				SourcePath:      m.sourceFile,
-				DestinationPath: m.destBrowser.SelectedDir,
+				DestinationPath: m.confirmedDest,
 				IsDir:           false,
 			}
 			m.Open = false
-		} else if m.focus == FocusCancel {
+		case FocusCancel:
 			m.Open = false
 		}
-	case key.Matches(keyMsg, event.KeyMap.Left):
-		if m.focus == FocusCancel {
+	case key.Matches(keyMsg, event.KeyMap.Down), key.Matches(keyMsg, event.KeyMap.Tab):
+		switch m.focus {
+		case FocusDestPanel:
 			m.focus = FocusConfirm
-		}
-	case key.Matches(keyMsg, event.KeyMap.Right):
-		if m.focus == FocusConfirm {
+		case FocusDestSelect:
+			m.focus = FocusDestBrowser
+			m.destBrowser.SetActive(true)
+		case FocusConfirm:
 			m.focus = FocusCancel
 		}
 	case key.Matches(keyMsg, event.KeyMap.Up):
-		if m.focus == FocusConfirm || m.focus == FocusCancel {
-			m.focus = FocusDestBrowser
-			m.destBrowser.SetActive(true)
+		switch m.focus {
+		case FocusDestSelect:
+			m.focus = FocusDestPanel
+		case FocusConfirm:
+			m.focus = FocusDestPanel
+		case FocusCancel:
+			m.focus = FocusConfirm
 		}
 	case key.Matches(keyMsg, event.KeyMap.Esc):
-		m.Open = false
+		switch m.focus {
+		case FocusDestSelect:
+			m.focus = FocusDestPanel
+		default:
+			m.Open = false
+		}
 	}
 	return m, nil
 }
 
 func (m Model) exportFileView() string {
-	sourceLabel := style.DimmedTitle.Copy().Render("Source: " + filepath.Base(m.sourceFile))
+	contentArea := LoadWidth - 6
+	panelContent := contentArea - 2
 
-	destLabel := style.DimmedTitle.Copy().Italic(true).
-		Width(Width - 6).
+	sourceLabel := style.DimmedTitle.Copy().Italic(true).
+		Width(contentArea).
 		AlignHorizontal(lipgloss.Center).
-		Render("Destination: " + filepath.Base(m.destBrowser.SelectedDir) + "/")
+		Render("Source: " + filepath.Base(m.sourceFile))
 
-	if m.focus == FocusDestBrowser {
-		return lipgloss.JoinVertical(lipgloss.Left, sourceLabel, "", destLabel, m.destBrowser.View())
+	// Destination panel — collapsed or expanded
+	panelExpanded := m.focus == FocusDestSelect || m.focus == FocusDestBrowser
+	panelFocused := m.focus == FocusDestPanel
+	panelActive := m.focus == FocusDestBrowser || m.focus == FocusDestSelect
+
+	renderColor := style.DimmedColor1
+	if panelActive {
+		renderColor = style.NormalColor1
+	} else if panelFocused {
+		renderColor = style.SelectedColor1
 	}
 
-	return lipgloss.JoinVertical(lipgloss.Center, sourceLabel, "", destLabel)
+	border := lipgloss.RoundedBorder()
+	if panelFocused {
+		border = style.HeavyBorder()
+	}
+	borderStyle := style.BgStyle().
+		Border(border).
+		BorderForeground(renderColor).
+		BorderBackground(style.ActiveTheme.Bg)
+	titleSt := style.BgStyle().
+		AlignHorizontal(lipgloss.Center).
+		Padding(0, 1).
+		Foreground(renderColor)
+
+	renderer := style.BoxWithLabel{
+		BoxStyle:   borderStyle,
+		LabelStyle: titleSt,
+	}
+
+	var panel string
+	if panelExpanded {
+		selectBtn := m.renderSelectButton(m.destBrowser.SelectedDir, m.focus == FocusDestSelect)
+		browseContent := lipgloss.JoinVertical(lipgloss.Left, selectBtn, m.destBrowser.View())
+		panel = renderer.Render("Destination", browseContent, panelContent)
+	} else {
+		summary := style.DimmedTitle.Copy().Italic(true).
+			Width(panelContent).
+			AlignHorizontal(lipgloss.Center).
+			Padding(0, 1).
+			Render(filepath.Base(m.confirmedDest) + "/")
+		panel = renderer.Render("Destination", summary, panelContent)
+	}
+
+	// GIF explanation
+	isGif := strings.HasSuffix(strings.ToLower(m.sourceFile), ".gif")
+	if isGif {
+		nameWithoutExt := strings.TrimSuffix(filepath.Base(m.sourceFile), filepath.Ext(m.sourceFile))
+		gifNote := style.DimmedTitle.Copy().Italic(true).
+			Width(contentArea).
+			AlignHorizontal(lipgloss.Center).
+			Render("Frames will be exported to numbered .ansi files in a new folder named " + nameWithoutExt + "/")
+		return lipgloss.JoinVertical(lipgloss.Center, sourceLabel, "", panel, "", gifNote)
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Center, sourceLabel, "", panel)
+}
+
+// exportFileName returns the output name shown on the Export button.
+func (m Model) exportFileName() string {
+	nameWithoutExt := strings.TrimSuffix(filepath.Base(m.sourceFile), filepath.Ext(m.sourceFile))
+	isGif := strings.HasSuffix(strings.ToLower(m.sourceFile), ".gif")
+	if isGif {
+		return nameWithoutExt + "/"
+	}
+	return nameWithoutExt + ".ansi"
 }
 
 // --- Export Batch ---
@@ -118,6 +199,7 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 		case FocusSourceSelect:
 			// Confirm source directory and tab to next item
 			m.confirmedSrc = m.sourceBrowser.SelectedDir
+			m.imageCount = countImages(m.confirmedSrc, m.useSubDirs)
 			m.focus = FocusDestPanel
 		case FocusDestPanel:
 			m.focus = FocusDestSelect
@@ -127,6 +209,9 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 			m.focus = FocusSubDirsYes
 		case FocusSubDirsYes, FocusSubDirsNo:
 			m.useSubDirs = !m.useSubDirs
+			if m.confirmedSrc != "" {
+				m.imageCount = countImages(m.confirmedSrc, m.useSubDirs)
+			}
 		case FocusConfirm:
 			if m.confirmedSrc != "" && m.confirmedDest != "" {
 				m.result = &Result{
@@ -170,13 +255,11 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 
 	case key.Matches(keyMsg, event.KeyMap.Down):
 		switch m.focus {
-		case FocusSourcePanel:
-			m.focus = FocusSourceSelect
+		case FocusSourcePanel, FocusDestPanel:
+			m.focus = FocusSubDirsYes
 		case FocusSourceSelect:
 			m.focus = FocusSourceBrowser
 			m.sourceBrowser.SetActive(true)
-		case FocusDestPanel:
-			m.focus = FocusDestSelect
 		case FocusDestSelect:
 			m.focus = FocusDestBrowser
 			m.destBrowser.SetActive(true)
@@ -210,12 +293,12 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) renderSelectButton(dir string, focused bool) string {
-	label := "Select " + filepath.Base(dir) + "/"
+	label := "Select " + filepath.Base(dir) + " \U0001F5C0"
 	btnStyle := style.DimmedTitle.Copy()
 	if focused {
 		btnStyle = style.SelectedTitle.Copy()
 	}
-	return btnStyle.AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 2).Render(label)
+	return btnStyle.Padding(1, 0, 1, 2).Render(label)
 }
 
 func (m Model) renderPanel(title, content string, focused, active bool, w, h int) string {
@@ -264,9 +347,9 @@ func (m Model) exportBatchView() string {
 	srcBox := m.renderPanel("Source", srcContent, srcFocused, srcActive, panelW, panelH)
 	srcConfirmed := m.confirmedSrc
 	if srcConfirmed == "" {
-		srcConfirmed = "(not selected)"
+		srcConfirmed = "Source: (not selected)"
 	} else {
-		srcConfirmed = filepath.Base(srcConfirmed) + "/"
+		srcConfirmed = "Source: " + filepath.Base(srcConfirmed) + "/"
 	}
 	srcDir := style.DimmedTitle.Copy().Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
 		Render(srcConfirmed)
@@ -280,9 +363,9 @@ func (m Model) exportBatchView() string {
 	destBox := m.renderPanel("Destination", destContent, destFocused, destActive, panelW, panelH)
 	destConfirmed := m.confirmedDest
 	if destConfirmed == "" {
-		destConfirmed = "(not selected)"
+		destConfirmed = "Destination: (not selected)"
 	} else {
-		destConfirmed = filepath.Base(destConfirmed) + "/"
+		destConfirmed = "Destination: " + filepath.Base(destConfirmed) + "/"
 	}
 	destDir := style.DimmedTitle.Copy().Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
 		Render(destConfirmed)

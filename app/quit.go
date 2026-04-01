@@ -29,10 +29,9 @@ func (m Model) handleQuitModalKey(msg tea.KeyMsg) (Model, tea.Cmd) {
 }
 
 func (m Model) renderQuitModal() string {
-	title := style.SelectedTitle.Copy().
+	msg := style.DimmedTitle.Copy().Italic(true).
 		AlignHorizontal(lipgloss.Center).
-		Width(20).
-		Render("Quit Program?")
+		Render("Are you sure you want to close the app?")
 
 	yesStyle := style.NormalButton
 	noStyle := style.NormalButton
@@ -48,14 +47,22 @@ func (m Model) renderQuitModal() string {
 		noStyle.Render("  No   "),
 	)
 
-	content := lipgloss.JoinVertical(lipgloss.Center, title, "", buttons)
+	content := lipgloss.JoinVertical(lipgloss.Center, msg, "", buttons)
 
-	border := style.BgStyle().
-		Padding(1, 2).
+	textStyle := style.BgStyle().
+		AlignHorizontal(lipgloss.Center).
+		Padding(0, 1).
+		Foreground(style.SelectedColor1)
+	borderStyle := style.BgStyle().
 		Border(style.HeavyBorder()).
 		BorderForeground(style.SelectedColor1).
 		BorderBackground(style.ActiveTheme.Bg).
-		AlignHorizontal(lipgloss.Center)
+		Padding(1, 2)
 
-	return style.ApplyBg(border.Render(content), 0)
+	renderer := style.BoxWithLabel{
+		BoxStyle:   borderStyle,
+		LabelStyle: textStyle,
+	}
+
+	return style.ApplyBg(renderer.Render("Quit", content, lipgloss.Width(content)), 0)
 }

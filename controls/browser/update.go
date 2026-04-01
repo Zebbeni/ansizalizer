@@ -62,16 +62,10 @@ func (m Model) updateSelected() (Model, tea.Cmd) {
 		return m, nil
 	}
 
-	// First enter on a file: select it and start rendering
-	if m.SelectedFile != itm.path {
-		m.SelectedFile = itm.path
-		m.ActiveFile = itm.path
-		return m, event.StartRenderToViewCmd
-	}
-
-	// Second enter on same file: close browser
+	m.SelectedFile = itm.path
+	m.ActiveFile = itm.path
 	m.ShouldClose = true
-	return m, nil
+	return m, event.StartRenderToViewCmd
 }
 
 func (m Model) addListForDirectory(dir string) Model {

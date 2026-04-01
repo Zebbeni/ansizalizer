@@ -17,8 +17,17 @@ type Dirs struct {
 	PaletteLoad  string `json:"paletteLoad,omitempty"`
 }
 
+// AppPrefs stores user preferences that persist across sessions.
+type AppPrefs struct {
+	ShowHelp        bool   `json:"showHelp"`
+	RestoreTheme    bool   `json:"restoreTheme"`
+	RestoreSettings bool   `json:"restoreSettings"`
+	LastTheme       string `json:"lastTheme,omitempty"`
+}
+
 type Prefs struct {
-	Dirs Dirs `json:"dirs"`
+	Dirs Dirs     `json:"dirs"`
+	App  AppPrefs `json:"app"`
 }
 
 // AppDir returns the root ansizalizer config directory.

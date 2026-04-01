@@ -185,19 +185,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 			return m, nil
 		}
-		// Activate tab if focused but not active
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
-		case ModeMatrix:
-			m.modeControls = ModeMatrix
-			m.ditherMode = Matrix
-		case ModeBayer:
-			m.modeControls = ModeBayer
-			m.ditherMode = Bayer
-		case ModeClusteredDot:
-			m.modeControls = ModeClusteredDot
-			m.ditherMode = ClusteredDot
+		case ModeMatrix, ModeBayer, ModeClusteredDot:
+			if m.modeControls != m.focus {
+				downFrom = m.modeControls
+			}
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.ShouldClose = true
@@ -210,19 +206,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 			return m, nil
 		}
-		// Activate tab if focused but not active
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
-		case ModeMatrix:
-			m.modeControls = ModeMatrix
-			m.ditherMode = Matrix
-		case ModeBayer:
-			m.modeControls = ModeBayer
-			m.ditherMode = Bayer
-		case ModeClusteredDot:
-			m.modeControls = ModeClusteredDot
-			m.ditherMode = ClusteredDot
+		case ModeMatrix, ModeBayer, ModeClusteredDot:
+			if m.modeControls != m.focus {
+				downFrom = m.modeControls
+			}
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.ShouldClose = true

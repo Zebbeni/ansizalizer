@@ -9,7 +9,6 @@ import (
 	"charm.land/bubbles/v2/list"
 
 	"github.com/Zebbeni/ansizalizer/debug"
-	"github.com/Zebbeni/ansizalizer/style"
 )
 
 type item struct {
@@ -25,7 +24,7 @@ func (i item) FilterValue() string {
 
 func (i item) Title() string {
 	if i.isTop {
-		return "⮤ 🗀  " + style.BgStyle().Italic(true).Render(fmt.Sprintf("%s/", i.name))
+		return fmt.Sprintf("⮤ 🗀  %s/", i.name)
 	}
 	if i.isDir {
 		return fmt.Sprintf("🗀  %s/", i.name)

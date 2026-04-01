@@ -66,6 +66,11 @@ func New() Model {
 
 	p := prefs.Load()
 
+	if firstRun {
+		p.App.ShowHelp = true
+		p.Save()
+	}
+
 	// Set default dirs
 	if p.Dirs.Browse == "" {
 		if home, err := os.UserHomeDir(); err == nil {
@@ -99,20 +104,39 @@ func New() Model {
 		waitingOnExport: false,
 	}
 
-	// Restore settings from latest.json (or default.json on first run)
+	// Restore settings from latest.json, default.json, or skip based on preferences
 	if firstRun {
 		m.controls.Settings.SaveLoad.SetStatus("Loaded default.json")
-	} else if cfg, err := settings.LoadConfig(prefs.LatestSettingsPath()); err == nil {
-		m.controls.Settings.ApplyConfig(cfg)
-		m.controls.Settings.SaveLoad.SetStatus("Loaded latest.json")
-		debug.Log("Startup: loaded latest.json, chars mode=%s", cfg.Characters.Mode)
+	} else if p.App.RestoreSettings {
+		if cfg, err := settings.LoadConfig(prefs.LatestSettingsPath()); err == nil {
+			m.controls.Settings.ApplyConfig(cfg)
+			m.controls.Settings.SaveLoad.SetStatus("Loaded latest.json")
+			debug.Log("Startup: loaded latest.json, chars mode=%s", cfg.Characters.Mode)
+		}
+	} else {
+		if cfg, err := settings.LoadConfig(filepath.Join(prefs.SettingsDir(), "default.json")); err == nil {
+			m.controls.Settings.ApplyConfig(cfg)
+			m.controls.Settings.SaveLoad.SetStatus("Loaded default.json")
+		}
 	}
 
 	// Sync palette to style package so paletted themes work at startup
 	if m.controls.Settings.Colors.IsLimited() {
 		style.PaletteColors = m.controls.Settings.Colors.GetCurrentPalette().Colors()
 	}
-	style.SetTheme(style.ActiveTheme.Name)
+
+	// Restore theme from preferences if enabled
+	if p.App.RestoreTheme && p.App.LastTheme != "" {
+		if themeName, ok := style.ThemeFromName[p.App.LastTheme]; ok {
+			style.SetTheme(themeName)
+			m.controls.Settings.Theme.SetThemeByName(p.App.LastTheme)
+		}
+	} else {
+		style.SetTheme(style.ActiveTheme.Name)
+	}
+
+	// Apply show help preference
+	m.showHelp = p.App.ShowHelp
 
 	// Refresh all cached styles after theme is set
 	m.controls.RefreshAllStyles()

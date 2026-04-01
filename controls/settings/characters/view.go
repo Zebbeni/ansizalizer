@@ -65,7 +65,7 @@ func (m Model) drawCharControls() string {
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
-	centeredRow := lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Render(row)
+	centeredRow := lipgloss.NewStyle().Width(m.width).Padding(0, 1).AlignHorizontal(lipgloss.Center).Render(row)
 
 	if m.charControls == Ascii {
 		paddedRow := lipgloss.NewStyle().PaddingTop(1).Render(centeredRow)

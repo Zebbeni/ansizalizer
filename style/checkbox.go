@@ -19,3 +19,20 @@ func RenderCheckbox(label string, checked, focused bool) string {
 		labelStyle.Render(label+" "),
 		checkStyle.Render(checkChar))
 }
+
+// RenderCheckboxFixedWidth renders a checkbox with a fixed-width label for alignment.
+func RenderCheckboxFixedWidth(label string, checked, focused bool, labelWidth int) string {
+	checkChar := "☐"
+	if checked {
+		checkChar = "🗹"
+	}
+	labelStyle := DimmedTitle.Copy().Width(labelWidth)
+	checkStyle := DimmedTitle.Copy()
+	if focused {
+		labelStyle = NormalTitle.Copy().Width(labelWidth)
+		checkStyle = SelectedTitle.Copy()
+	}
+	return lipgloss.JoinHorizontal(lipgloss.Left,
+		labelStyle.Render(label),
+		checkStyle.Render(checkChar))
+}

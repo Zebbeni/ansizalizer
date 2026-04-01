@@ -54,6 +54,12 @@ func (m Model) handleCheckTheme(msg event.CheckThemeMsg) (Model, tea.Cmd) {
 		m.controls.RefreshAllStyles()
 		helpCacheBg = ""
 		cmds = append(cmds, event.StartRenderToViewCmd)
+
+		// Persist last theme for restore-on-start
+		if m.prefs.App.RestoreTheme {
+			m.prefs.App.LastTheme = style.ThemeNames[style.ActiveTheme.Name]
+			m.prefs.Save()
+		}
 	}
 
 	return m, tea.Batch(cmds...)
@@ -423,6 +429,8 @@ func (m Model) handleControlsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 			case filemenu.ExportBatchProcess:
 				m = m.openExportBatchModal()
 			}
+		case filemenu.Preferences:
+			m = m.openPrefsModal()
 		}
 	}
 

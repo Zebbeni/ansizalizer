@@ -39,31 +39,37 @@ func (m Model) drawTitle() string {
 
 func (m Model) drawColorsInput() string {
 	prompt, placeholder := m.getInputColors(CountForm)
+	bg := style.BgStyle()
 
 	m.countInput.SetWidth(3)
 	cStyles := m.countInput.Styles()
-	cStyles.Focused.Prompt = cStyles.Focused.Prompt.Foreground(prompt)
-	cStyles.Focused.Text = cStyles.Focused.Text.Foreground(prompt).MaxWidth(3)
-	cStyles.Focused.Placeholder = cStyles.Focused.Placeholder.Foreground(placeholder)
-	cStyles.Blurred.Prompt = cStyles.Blurred.Prompt.Foreground(prompt)
-	cStyles.Blurred.Text = cStyles.Blurred.Text.Foreground(prompt).MaxWidth(3)
-	cStyles.Blurred.Placeholder = cStyles.Blurred.Placeholder.Foreground(placeholder)
+	cStyles.Focused.Prompt = bg.Copy().Foreground(prompt)
+	cStyles.Focused.Text = bg.Copy().Foreground(prompt).MaxWidth(3)
+	cStyles.Focused.Placeholder = bg.Copy().Foreground(placeholder)
+	cStyles.Blurred.Prompt = bg.Copy().Foreground(prompt)
+	cStyles.Blurred.Text = bg.Copy().Foreground(prompt).MaxWidth(3)
+	cStyles.Blurred.Placeholder = bg.Copy().Foreground(placeholder)
 	cStyles.Cursor.Blink = m.countInput.Focused()
+	cStyles.Cursor.Color = prompt
 	m.countInput.SetStyles(cStyles)
 	m.countInput.SetVirtualCursor(m.countInput.Focused())
-	return style.BgStyle().PaddingLeft(1).Width(12).Render(m.countInput.View())
+	return bg.Copy().PaddingLeft(1).Width(12).Render(m.countInput.View())
 }
 
 func (m Model) drawTagInput() string {
 	prompt, placeholder := m.getInputColors(TagForm)
+	bg := style.BgStyle()
 
 	m.tagInput.SetWidth(m.width - 5)
 	tStyles := m.tagInput.Styles()
-	tStyles.Focused.Prompt = tStyles.Focused.Prompt.Foreground(prompt)
-	tStyles.Focused.Placeholder = tStyles.Focused.Placeholder.Foreground(placeholder)
-	tStyles.Blurred.Prompt = tStyles.Blurred.Prompt.Foreground(prompt)
-	tStyles.Blurred.Placeholder = tStyles.Blurred.Placeholder.Foreground(placeholder)
+	tStyles.Focused.Prompt = bg.Copy().Foreground(prompt).Padding(0, 1, 0, 1)
+	tStyles.Focused.Text = bg.Copy().Foreground(prompt)
+	tStyles.Focused.Placeholder = bg.Copy().Foreground(placeholder)
+	tStyles.Blurred.Prompt = bg.Copy().Foreground(prompt).Padding(0, 1, 0, 1)
+	tStyles.Blurred.Text = bg.Copy().Foreground(prompt)
+	tStyles.Blurred.Placeholder = bg.Copy().Foreground(placeholder)
 	tStyles.Cursor.Blink = m.tagInput.Focused()
+	tStyles.Cursor.Color = prompt
 	m.tagInput.SetStyles(tStyles)
 	m.tagInput.SetVirtualCursor(m.tagInput.Focused())
 	return m.tagInput.View()

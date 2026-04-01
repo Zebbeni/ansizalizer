@@ -14,12 +14,12 @@ var modeTabNames = map[State]string{
 
 func (m Model) drawDitheringOptions() string {
 	focused := m.IsActive && (m.focus == DitherOn || m.focus == DitherOff)
-	return style.RenderCheckbox("Dithering", m.doDithering, focused)
+	return style.RenderCheckboxFixedWidth("Dithering", m.doDithering, focused, 11)
 }
 
 func (m Model) drawSerpentineOptions() string {
 	focused := m.IsActive && (m.focus == SerpentineOn || m.focus == SerpentineOff)
-	return style.RenderCheckbox("Serpentine", m.doSerpentine, focused)
+	return style.RenderCheckboxFixedWidth("Serpentine", m.doSerpentine, focused, 11)
 }
 
 var tabStates = map[State]bool{

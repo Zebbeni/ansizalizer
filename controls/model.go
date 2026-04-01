@@ -31,7 +31,7 @@ var (
 	stateOrder = []State{FileMenu, Browse, Settings}
 	stateNames = map[State]string{
 		FileMenu: "File",
-		Browse:   "Browse",
+		Browse:   "Images",
 		Settings: "Settings",
 	}
 )

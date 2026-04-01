@@ -16,6 +16,7 @@ const (
 	SaveSettings
 	Theme
 	Export
+	Preferences
 	Quit
 )
 
@@ -33,13 +34,14 @@ const (
 	ExportBatchProcess
 )
 
-var menuItems = []Item{LoadSettings, SaveSettings, Theme, Export, Quit}
+var menuItems = []Item{LoadSettings, SaveSettings, Theme, Export, Preferences, Quit}
 
 var menuLabels = map[Item]string{
 	LoadSettings: "Load Settings",
 	SaveSettings: "Save Settings",
 	Theme:        "Theme         ▸",
 	Export:       "Export        ▸",
+	Preferences:  "Preferences",
 	Quit:         "Quit",
 }
 
@@ -71,7 +73,7 @@ var themeSubToName = map[SubItem]string{
 var exportSubItems = []SubItem{ExportCurrentFile, ExportBatchProcess}
 
 var exportSubLabels = map[SubItem]string{
-	ExportCurrentFile:  "Current File",
+	ExportCurrentFile:  "Current Image",
 	ExportBatchProcess: "Batch Process",
 }
 
@@ -86,6 +88,7 @@ type Model struct {
 	Open              bool
 	ShouldClose       bool // set when user navigates up from first item
 	ShouldNavRight    bool // set when user navigates right with no submenu
+	HasSelectedFile   bool // true when an image file is selected (enables Export Current File)
 	focus             Item
 	subOpen           Item // which submenu is open (-1 = none)
 	subFocus          int
@@ -173,7 +176,7 @@ func (m Model) handleSelect() (Model, tea.Cmd) {
 	case Export:
 		m.subOpen = Export
 		m.subFocus = 0
-	case LoadSettings, SaveSettings, Quit:
+	case LoadSettings, SaveSettings, Preferences, Quit:
 		m.SelectedResult = &Result{Action: m.focus}
 		m.Open = false
 		m.subOpen = -1
@@ -210,6 +213,11 @@ func (m Model) handleSubSelect(items []SubItem) (Model, tea.Cmd) {
 		return m, nil
 	}
 	selected := items[m.subFocus]
+
+	// Block selection of Export Current File when no file is selected
+	if selected == ExportCurrentFile && !m.HasSelectedFile {
+		return m, nil
+	}
 
 	switch m.subOpen {
 	case Theme:
@@ -293,11 +301,22 @@ func (m Model) renderMainMenu() string {
 
 	lines := make([]string, len(menuItems))
 	for i, item := range menuItems {
-		itemStyle := style.BgStyle().Width(menuWidth).Foreground(style.DimmedColor1).PaddingLeft(1)
+		itemStyle := style.BgStyle().Foreground(style.DimmedColor1).PaddingLeft(1)
 		if item == m.focus {
-			itemStyle = style.BgStyle().Width(menuWidth).Foreground(style.SelectedColor1).PaddingLeft(1)
+			itemStyle = style.BgStyle().Foreground(style.SelectedColor1).PaddingLeft(1)
 		}
-		lines[i] = itemStyle.Render(menuLabels[item])
+		label := menuLabels[item]
+		if item == Quit {
+			hintStyle := style.BgStyle().Foreground(style.ExtraDimColor).
+				Width(menuWidth - lipgloss.Width(itemStyle.Render(label))).
+				Align(lipgloss.Right).PaddingRight(1)
+			labelPart := itemStyle.Render(label)
+			hint := hintStyle.Render("ctrl+q")
+			row := lipgloss.JoinHorizontal(lipgloss.Left, labelPart, hint)
+			lines[i] = style.BgStyle().Width(menuWidth).Render(row)
+		} else {
+			lines[i] = itemStyle.Width(menuWidth).Render(label)
+		}
 	}
 	content := lipgloss.JoinVertical(lipgloss.Left, lines...)
 
@@ -330,8 +349,11 @@ func (m Model) renderSubMenu() string {
 	menuWidth := 26
 	lines := make([]string, len(items))
 	for i, item := range items {
+		disabled := item == ExportCurrentFile && !m.HasSelectedFile
 		itemStyle := style.BgStyle().Width(menuWidth).Foreground(style.DimmedColor1).PaddingLeft(1)
-		if i == m.subFocus {
+		if disabled {
+			itemStyle = style.BgStyle().Width(menuWidth).Foreground(style.ExtraDimColor).PaddingLeft(1)
+		} else if i == m.subFocus {
 			itemStyle = style.BgStyle().Width(menuWidth).Foreground(style.SelectedColor1).PaddingLeft(1)
 		}
 		lines[i] = itemStyle.Render(labels[item])

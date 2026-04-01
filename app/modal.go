@@ -32,6 +32,12 @@ func (m Model) openExportFileModal() Model {
 	return m
 }
 
+func (m Model) openPrefsModal() Model {
+	md := modal.NewPrefs(m.prefs.App.ShowHelp, m.prefs.App.RestoreTheme, m.prefs.App.RestoreSettings)
+	m.modal = &md
+	return m
+}
+
 func (m Model) openExportBatchModal() Model {
 	sourceDir := m.controls.FileBrowser.SelectedDir
 	destDir := m.controls.Export.Destination.GetSelected()
@@ -89,6 +95,17 @@ func (m Model) handleModalResult(result modal.Result) (Model, tea.Cmd) {
 		}
 		filename := filepath.Base(result.Path)
 		return m, event.BuildDisplayCmd("saved " + filename)
+
+	case modal.PrefsKind:
+		m.prefs.App.ShowHelp = result.ShowHelp
+		m.prefs.App.RestoreTheme = result.RestoreTheme
+		m.prefs.App.RestoreSettings = result.RestoreSettings
+		m.showHelp = result.ShowHelp
+		if result.RestoreTheme {
+			m.prefs.App.LastTheme = style.ThemeNames[style.ActiveTheme.Name]
+		}
+		m.prefs.Save()
+		return m, event.BuildDisplayCmd("preferences saved")
 
 	case modal.ExportFileKind, modal.ExportBatchKind:
 		return m, event.BuildStartExportCmd(event.StartExportMsg{

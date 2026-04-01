@@ -65,6 +65,8 @@ func (m Model) handleFileMenuResult(result filemenu.Result) (Model, tea.Cmd) {
 		}
 	case filemenu.Export:
 		m.OpenModal = &result
+	case filemenu.Preferences:
+		m.OpenModal = &result
 	case filemenu.Quit:
 		m.ShouldQuit = true
 		return m, nil
@@ -116,6 +118,7 @@ func (m Model) handleMenuUpdate(msg tea.Msg) (Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, event.KeyMap.Enter):
 			if m.focus == FileMenu {
+				m.FileDropdown.HasSelectedFile = m.FileBrowser.SelectedFile != ""
 				m.FileDropdown.Toggle()
 				return m, nil
 			}

@@ -291,7 +291,7 @@ func (m *Model) ApplyConfig(cfg Config) {
 func DefaultConfig() Config {
 	return Config{
 		Colors: ColorsConfig{
-			UseTrueColor: false,
+			UseTrueColor: true,
 			PaletteName:  "teal_orange",
 			PaletteColors: []string{
 				"#000000", "#001f2b", "#003f4f", "#005566",
