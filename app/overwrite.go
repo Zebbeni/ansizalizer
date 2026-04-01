@@ -110,14 +110,14 @@ func (m Model) handleOverwriteChoice() (Model, tea.Cmd) {
 }
 
 func (m *OverwriteModal) View() string {
-	title := style.SelectedTitle.Copy().Render("File Exists")
+	title := style.SelectedTitle.Render("File Exists")
 
-	fileLabel := style.NormalTitle.Copy().
+	fileLabel := style.NormalTitle.
 		Width(44).
 		AlignHorizontal(lipgloss.Center).
 		Render(m.filename)
 
-	prompt := style.DimmedTitle.Copy().
+	prompt := style.DimmedTitle.
 		Width(44).
 		AlignHorizontal(lipgloss.Center).
 		Render("already exists. Overwrite?")

@@ -76,8 +76,8 @@ func (m Model) addListForDirectory(dir string) Model {
 	//title := filepath.Join(filepath.Base(filepath.Dir(dir)), filepath.Base(dir))
 
 	//newList.Title = fitString(title, m.width-10)
-	//newList.Styles.Title = newList.Styles.Title.Copy().Foreground(style.DimmedColor2).UnsetBackground()
-	//newList.Styles.TitleBar = newList.Styles.TitleBar.Copy().Padding(0).Height(2)
+	//newList.Styles.Title = newList.Styles.Title.Foreground(style.DimmedColor2).UnsetBackground()
+	//newList.Styles.TitleBar = newList.Styles.TitleBar.Padding(0).Height(2)
 	newList.SetShowStatusBar(false)
 	newList.SetFilteringEnabled(false)
 	newList.SetShowFilter(false)

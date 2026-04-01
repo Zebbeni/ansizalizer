@@ -1,19 +1,17 @@
 package animation
 
 import (
-	"image/color"
-
 	"charm.land/lipgloss/v2"
 
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
-	inputStyle = style.BgStyle().AlignHorizontal(lipgloss.Center)
+	inputStyle = style.BgStyle().PaddingLeft(1).Width(21).AlignHorizontal(lipgloss.Center)
 )
 
 func (m Model) drawDelayForm() string {
-	prompt, text := m.getInputColors(DelayForm)
+	prompt, text := style.InputColors(m.IsActive, m.focus == DelayForm, m.active == DelayForm)
 	m.delayInput.SetWidth(5)
 
 	styles := m.delayInput.Styles()
@@ -27,14 +25,4 @@ func (m Model) drawDelayForm() string {
 	m.delayInput.SetVirtualCursor(m.delayInput.Focused())
 
 	return inputStyle.Render(m.delayInput.View())
-}
-
-func (m Model) getInputColors(state State) (color.Color, color.Color) {
-	if m.IsActive && m.focus == state {
-		if m.active == state {
-			return style.NormalColor1, style.SelectedColor1
-		}
-		return style.SelectedColor1, style.NormalColor1
-	}
-	return style.DimmedColor1, style.DimmedColor1
 }

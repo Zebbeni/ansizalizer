@@ -59,17 +59,17 @@ func NewDelegate(isActive bool) list.DefaultDelegate {
 }
 
 func ItemStylesActive() (s list.DefaultItemStyles) {
-	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
-	s.SelectedTitle = style.SelectedTitle.Copy().Padding(0, 1, 0, 1).
+	s.NormalTitle = style.DimmedTitle.Padding(0, 1, 0, 2)
+	s.SelectedTitle = style.SelectedTitle.Padding(0, 1, 0, 1).
 		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1)
-	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
+	s.DimmedTitle = style.DimmedTitle.Padding(0, 1, 0, 0)
 	return s
 }
 
 func ItemStylesInactive() (s list.DefaultItemStyles) {
-	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
-	s.SelectedTitle = style.NormalTitle.Copy().Padding(0, 1, 0, 2)
-	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
+	s.NormalTitle = style.DimmedTitle.Padding(0, 1, 0, 2)
+	s.SelectedTitle = style.NormalTitle.Padding(0, 1, 0, 2)
+	s.DimmedTitle = style.DimmedTitle.Padding(0, 1, 0, 0)
 	return s
 }

@@ -115,12 +115,12 @@ func (m Model) buildWrappedView() string {
 	renderVP := viewport.New(viewport.WithWidth(m.panelW-2), viewport.WithHeight(m.panelH-displayHeight-2))
 
 	vpRightStyle := style.BgStyle().Align(lipgloss.Center).AlignVertical(lipgloss.Center)
-	rightContent := vpRightStyle.Copy().Width(m.panelW - 2).Height(m.panelH - 4).Render(imgViewer)
+	rightContent := vpRightStyle.Width(m.panelW - 2).Height(m.panelH - 4).Render(imgViewer)
 	renderVP.SetContent(rightContent)
 	renderVP.Style = style.BgStyle()
 
 	content := renderVP.View()
-	return style.NormalButton.Copy().BorderForeground(style.DimmedColor1).BorderBackground(style.ActiveTheme.Bg).Render(content)
+	return style.NormalButton.BorderForeground(style.DimmedColor1).BorderBackground(style.ActiveTheme.Bg).Render(content)
 }
 
 func (m Model) IsAnimating() bool {

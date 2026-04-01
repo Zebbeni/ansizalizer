@@ -25,7 +25,7 @@ func (m Model) drawExportTypeOptions() string {
 	} else if m.doExportDirectory == false {
 		optionStyle = style.ActiveButton
 	}
-	singleFileButton := optionStyle.Copy().Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[ExpFile])
+	singleFileButton := optionStyle.Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[ExpFile])
 
 	optionStyle = style.NormalButton
 	if ExpDirectory == m.focus && m.IsActive {
@@ -33,31 +33,31 @@ func (m Model) drawExportTypeOptions() string {
 	} else if m.doExportDirectory {
 		optionStyle = style.ActiveButton
 	}
-	directoryButton := optionStyle.Copy().Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[ExpDirectory])
+	directoryButton := optionStyle.Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[ExpDirectory])
 
 	return lipgloss.JoinHorizontal(lipgloss.Center, singleFileButton, directoryButton)
 }
 
 func (m Model) drawSubDirOptions() string {
-	title := style.DimmedTitle.Copy().Render("Include Subdirectories")
+	title := style.DimmedTitle.Render("Include Subdirectories")
 
 	nodeWidthStyle := style.BgStyle().Width(m.width / 2).AlignHorizontal(lipgloss.Center)
 
-	yesStyle := style.NormalButtonNode.Copy()
+	yesStyle := style.NormalButtonNode
 	if m.includeSubdirectories {
-		yesStyle = style.ActiveButtonNode.Copy()
+		yesStyle = style.ActiveButtonNode
 	}
 	if m.focus == SubDirsYes && m.IsActive {
-		yesStyle = style.FocusButtonNode.Copy()
+		yesStyle = style.FocusButtonNode
 	}
 	yesNode := nodeWidthStyle.Render(yesStyle.Render("Yes"))
 
-	noStyle := style.NormalButtonNode.Copy()
+	noStyle := style.NormalButtonNode
 	if !m.includeSubdirectories {
-		noStyle = style.ActiveButtonNode.Copy()
+		noStyle = style.ActiveButtonNode
 	}
 	if m.focus == SubDirsNo && m.IsActive {
-		noStyle = style.FocusButtonNode.Copy()
+		noStyle = style.FocusButtonNode
 	}
 
 	noStyle.Padding(0)
@@ -72,18 +72,18 @@ func (m Model) drawSubDirOptions() string {
 }
 
 func (m Model) drawPrompt() string {
-	return style.DimmedTitle.Copy().AlignHorizontal(lipgloss.Center).Padding(0).Render("Select")
+	return style.DimmedTitle.AlignHorizontal(lipgloss.Center).Padding(0).Render("Select")
 }
 
 func (m Model) drawSelected() string {
-	title := style.DimmedTitle.Copy().Render("Selected")
+	title := style.DimmedTitle.Render("Selected")
 
-	valueStyle := style.DimmedTitle.Copy()
+	valueStyle := style.DimmedTitle
 	if Input == m.focus {
 		if m.IsActive {
-			valueStyle = style.SelectedTitle.Copy()
+			valueStyle = style.SelectedTitle
 		} else {
-			valueStyle = style.NormalTitle.Copy()
+			valueStyle = style.NormalTitle
 		}
 	}
 	valueStyle.Padding(0, 0, 1, 0)
@@ -113,7 +113,7 @@ func (m Model) drawSelected() string {
 func (m Model) drawBrowserTitle() string {
 	dir := filepath.Base(m.Browser.SelectedDir)
 	if m.doExportDirectory {
-		return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
+		return style.DimmedTitle.Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 	}
-	return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
+	return style.DimmedTitle.Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 }

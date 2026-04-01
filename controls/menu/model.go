@@ -32,20 +32,20 @@ func NewDelegate() list.DefaultDelegate {
 func ItemStyles() (s list.DefaultItemStyles) {
 	bg := style.BgStyle()
 
-	s.NormalTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 2)
-	s.NormalDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
+	s.NormalTitle = bg.Foreground(style.DimmedColor1).Padding(0, 1, 0, 2)
+	s.NormalDesc = bg.Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
-	s.SelectedTitle = bg.Copy().Foreground(style.SelectedColor1).Padding(0, 1, 0, 1).
+	s.SelectedTitle = bg.Foreground(style.SelectedColor1).Padding(0, 1, 0, 1).
 		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1).
 		BorderBackground(style.ActiveTheme.Bg)
-	s.SelectedDesc = bg.Copy().Foreground(style.SelectedColor1).MaxHeight(1).Padding(0, 0, 0, 1).
+	s.SelectedDesc = bg.Foreground(style.SelectedColor1).MaxHeight(1).Padding(0, 0, 0, 1).
 		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1).
 		BorderBackground(style.ActiveTheme.Bg)
 
-	s.DimmedTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 0)
-	s.DimmedDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
+	s.DimmedTitle = bg.Foreground(style.DimmedColor1).Padding(0, 1, 0, 0)
+	s.DimmedDesc = bg.Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
 	return s
 }
@@ -53,14 +53,14 @@ func ItemStyles() (s list.DefaultItemStyles) {
 func InactiveItemStyles() (s list.DefaultItemStyles) {
 	bg := style.BgStyle()
 
-	s.NormalTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 2)
-	s.NormalDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
+	s.NormalTitle = bg.Foreground(style.DimmedColor1).Padding(0, 1, 0, 2)
+	s.NormalDesc = bg.Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
-	s.SelectedTitle = bg.Copy().Foreground(style.NormalColor1).Padding(0, 1, 0, 2)
-	s.SelectedDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
+	s.SelectedTitle = bg.Foreground(style.NormalColor1).Padding(0, 1, 0, 2)
+	s.SelectedDesc = bg.Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
-	s.DimmedTitle = bg.Copy().Foreground(style.DimmedColor1).Padding(0, 1, 0, 0)
-	s.DimmedDesc = bg.Copy().Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
+	s.DimmedTitle = bg.Foreground(style.DimmedColor1).Padding(0, 1, 0, 0)
+	s.DimmedDesc = bg.Foreground(style.DimmedColor2).MaxHeight(1).Padding(0, 0, 0, 2)
 
 	return s
 }

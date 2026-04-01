@@ -120,19 +120,8 @@ func (m Model) Summary() string {
 
 func (m Model) drawToggle(title string, onState, offState State, value bool) string {
 	focused := m.IsActive && (m.focus == onState || m.focus == offState)
-	checkChar := "☐"
-	if value {
-		checkChar = "🗹"
-	}
-	labelStyle := style.DimmedTitle.Copy()
-	checkStyle := style.DimmedTitle.Copy()
-	if focused {
-		labelStyle = style.NormalTitle.Copy()
-		checkStyle = style.SelectedTitle.Copy()
-	}
-	label := labelStyle.Width(16).PaddingLeft(1).Render(title)
-	check := checkStyle.Render(checkChar)
-	return lipgloss.JoinHorizontal(lipgloss.Left, label, check)
+	return lipgloss.NewStyle().PaddingLeft(1).Render(
+		style.RenderCheckboxFixedWidth(title, value, focused, 15))
 }
 
 func (m Model) DebugState() string {

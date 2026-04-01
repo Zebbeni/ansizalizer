@@ -73,7 +73,7 @@ func (m Model) FunctionName() string {
 }
 
 func (m Model) View() string {
-	prompt := style.DimmedTitle.Copy().Render("Select Method")
+	prompt := style.DimmedTitle.Render("Select Method")
 	menu := m.list.View()
 	content := lipgloss.JoinVertical(lipgloss.Left, prompt, menu)
 	return content

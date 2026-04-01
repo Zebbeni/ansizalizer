@@ -33,7 +33,7 @@ func (m Model) drawInputs() string {
 }
 
 func (m Model) drawTitle() string {
-	title := style.DimmedTitle.Copy().Italic(true).Render("Browse Lospec.com")
+	title := style.DimmedTitle.Italic(true).Render("Browse Lospec.com")
 	return style.BgStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }
 
@@ -43,17 +43,17 @@ func (m Model) drawColorsInput() string {
 
 	m.countInput.SetWidth(3)
 	cStyles := m.countInput.Styles()
-	cStyles.Focused.Prompt = bg.Copy().Foreground(prompt)
-	cStyles.Focused.Text = bg.Copy().Foreground(prompt).MaxWidth(3)
-	cStyles.Focused.Placeholder = bg.Copy().Foreground(placeholder)
-	cStyles.Blurred.Prompt = bg.Copy().Foreground(prompt)
-	cStyles.Blurred.Text = bg.Copy().Foreground(prompt).MaxWidth(3)
-	cStyles.Blurred.Placeholder = bg.Copy().Foreground(placeholder)
+	cStyles.Focused.Prompt = bg.Foreground(prompt)
+	cStyles.Focused.Text = bg.Foreground(prompt).MaxWidth(3)
+	cStyles.Focused.Placeholder = bg.Foreground(placeholder)
+	cStyles.Blurred.Prompt = bg.Foreground(prompt)
+	cStyles.Blurred.Text = bg.Foreground(prompt).MaxWidth(3)
+	cStyles.Blurred.Placeholder = bg.Foreground(placeholder)
 	cStyles.Cursor.Blink = m.countInput.Focused()
 	cStyles.Cursor.Color = prompt
 	m.countInput.SetStyles(cStyles)
 	m.countInput.SetVirtualCursor(m.countInput.Focused())
-	return bg.Copy().PaddingLeft(1).Width(12).Render(m.countInput.View())
+	return bg.PaddingLeft(1).Width(12).Render(m.countInput.View())
 }
 
 func (m Model) drawTagInput() string {
@@ -62,12 +62,12 @@ func (m Model) drawTagInput() string {
 
 	m.tagInput.SetWidth(m.width - 5)
 	tStyles := m.tagInput.Styles()
-	tStyles.Focused.Prompt = bg.Copy().Foreground(prompt).Padding(0, 1, 0, 1)
-	tStyles.Focused.Text = bg.Copy().Foreground(prompt)
-	tStyles.Focused.Placeholder = bg.Copy().Foreground(placeholder)
-	tStyles.Blurred.Prompt = bg.Copy().Foreground(prompt).Padding(0, 1, 0, 1)
-	tStyles.Blurred.Text = bg.Copy().Foreground(prompt)
-	tStyles.Blurred.Placeholder = bg.Copy().Foreground(placeholder)
+	tStyles.Focused.Prompt = bg.Foreground(prompt).Padding(0, 1, 0, 1)
+	tStyles.Focused.Text = bg.Foreground(prompt)
+	tStyles.Focused.Placeholder = bg.Foreground(placeholder)
+	tStyles.Blurred.Prompt = bg.Foreground(prompt).Padding(0, 1, 0, 1)
+	tStyles.Blurred.Text = bg.Foreground(prompt)
+	tStyles.Blurred.Placeholder = bg.Foreground(placeholder)
 	tStyles.Cursor.Blink = m.tagInput.Focused()
 	tStyles.Cursor.Color = prompt
 	m.tagInput.SetStyles(tStyles)

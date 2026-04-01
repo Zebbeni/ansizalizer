@@ -17,7 +17,7 @@ func Palette(palette color.Palette, w, h int) string {
 
 		if idx+1 < len(palette) {
 			bg, _ := colorful.MakeColor(palette[idx+1])
-			style = style.Copy().Background(lipgloss.Color(bg.Hex()))
+			style = style.Background(lipgloss.Color(bg.Hex()))
 		}
 		runes[idx/2] = style.Render(string('▀'))
 	}

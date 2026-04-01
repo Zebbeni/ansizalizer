@@ -425,7 +425,7 @@ func (m Model) View() string {
 	}
 
 	// Standard modal for load/save/export-file/prefs
-	titleRendered := style.SelectedTitle.Copy().
+	titleRendered := style.SelectedTitle.
 		Width(w - 6).
 		AlignHorizontal(lipgloss.Center).
 		Render(title)
@@ -452,7 +452,7 @@ func (m Model) loadView() string {
 	contentArea := LoadWidth - 6 // outer border + padding
 	panelContent := contentArea - 2 // inner panel border
 
-	desc := style.DimmedTitle.Copy().Italic(true).
+	desc := style.DimmedTitle.Italic(true).
 		Width(contentArea).
 		AlignHorizontal(lipgloss.Center).
 		Render("Select a .json settings file to load.")
@@ -492,7 +492,7 @@ func (m Model) loadView() string {
 	// Show selected file below the panel
 	selected := ""
 	if m.browser.SelectedFile != "" {
-		selected = style.NormalTitle.Copy().
+		selected = style.NormalTitle.
 			Width(contentArea).
 			AlignHorizontal(lipgloss.Center).
 			Render(filepath.Base(m.browser.SelectedFile))
@@ -505,7 +505,7 @@ func (m Model) saveView() string {
 	contentArea := LoadWidth - 6
 	panelContent := contentArea - 2
 
-	desc := style.DimmedTitle.Copy().Italic(true).
+	desc := style.DimmedTitle.Italic(true).
 		Width(contentArea).
 		AlignHorizontal(lipgloss.Center).
 		Render("Choose a directory and filename to save settings.")
@@ -546,7 +546,7 @@ func (m Model) saveView() string {
 		browseContent := lipgloss.JoinVertical(lipgloss.Left, selectBtn, m.browser.View())
 		panel = renderer.Render("Destination", browseContent, panelContent)
 	} else {
-		summary := style.DimmedTitle.Copy().Italic(true).
+		summary := style.DimmedTitle.Italic(true).
 			Width(panelContent).
 			AlignHorizontal(lipgloss.Center).
 			Padding(0, 1).
@@ -557,20 +557,20 @@ func (m Model) saveView() string {
 	// Filename input
 	inputFocused := m.focus == FocusSaveInput
 	bg := style.BgStyle()
-	promptSt := bg.Copy().Foreground(style.DimmedColor1)
-	textSt := bg.Copy().Foreground(style.DimmedColor1)
+	promptSt := bg.Foreground(style.DimmedColor1)
+	textSt := bg.Foreground(style.DimmedColor1)
 	cursorColor := style.DimmedColor1
 	if m.input.Focused() {
-		promptSt = bg.Copy().Foreground(style.SelectedColor1)
-		textSt = bg.Copy().Foreground(style.SelectedColor1)
+		promptSt = bg.Foreground(style.SelectedColor1)
+		textSt = bg.Foreground(style.SelectedColor1)
 		cursorColor = style.SelectedColor1
 	} else if inputFocused {
-		promptSt = bg.Copy().Foreground(style.NormalColor1)
-		textSt = bg.Copy().Foreground(style.NormalColor1)
+		promptSt = bg.Foreground(style.NormalColor1)
+		textSt = bg.Foreground(style.NormalColor1)
 		cursorColor = style.NormalColor1
 	}
 	styles := m.input.Styles()
-	placeholderSt := bg.Copy().Foreground(style.ExtraDimColor)
+	placeholderSt := bg.Foreground(style.ExtraDimColor)
 	styles.Focused.Prompt = promptSt.Width(12)
 	styles.Focused.Text = textSt
 	styles.Focused.Placeholder = placeholderSt

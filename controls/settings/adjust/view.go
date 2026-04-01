@@ -1,7 +1,6 @@
 package adjust
 
 import (
-	"image/color"
 	"strings"
 
 	"charm.land/lipgloss/v2"
@@ -14,7 +13,7 @@ var (
 )
 
 func (m Model) drawBrightnessForm() string {
-	prompt, text := m.getInputColors(BrightnessForm)
+	prompt, text := style.InputColors(m.IsActive, m.focus == BrightnessForm, m.active == BrightnessForm)
 	m.brightnessInput.SetWidth(4)
 
 	styles := m.brightnessInput.Styles()
@@ -31,7 +30,7 @@ func (m Model) drawBrightnessForm() string {
 }
 
 func (m Model) drawContrastForm() string {
-	prompt, text := m.getInputColors(ContrastForm)
+	prompt, text := style.InputColors(m.IsActive, m.focus == ContrastForm, m.active == ContrastForm)
 	m.contrastInput.SetWidth(4)
 
 	styles := m.contrastInput.Styles()
@@ -71,14 +70,4 @@ func (m Model) drawSlider(state State, value int) string {
 
 	sliderStyle := style.BgStyle().Foreground(sliderColor).PaddingLeft(1)
 	return sliderStyle.Render(left + "|" + right)
-}
-
-func (m Model) getInputColors(state State) (color.Color, color.Color) {
-	if m.IsActive && m.focus == state {
-		if m.active == state {
-			return style.NormalColor1, style.SelectedColor1
-		}
-		return style.SelectedColor1, style.NormalColor1
-	}
-	return style.DimmedColor1, style.DimmedColor1
 }

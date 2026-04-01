@@ -133,7 +133,7 @@ func (m Model) View() string {
 	tagInput := m.drawTagInput()
 
 	results := fmt.Sprintf("%d results found\npage %d of %d", len(m.paletteList.Items()), m.paletteList.Paginator.Page, m.paletteList.Paginator.TotalPages)
-	results = style.DimmedTitle.Copy().Width(m.width).Height(2).AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 0).Render(results)
+	results = style.DimmedTitle.Width(m.width).Height(2).AlignHorizontal(lipgloss.Center).Padding(1, 0, 1, 0).Render(results)
 	paletteList := m.paletteList.View()
 	if len(m.paletteList.Items()) == 0 {
 		paletteList = ""

@@ -61,7 +61,7 @@ func (m Model) drawCharControls() string {
 			buttonStyle = style.ActiveButtonNode
 		}
 
-		buttons[i] = lipgloss.NewStyle().Width(buttonWidth).Render(buttonStyle.Copy().Render(stateNames[state]))
+		buttons[i] = lipgloss.NewStyle().Width(buttonWidth).Render(buttonStyle.Render(stateNames[state]))
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
@@ -78,15 +78,15 @@ func (m Model) drawCharControls() string {
 }
 
 func (m Model) inputStyles(state State, focused bool) (lipgloss.Style, lipgloss.Style, color.Color) {
-	promptStyle := style.DimmedTitle.Copy()
+	promptStyle := style.DimmedTitle
 	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
 	cursorColor := style.DimmedColor1
 	if focused {
-		promptStyle = style.SelectedTitle.Copy()
+		promptStyle = style.SelectedTitle
 		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
 		cursorColor = style.SelectedColor1
 	} else if m.focus == state && m.IsActive {
-		promptStyle = style.NormalTitle.Copy()
+		promptStyle = style.NormalTitle
 		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
 		cursorColor = style.NormalColor1
 	}

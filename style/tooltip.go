@@ -10,7 +10,7 @@ const tooltipMaxWidth = 30
 // "ctrl+h to hide" footer in the bottom border.
 func RenderTooltip(text string) string {
 	textWidth := tooltipMaxWidth - 4 // 2 border + 2 padding
-	textStyle := DimmedTitle.Copy().Italic(true).Width(textWidth).PaddingBottom(1)
+	textStyle := DimmedTitle.Italic(true).Width(textWidth).PaddingBottom(1)
 	content := textStyle.Render(text)
 
 	box := BoxWithLabel{

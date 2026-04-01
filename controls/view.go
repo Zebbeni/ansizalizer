@@ -28,7 +28,7 @@ func (m Model) drawButtons() string {
 				buttonStyle = style.FocusButton
 			}
 		}
-		buttons[i] = buttonStyle.Copy().Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
+		buttons[i] = buttonStyle.Width(buttonWidth).AlignHorizontal(lipgloss.Center).Render(stateNames[state])
 	}
 	buttonRow := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 	return buttonRow
@@ -36,6 +36,6 @@ func (m Model) drawButtons() string {
 
 func (m Model) drawBrowserTitle() string {
 	dir := filepath.Base(m.FileBrowser.SelectedDir)
-	title := style.DimmedTitle.Copy().Italic(true).Render(dir + "/")
+	title := style.DimmedTitle.Italic(true).Render(dir + "/")
 	return style.BgStyle().Width(m.width).Padding(1, 0).AlignHorizontal(lipgloss.Center).Render(title)
 }

@@ -43,9 +43,9 @@ func (m Model) drawProcessButton() string {
 
 	centerStyle := lipgloss.NewStyle().AlignHorizontal(lipgloss.Center)
 
-	internalStyle := centerStyle.Copy().Width(m.width - 2)
+	internalStyle := centerStyle.Width(m.width - 2)
 	title := internalStyle.Render(stateTitles[Process])
 	button := buttonStyle.Render(title)
 
-	return centerStyle.Copy().Width(m.width).AlignHorizontal(lipgloss.Center).Render(button)
+	return centerStyle.Width(m.width).AlignHorizontal(lipgloss.Center).Render(button)
 }

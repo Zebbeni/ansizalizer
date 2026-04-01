@@ -21,7 +21,7 @@ var (
 )
 
 func (m Model) drawModeButtons() string {
-	title := style.DimmedTitle.Copy().PaddingLeft(1).Render("Mode:")
+	title := style.DimmedTitle.PaddingLeft(1).Render("Mode:")
 
 	fitStyle := style.NormalButtonNode
 	if m.IsActive && FitButton == m.focus {
@@ -101,29 +101,19 @@ func (m Model) drawCharRatioForm() string {
 }
 
 func (m Model) getInputStyles(state State) (lipgloss.Style, lipgloss.Style, color.Color) {
-	promptStyle := style.DimmedTitle.Copy()
+	promptStyle := style.DimmedTitle
 	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
 	cursorColor := style.DimmedColor1
 	if m.IsActive && m.focus == state {
 		if m.active == state {
-			promptStyle = style.SelectedTitle.Copy()
+			promptStyle = style.SelectedTitle
 			textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
 			cursorColor = style.SelectedColor1
 		} else {
-			promptStyle = style.NormalTitle.Copy()
+			promptStyle = style.NormalTitle
 			textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
 			cursorColor = style.NormalColor1
 		}
 	}
 	return promptStyle, textStyle, cursorColor
-}
-
-func (m Model) getInputColors(state State) (color.Color, color.Color) {
-	if m.IsActive && m.focus == state {
-		if m.active == state {
-			return style.NormalColor1, style.SelectedColor1
-		}
-		return style.SelectedColor1, style.NormalColor1
-	}
-	return style.DimmedColor1, style.DimmedColor1
 }

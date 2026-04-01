@@ -29,7 +29,7 @@ func (m Model) handleQuitModalKey(msg tea.KeyMsg) (Model, tea.Cmd) {
 }
 
 func (m Model) renderQuitModal() string {
-	msg := style.DimmedTitle.Copy().Italic(true).
+	msg := style.DimmedTitle.Italic(true).
 		AlignHorizontal(lipgloss.Center).
 		Render("Are you sure you want to close the app?")
 

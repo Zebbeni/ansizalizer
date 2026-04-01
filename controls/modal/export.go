@@ -86,7 +86,7 @@ func (m Model) exportFileView() string {
 	contentArea := LoadWidth - 6
 	panelContent := contentArea - 2
 
-	sourceLabel := style.DimmedTitle.Copy().Italic(true).
+	sourceLabel := style.DimmedTitle.Italic(true).
 		Width(contentArea).
 		AlignHorizontal(lipgloss.Center).
 		Render("Source: " + filepath.Base(m.sourceFile))
@@ -127,7 +127,7 @@ func (m Model) exportFileView() string {
 		browseContent := lipgloss.JoinVertical(lipgloss.Left, selectBtn, m.destBrowser.View())
 		panel = renderer.Render("Destination", browseContent, panelContent)
 	} else {
-		summary := style.DimmedTitle.Copy().Italic(true).
+		summary := style.DimmedTitle.Italic(true).
 			Width(panelContent).
 			AlignHorizontal(lipgloss.Center).
 			Padding(0, 1).
@@ -139,7 +139,7 @@ func (m Model) exportFileView() string {
 	isGif := strings.HasSuffix(strings.ToLower(m.sourceFile), ".gif")
 	if isGif {
 		nameWithoutExt := strings.TrimSuffix(filepath.Base(m.sourceFile), filepath.Ext(m.sourceFile))
-		gifNote := style.DimmedTitle.Copy().Italic(true).
+		gifNote := style.DimmedTitle.Italic(true).
 			Width(contentArea).
 			AlignHorizontal(lipgloss.Center).
 			Render("Frames will be exported to numbered .ansi files in a new folder named " + nameWithoutExt + "/")
@@ -294,9 +294,9 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 
 func (m Model) renderSelectButton(dir string, focused bool) string {
 	label := "Select " + filepath.Base(dir) + " \U0001F5C0"
-	btnStyle := style.DimmedTitle.Copy()
+	btnStyle := style.DimmedTitle
 	if focused {
-		btnStyle = style.SelectedTitle.Copy()
+		btnStyle = style.SelectedTitle
 	}
 	return btnStyle.Padding(1, 0, 1, 2).Render(label)
 }
@@ -351,7 +351,7 @@ func (m Model) exportBatchView() string {
 	} else {
 		srcConfirmed = "Source: " + filepath.Base(srcConfirmed) + "/"
 	}
-	srcDir := style.DimmedTitle.Copy().Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
+	srcDir := style.DimmedTitle.Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
 		Render(srcConfirmed)
 	srcPanel := lipgloss.JoinVertical(lipgloss.Center, srcBox, srcDir)
 
@@ -367,7 +367,7 @@ func (m Model) exportBatchView() string {
 	} else {
 		destConfirmed = "Destination: " + filepath.Base(destConfirmed) + "/"
 	}
-	destDir := style.DimmedTitle.Copy().Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
+	destDir := style.DimmedTitle.Italic(true).Width(panelW + 2).AlignHorizontal(lipgloss.Center).
 		Render(destConfirmed)
 	destPanel := lipgloss.JoinVertical(lipgloss.Center, destBox, destDir)
 
@@ -380,7 +380,7 @@ func (m Model) exportBatchView() string {
 	subRow := style.RenderCheckbox("Include Subdirectories", m.useSubDirs, subFocused)
 
 	// Description
-	descStyle := style.DimmedTitle.Copy().Italic(true).
+	descStyle := style.DimmedTitle.Italic(true).
 		Width(m.width - 10).
 		AlignHorizontal(lipgloss.Center)
 	desc1 := descStyle.Render("Render all images in the source directory as .ansi files using the current settings.")
@@ -394,7 +394,7 @@ func (m Model) exportBatchView() string {
 
 	// Show subdirectory help near the toggle
 	if m.useSubDirs {
-		subHelp := style.DimmedTitle.Copy().Italic(true).
+		subHelp := style.DimmedTitle.Italic(true).
 			Render("Source directory structure will be mirrored in the destination.")
 		parts = append(parts, subHelp)
 	}

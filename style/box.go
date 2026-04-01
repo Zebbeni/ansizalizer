@@ -65,14 +65,14 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 	case lipgloss.Top:
 		strings.Repeat(border.Top, cellsShort)
 		top = topLeft + topBorderStyler(gapLeft) + renderedLabel + topBorderStyler(gapRight) + topRight
-		bottom = b.BoxStyle.Copy().
+		bottom = b.BoxStyle.
 			BorderTop(false).
 			Width(width + borderWidth).
 			Render(paddedContent)
 	case lipgloss.Bottom:
 		strings.Repeat(border.Bottom, cellsShort)
 		bottom = botLeft + bottomBorderStyler(gapLeft) + renderedLabel + bottomBorderStyler(gapRight) + botRight
-		top = b.BoxStyle.Copy().
+		top = b.BoxStyle.
 			BorderBottom(false).
 			Width(width + borderWidth).
 			Render(paddedContent)
@@ -113,7 +113,7 @@ func (b BoxWithLabel) RenderWithFooter(label, content, footer string, footerStyl
 	top := topLeft + topBorderStyler(topGapLeft) + renderedLabel + topBorderStyler(topGapRight) + topRight
 
 	// Middle content (no top/bottom borders)
-	middle := b.BoxStyle.Copy().
+	middle := b.BoxStyle.
 		BorderTop(false).
 		BorderBottom(false).
 		Width(width + borderWidth).

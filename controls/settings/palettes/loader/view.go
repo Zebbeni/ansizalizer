@@ -19,24 +19,24 @@ const (
 // DefaultItemView for when these come into play.
 func NewItemStyles() (s list.DefaultItemStyles) {
 
-	s.NormalTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 2)
-	s.NormalDesc = style.DimmedParagraph.Copy().MaxHeight(maxNormalHeight).Padding(0, 0, 0, 2)
+	s.NormalTitle = style.DimmedTitle.Padding(0, 1, 0, 2)
+	s.NormalDesc = style.DimmedParagraph.MaxHeight(maxNormalHeight).Padding(0, 0, 0, 2)
 
-	s.SelectedTitle = style.SelectedTitle.Copy().Padding(0, 1, 0, 1).
+	s.SelectedTitle = style.SelectedTitle.Padding(0, 1, 0, 1).
 		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1)
-	s.SelectedDesc = style.SelectedTitle.Copy().MaxHeight(maxSelectedHeight).Padding(0, 0, 0, 1).
+	s.SelectedDesc = style.SelectedTitle.MaxHeight(maxSelectedHeight).Padding(0, 0, 0, 1).
 		Border(style.HeavyBorder(), false, false, false, true).
 		BorderForeground(style.SelectedColor1)
 
-	s.DimmedTitle = style.DimmedTitle.Copy().Padding(0, 1, 0, 0)
-	s.DimmedDesc = style.DimmedParagraph.Copy().MaxHeight(maxNormalHeight).Padding(0, 0, 0, 2)
+	s.DimmedTitle = style.DimmedTitle.Padding(0, 1, 0, 0)
+	s.DimmedDesc = style.DimmedParagraph.MaxHeight(maxNormalHeight).Padding(0, 0, 0, 2)
 
 	return s
 }
 
 func (m Model) drawTitle() string {
 	dir := filepath.Base(m.FileBrowser.SelectedDir)
-	title := style.DimmedTitle.Copy().Italic(true).Render("Browsing " + dir + "/")
+	title := style.DimmedTitle.Italic(true).Render("Browsing " + dir + "/")
 	return style.BgStyle().Width(m.width).PaddingBottom(1).AlignHorizontal(lipgloss.Center).Render(title)
 }

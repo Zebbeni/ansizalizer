@@ -35,20 +35,20 @@ func (m Model) drawSaveContent() string {
 
 	// Save result message (shown after save attempt)
 	if m.saveResultText != "" {
-		result := centeredStyle.Render(style.DimmedTitle.Copy().Render(m.saveResultText))
+		result := centeredStyle.Render(style.DimmedTitle.Render(m.saveResultText))
 		parts = append(parts, result)
 	}
 
 	// Directory browse prompt or selected directory
-	inputValueStyle := style.DimmedTitle.Copy()
+	inputValueStyle := style.DimmedTitle
 	if m.focus == DirInput && m.IsActive {
-		inputValueStyle = style.SelectedTitle.Copy()
+		inputValueStyle = style.SelectedTitle
 	} else if m.focus == DirInput {
-		inputValueStyle = style.NormalTitle.Copy()
+		inputValueStyle = style.NormalTitle
 	}
 
 	if m.dirChosen {
-		dirTitle := centeredStyle.Render(style.DimmedTitle.Copy().Render("Directory"))
+		dirTitle := centeredStyle.Render(style.DimmedTitle.Render("Directory"))
 		parent := filepath.Base(filepath.Dir(m.selectedDir))
 		selected := filepath.Base(m.selectedDir)
 		dirValue := fmt.Sprintf("%s/%s", parent, selected)
@@ -66,20 +66,20 @@ func (m Model) drawSaveContent() string {
 	// Directory browser (only shown when active)
 	if m.focus == DirBrowser {
 		dir := filepath.Base(m.dirBrowser.SelectedDir)
-		title := style.DimmedTitle.Copy().Italic(true).Padding(1, 0).Render("Browsing " + dir + "/")
+		title := style.DimmedTitle.Italic(true).Padding(1, 0).Render("Browsing " + dir + "/")
 		parts = append(parts, centeredStyle.Render(title))
 		parts = append(parts, m.dirBrowser.View())
 	}
 
 	// Filename input (only shown after directory chosen)
 	if m.dirChosen {
-		nodeStyle := style.NormalButtonNode.Copy().PaddingRight(1)
+		nodeStyle := style.NormalButtonNode.PaddingRight(1)
 		textStyle := style.BgStyle().Foreground(style.DimmedColor1)
 		if m.filenameInput.Focused() {
-			nodeStyle = style.ActiveButtonNode.Copy().PaddingRight(1)
+			nodeStyle = style.ActiveButtonNode.PaddingRight(1)
 			textStyle = style.BgStyle().Foreground(style.SelectedColor1)
 		} else if m.focus == FilenameForm && m.IsActive {
-			nodeStyle = style.FocusButtonNode.Copy().PaddingRight(1)
+			nodeStyle = style.FocusButtonNode.PaddingRight(1)
 			textStyle = style.BgStyle().Foreground(style.NormalColor1)
 		}
 		fnStyles := m.filenameInput.Styles()
@@ -96,7 +96,7 @@ func (m Model) drawSaveContent() string {
 	// Save/Cancel buttons (only shown after filename entered)
 	if m.dirChosen && m.filenameInput.Value() != "" && !m.filenameInput.Focused() && m.focus != DirBrowser {
 		filename := m.filenameInput.Value() + ".json"
-		prompt := centeredStyle.Copy().PaddingTop(1).Render(style.DimmedTitle.Copy().Render(fmt.Sprintf("Save %s?", filename)))
+		prompt := centeredStyle.PaddingTop(1).Render(style.DimmedTitle.Render(fmt.Sprintf("Save %s?", filename)))
 		parts = append(parts, prompt)
 
 		saveStyle := style.NormalButton
@@ -120,17 +120,17 @@ func (m Model) drawLoadContent() string {
 
 	// Load result message (shown after load attempt)
 	if m.loadResultText != "" {
-		resultStyle := style.DimmedTitle.Copy()
+		resultStyle := style.DimmedTitle
 		result := style.BgStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(resultStyle.Render(m.loadResultText))
 		parts = append(parts, result)
 	}
 
 	// Browse input / confirmation
-	inputValueStyle := style.DimmedTitle.Copy()
+	inputValueStyle := style.DimmedTitle
 	if m.focus == LoadInput && m.IsActive {
-		inputValueStyle = style.SelectedTitle.Copy()
+		inputValueStyle = style.SelectedTitle
 	} else if m.focus == LoadInput {
-		inputValueStyle = style.NormalTitle.Copy()
+		inputValueStyle = style.NormalTitle
 	}
 
 	if m.selectedLoadFile != "" {
@@ -144,7 +144,7 @@ func (m Model) drawLoadContent() string {
 		}
 
 		filename := filepath.Base(m.selectedLoadFile)
-		prompt := style.DimmedTitle.Copy().Render(fmt.Sprintf("Load %s?", filename))
+		prompt := style.DimmedTitle.Render(fmt.Sprintf("Load %s?", filename))
 		parts = append(parts, style.BgStyle().Width(m.width-4).AlignHorizontal(lipgloss.Center).PaddingTop(1).Render(prompt))
 
 		loadStyle := style.NormalButton
@@ -168,7 +168,7 @@ func (m Model) drawLoadContent() string {
 	if m.focus == LoadBrowser {
 		dir := filepath.Base(m.loadBrowser.SelectedDir)
 		centeredStyle := style.BgStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center)
-		title := style.DimmedTitle.Copy().Italic(true).Padding(1, 0).Render("Browsing " + dir + "/")
+		title := style.DimmedTitle.Italic(true).Padding(1, 0).Render("Browsing " + dir + "/")
 		parts = append(parts, centeredStyle.Render(title))
 		parts = append(parts, m.loadBrowser.View())
 	}

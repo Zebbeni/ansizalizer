@@ -66,7 +66,7 @@ func (m Model) updatePrefs(msg tea.Msg) (Model, tea.Cmd) {
 func (m Model) prefsView() string {
 	w := Width - 8
 
-	desc := style.DimmedTitle.Copy().Italic(true).
+	desc := style.DimmedTitle.Italic(true).
 		Width(w).
 		AlignHorizontal(lipgloss.Center).
 		Render("Settings applied on each app start.")

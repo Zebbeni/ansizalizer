@@ -10,15 +10,15 @@ import (
 )
 
 func (m Model) drawSelected() string {
-	title := style.DimmedTitle.Copy().Render("Selected")
+	title := style.DimmedTitle.Render("Selected")
 
-	valueStyle := style.DimmedTitle.Copy()
+	valueStyle := style.DimmedTitle
 
 	if Input == m.focus {
 		if m.IsActive {
-			valueStyle = style.SelectedTitle.Copy()
+			valueStyle = style.SelectedTitle
 		} else {
-			valueStyle = style.NormalTitle.Copy()
+			valueStyle = style.NormalTitle
 		}
 	}
 	valueStyle.Padding(0, 0, 1, 0)
@@ -45,5 +45,5 @@ func (m Model) drawSelected() string {
 
 func (m Model) drawBrowserTitle() string {
 	dir := filepath.Base(m.Browser.SelectedDir)
-	return style.DimmedTitle.Copy().Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
+	return style.DimmedTitle.Italic(true).Padding(0, 2, 1, 2).Render("Browsing " + dir + "/")
 }

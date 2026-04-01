@@ -50,7 +50,7 @@ func (m Model) Description() string {
 
 		if idx+1 < len(m.colors) {
 			bg, _ := colorful.MakeColor(m.colors[idx+1])
-			blockStyle = blockStyle.Copy().Background(lipgloss.Color(bg.Hex()))
+			blockStyle = blockStyle.Background(lipgloss.Color(bg.Hex()))
 		}
 		runes[idx/2] = blockStyle.Render(string('▀'))
 	}

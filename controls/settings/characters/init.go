@@ -13,8 +13,8 @@ func newInput(prompt string, value string) textinput.Model {
 	input.Prompt = prompt
 
 	styles := input.Styles()
-	styles.Focused.Prompt = style.NormalButtonNode.Copy().Padding(0, 1, 0, 0)
-	styles.Blurred.Prompt = style.NormalButtonNode.Copy().Padding(0, 1, 0, 0)
+	styles.Focused.Prompt = style.NormalButtonNode.Padding(0, 1, 0, 0)
+	styles.Blurred.Prompt = style.NormalButtonNode.Padding(0, 1, 0, 0)
 	styles.Focused.Placeholder = lipgloss.NewStyle()
 	styles.Blurred.Placeholder = lipgloss.NewStyle()
 	styles.Cursor.Blink = true
@@ -33,8 +33,8 @@ func newNumberInput(prompt string, isFloat bool, def float64, min *float64) numb
 		Default: def,
 	})
 	styles := m.Styles()
-	styles.Focused.Prompt = style.NormalButtonNode.Copy().Padding(0, 1, 0, 0)
-	styles.Blurred.Prompt = style.NormalButtonNode.Copy().Padding(0, 1, 0, 0)
+	styles.Focused.Prompt = style.NormalButtonNode.Padding(0, 1, 0, 0)
+	styles.Blurred.Prompt = style.NormalButtonNode.Padding(0, 1, 0, 0)
 	styles.Cursor.Blink = true
 	styles.Cursor.Color = style.SelectedColor1
 	m.SetStyles(styles)

@@ -80,13 +80,13 @@ func (m Model) drawSaveButton() string {
 }
 
 func (m Model) getInputStyles(state State) (lipgloss.Style, lipgloss.Style) {
-	promptStyle := style.DimmedTitle.Copy()
+	promptStyle := style.DimmedTitle
 	textStyle := lipgloss.NewStyle().Foreground(style.DimmedColor1)
 	if m.IsActive && m.focus == state {
-		promptStyle = style.SelectedTitle.Copy()
+		promptStyle = style.SelectedTitle
 		textStyle = lipgloss.NewStyle().Foreground(style.SelectedColor1)
 	} else if m.active == state {
-		promptStyle = style.NormalTitle.Copy()
+		promptStyle = style.NormalTitle
 		textStyle = lipgloss.NewStyle().Foreground(style.NormalColor1)
 	}
 	return promptStyle.Width(8).PaddingLeft(1), textStyle

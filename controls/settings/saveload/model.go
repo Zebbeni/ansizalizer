@@ -92,7 +92,7 @@ func New(w int, saveDir, loadDir string) Model {
 func newFilenameInput() textinput.Model {
 	input := textinput.New()
 	input.Prompt = "Filename "
-	promptStyle := style.NormalButtonNode.Copy().Padding(0, 1, 0, 0)
+	promptStyle := style.NormalButtonNode.Padding(0, 1, 0, 0)
 	styles := input.Styles()
 	styles.Focused.Prompt = promptStyle
 	styles.Blurred.Prompt = promptStyle

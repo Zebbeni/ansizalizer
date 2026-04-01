@@ -9,11 +9,11 @@ func RenderCheckbox(label string, checked, focused bool) string {
 	if checked {
 		checkChar = "🗹"
 	}
-	labelStyle := DimmedTitle.Copy()
-	checkStyle := DimmedTitle.Copy()
+	labelStyle := DimmedTitle
+	checkStyle := DimmedTitle
 	if focused {
-		labelStyle = NormalTitle.Copy()
-		checkStyle = SelectedTitle.Copy()
+		labelStyle = NormalTitle
+		checkStyle = SelectedTitle
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Left,
 		labelStyle.Render(label+" "),
@@ -26,11 +26,11 @@ func RenderCheckboxFixedWidth(label string, checked, focused bool, labelWidth in
 	if checked {
 		checkChar = "🗹"
 	}
-	labelStyle := DimmedTitle.Copy().Width(labelWidth)
-	checkStyle := DimmedTitle.Copy()
+	labelStyle := DimmedTitle.Width(labelWidth)
+	checkStyle := DimmedTitle
 	if focused {
-		labelStyle = NormalTitle.Copy().Width(labelWidth)
-		checkStyle = SelectedTitle.Copy()
+		labelStyle = NormalTitle.Width(labelWidth)
+		checkStyle = SelectedTitle
 	}
 	return lipgloss.JoinHorizontal(lipgloss.Left,
 		labelStyle.Render(label),

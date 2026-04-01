@@ -55,17 +55,17 @@ func RenderTabs(tabs []Tab, isActive bool, content string, width int) string {
 		var tabStyle lipgloss.Style
 		switch {
 		case isActive && t.Focused && t.Active:
-			tabStyle = FocusActiveTabStyle.Copy()
+			tabStyle = FocusActiveTabStyle
 		case isActive && t.Focused:
-			tabStyle = FocusTabStyle.Copy()
+			tabStyle = FocusTabStyle
 		case t.Active && useHeavyContent:
-			tabStyle = FocusActiveTabStyle.Copy()
+			tabStyle = FocusActiveTabStyle
 		case t.Active:
-			tabStyle = ActiveTabStyle.Copy()
+			tabStyle = ActiveTabStyle
 		case useHeavyContent:
-			tabStyle = InactiveTabOnHeavyStyle.Copy()
+			tabStyle = InactiveTabOnHeavyStyle
 		default:
-			tabStyle = InactiveTabStyle.Copy()
+			tabStyle = InactiveTabStyle
 		}
 
 		border, _, _, _, _ := tabStyle.GetBorder()
@@ -138,7 +138,7 @@ func RenderTabs(tabs []Tab, isActive bool, content string, width int) string {
 	if useHeavyContent {
 		winStyle = TabWindowHeavyStyle
 	}
-	contentRendered := winStyle.Copy().
+	contentRendered := winStyle.
 		BorderForeground(borderColor).
 		BorderBackground(ActiveTheme.Bg).
 		Width(lipgloss.Width(row)).
