@@ -76,7 +76,15 @@ func (m *Model) SetSize(w, h int) {
 func (m Model) buildWrappedView() string {
 	imgString := m.imgString
 	if imgString == "" {
-		return ""
+		if m.panelW == 0 || m.panelH == 0 {
+			return ""
+		}
+		placeholder := style.BgStyle().
+			Foreground(style.ExtraDimColor).Italic(true).
+			Width(m.panelW - 2).Height(m.panelH - 2).
+			Align(lipgloss.Center).AlignVertical(lipgloss.Center).
+			Render("Select an image to preview")
+		return style.NormalButton.BorderForeground(style.DimmedColor1).BorderBackground(style.ActiveTheme.Bg).Render(placeholder)
 	}
 
 	imgWidth, imgHeight := lipgloss.Size(imgString)

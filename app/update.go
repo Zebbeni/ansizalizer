@@ -369,6 +369,9 @@ func (m Model) processAdaptingCmd() tea.Msg {
 }
 
 func (m Model) handleDebug() (Model, tea.Cmd) {
+	if !debug.Enabled() {
+		return m, event.BuildDisplayCmd("run with -debug flag to enable")
+	}
 	var b strings.Builder
 	b.WriteString("=== DEBUG LOG ===\n\n")
 
