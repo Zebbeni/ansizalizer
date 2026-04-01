@@ -9,6 +9,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 	"github.com/Zebbeni/ansizalizer/style"
@@ -32,7 +33,7 @@ type Model struct {
 	focus  State
 	active State
 
-	countInput textinput.Model
+	countInput numberinput.Model
 	tagInput   textinput.Model
 	filterType State
 	sortType   State
@@ -57,7 +58,7 @@ func New(w int) Model {
 	return Model{
 		focus: CountForm,
 
-		countInput: newInput(CountForm, "8"),
+		countInput: newCountInput(),
 		tagInput:   newInput(TagForm, ""),
 		filterType: FilterExact,
 		sortType:   SortDownloads,
@@ -148,6 +149,10 @@ func (m Model) GetCurrent() palette.Model {
 	return m.palette
 }
 
+func (m Model) FocusedOnList() bool {
+	return m.focus == List
+}
+
 func (m *Model) SetListActive(active bool) {
 	delegate := NewDelegate()
 	if !active {
@@ -157,9 +162,5 @@ func (m *Model) SetListActive(active bool) {
 }
 
 func (m *Model) RefreshStyles() {
-	if m.IsActive {
-		m.SetListActive(true)
-	} else {
-		m.SetListActive(false)
-	}
+	m.SetListActive(m.IsActive && m.focus == List)
 }

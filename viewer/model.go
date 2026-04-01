@@ -80,6 +80,7 @@ func (m Model) buildWrappedView() string {
 	}
 
 	imgWidth, imgHeight := lipgloss.Size(imgString)
+	cropped := false
 
 	// Crop image to fit the viewer width to prevent text wrapping.
 	// Account for the border box (2 chars) and the viewport border (2 chars).
@@ -87,16 +88,27 @@ func (m Model) buildWrappedView() string {
 	if imgWidth > maxWidth && maxWidth > 0 {
 		imgString = cropWidth(imgString, maxWidth)
 		imgWidth = maxWidth
+		cropped = true
+	}
+
+	// Check if image height exceeds available viewer height
+	maxHeight := m.panelH - 7 // display(3) + viewport border(2) + image box border(2)
+	if imgHeight > maxHeight && maxHeight > 0 {
+		cropped = true
 	}
 
 	imgViewer := imgString
 
 	if imgHeight > 1 && imgWidth > 4 {
+		label := fmt.Sprintf("%dx%d", imgWidth, imgHeight)
+		if cropped {
+			label += "(cropped)"
+		}
 		boxLabelRenderer := style.BoxWithLabel{
 			BoxStyle:   style.BgStyle().BorderForeground(style.ExtraDimColor).Border(lipgloss.RoundedBorder()).BorderBackground(style.ActiveTheme.Bg),
 			LabelStyle: style.BgStyle().Foreground(style.ExtraDimColor).AlignHorizontal(lipgloss.Center).AlignVertical(lipgloss.Bottom),
 		}
-		imgViewer = boxLabelRenderer.Render(fmt.Sprintf("%dx%d", imgWidth, imgHeight), imgString, imgWidth)
+		imgViewer = boxLabelRenderer.Render(label, imgString, imgWidth)
 	}
 
 	displayHeight := 3

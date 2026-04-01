@@ -81,6 +81,61 @@ func (b BoxWithLabel) Render(label, content string, width int) string {
 	return top + "\n" + bottom
 }
 
+// RenderWithFooter renders a box with a label in the top border and a footer
+// in the bottom border. FooterStyle controls horizontal alignment of the footer.
+func (b BoxWithLabel) RenderWithFooter(label, content, footer string, footerStyle lipgloss.Style, width int) string {
+	var (
+		border             lipgloss.Border                  = b.BoxStyle.GetBorderStyle()
+		topBorderStyler    func(string ...string) string    = BgStyle().Foreground(b.BoxStyle.GetBorderTopForeground()).Render
+		bottomBorderStyler func(string ...string) string    = BgStyle().Foreground(b.BoxStyle.GetBorderBottomForeground()).Render
+		topLeft            string                           = topBorderStyler(border.TopLeft)
+		topRight           string                           = topBorderStyler(border.TopRight)
+		botLeft            string                           = bottomBorderStyler(border.BottomLeft)
+		botRight           string                           = bottomBorderStyler(border.BottomRight)
+		renderedLabel      string                           = b.LabelStyle.Render(label)
+		renderedFooter     string                           = footerStyle.Render(footer)
+	)
+
+	borderWidth := b.BoxStyle.GetHorizontalBorderSize()
+
+	// Top border with label
+	topShort := max(0, width+borderWidth-lipgloss.Width(topLeft+topRight+renderedLabel))
+	var topGapLeft, topGapRight string
+	switch b.LabelStyle.GetAlignHorizontal() {
+	case lipgloss.Left:
+		topGapRight = strings.Repeat(border.Top, topShort)
+	case lipgloss.Right:
+		topGapLeft = strings.Repeat(border.Top, topShort)
+	case lipgloss.Center:
+		topGapLeft = strings.Repeat(border.Top, topShort/2)
+		topGapRight = strings.Repeat(border.Top, topShort-(topShort/2))
+	}
+	top := topLeft + topBorderStyler(topGapLeft) + renderedLabel + topBorderStyler(topGapRight) + topRight
+
+	// Middle content (no top/bottom borders)
+	middle := b.BoxStyle.Copy().
+		BorderTop(false).
+		BorderBottom(false).
+		Width(width + borderWidth).
+		Render(content)
+
+	// Bottom border with footer
+	botShort := max(0, width+borderWidth-lipgloss.Width(botLeft+botRight+renderedFooter))
+	var botGapLeft, botGapRight string
+	switch footerStyle.GetAlignHorizontal() {
+	case lipgloss.Left:
+		botGapRight = strings.Repeat(border.Bottom, botShort)
+	case lipgloss.Right:
+		botGapLeft = strings.Repeat(border.Bottom, botShort)
+	case lipgloss.Center:
+		botGapLeft = strings.Repeat(border.Bottom, botShort/2)
+		botGapRight = strings.Repeat(border.Bottom, botShort-(botShort/2))
+	}
+	bottom := botLeft + bottomBorderStyler(botGapLeft) + renderedFooter + bottomBorderStyler(botGapRight) + botRight
+
+	return top + "\n" + middle + "\n" + bottom
+}
+
 func max(a, b int) int {
 	if a > b {
 		return a

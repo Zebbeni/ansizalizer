@@ -50,8 +50,7 @@ func (m Model) drawCharControls() string {
 		buttonOrder = unicodeButtonOrder
 	}
 
-	innerWidth := m.width - 4
-	buttonWidth := innerWidth / len(buttonOrder)
+	buttonWidth := m.width / len(buttonOrder)
 
 	buttons := make([]string, len(buttonOrder))
 	for i, state := range buttonOrder {
@@ -66,11 +65,11 @@ func (m Model) drawCharControls() string {
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Left, buttons...)
 
-	centeredRow := lipgloss.NewStyle().Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(row)
+	centeredRow := lipgloss.NewStyle().Width(m.width).AlignHorizontal(lipgloss.Center).Render(row)
 
 	if m.charControls == Ascii {
 		paddedRow := lipgloss.NewStyle().PaddingTop(1).Render(centeredRow)
-		selectionRow := style.BgStyle().PaddingTop(1).Width(m.width - 4).AlignHorizontal(lipgloss.Center).Render(m.drawSelectionMode())
+		selectionRow := style.BgStyle().PaddingTop(1).Width(m.width).AlignHorizontal(lipgloss.Center).Render(m.drawSelectionMode())
 		return lipgloss.JoinVertical(lipgloss.Center, paddedRow, selectionRow)
 	}
 

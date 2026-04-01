@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	inputStyle = style.BgStyle().Width(20).AlignHorizontal(lipgloss.Left)
+	inputStyle = style.BgStyle().AlignHorizontal(lipgloss.Center)
 )
 
 func (m Model) drawDelayForm() string {

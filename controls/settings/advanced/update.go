@@ -94,14 +94,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
-		// Focused but inactive tabs don't navigate on down
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
 		case Sampling, Dithering:
 			if m.activeTab != m.focus {
-				return m, nil
+				downFrom = m.activeTab
 			}
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.IsActive = false
@@ -111,14 +112,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Right][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-		// Focused but inactive tabs don't navigate on down
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
 		case Sampling, Dithering:
 			if m.activeTab != m.focus {
-				return m, nil
+				downFrom = m.activeTab
 			}
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.IsActive = false

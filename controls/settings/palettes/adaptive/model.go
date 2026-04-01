@@ -2,13 +2,12 @@ package adaptive
 
 import (
 	"image/color"
-	"strconv"
 
 	"charm.land/bubbles/v2/key"
-	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/palette"
 )
@@ -28,8 +27,8 @@ type Model struct {
 
 	palette palette.Model
 
-	countInput textinput.Model
-	iterInput  textinput.Model
+	countInput numberinput.Model
+	iterInput  numberinput.Model
 
 	width, height int
 
@@ -98,10 +97,7 @@ func (m Model) View() string {
 }
 
 func (m Model) Info() (int, int) {
-	var count, iterations int
-	count, _ = strconv.Atoi(m.countInput.Value())
-	iterations, _ = strconv.Atoi(m.iterInput.Value())
-	return count, iterations
+	return m.countInput.IntValue(), m.iterInput.IntValue()
 }
 
 func (m Model) GetCurrent() palette.Model {

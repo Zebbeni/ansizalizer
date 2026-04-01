@@ -3,7 +3,6 @@ package lospec
 import (
 	"fmt"
 	"image/color"
-	"strconv"
 
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/list"
@@ -112,6 +111,9 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		}
 	case key.Matches(msg, event.KeyMap.Up):
 		if next, hasNext := navMap[Up][m.focus]; hasNext {
+			if m.focus == List {
+				m.SetListActive(false)
+			}
 			m.focus = next
 		} else {
 			m.IsSelected = false
@@ -135,6 +137,9 @@ func (m Model) handleLospecResponse(msg event.LospecResponseMsg) (Model, tea.Cmd
 		m.paletteList.Styles.Title = style.DimmedTitle
 		m.paletteList.Styles.TitleBar = m.paletteList.Styles.TitleBar.Padding(0).Width(m.width).AlignHorizontal(lipgloss.Center)
 		m.isPaletteListAllocated = true
+		if m.focus != List {
+			m.SetListActive(false)
+		}
 	}
 
 	// use the page number*10 (assumes 10 palettes per page) to populate palettes
@@ -224,7 +229,7 @@ func (m Model) searchLospec(page int) (Model, tea.Cmd) {
 		m.isPaletteListAllocated = false
 	}
 
-	colors, _ := strconv.Atoi(m.countInput.Value())
+	colors := m.countInput.IntValue()
 	tag := m.tagInput.Value()
 	filterType := filterParams[m.filterType]
 	sortingType := sortParams[m.sortType]

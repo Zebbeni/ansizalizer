@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	"charm.land/bubbles/v2/key"
-	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -37,9 +37,9 @@ type Model struct {
 	active State
 	mode   Mode
 
-	widthInput     textinput.Model
-	heightInput    textinput.Model
-	charRatioInput textinput.Model
+	widthInput     numberinput.Model
+	heightInput    numberinput.Model
+	charRatioInput numberinput.Model
 
 	ShouldUnfocus bool
 	ShouldClose   bool
@@ -51,8 +51,8 @@ func New() Model {
 		focus:          WidthForm,
 		active:         None,
 		mode:           Fit,
-		widthInput:     newInput(WidthForm, 50),
-		heightInput:    newInput(HeightForm, 40),
+		widthInput:     newInput(WidthForm, 150),
+		heightInput:    newInput(HeightForm, 50),
 		charRatioInput: newFloatInput(CharRatioForm, DEFAULT_CHAR_W_TO_H_RATIO),
 
 		ShouldUnfocus: false,
@@ -103,20 +103,16 @@ func (m Model) View() string {
 }
 
 func (m Model) Info() (Mode, int, int, float64) {
-	var width, height int
-	width, _ = strconv.Atoi(m.widthInput.Value())
-	height, _ = strconv.Atoi(m.heightInput.Value())
-	charRatio, err := strconv.ParseFloat(m.charRatioInput.Value(), 64)
-	if err != nil {
-		charRatio = DEFAULT_CHAR_W_TO_H_RATIO
-	}
+	width := m.widthInput.IntValue()
+	height := m.heightInput.IntValue()
+	charRatio := m.charRatioInput.FloatValue()
 	return m.mode, width, height, charRatio
 }
 
 func (m *Model) SetConfig(mode Mode, width, height int, charRatio float64) {
 	m.mode = mode
-	m.widthInput.SetValue(strconv.Itoa(width))
-	m.heightInput.SetValue(strconv.Itoa(height))
+	m.widthInput.SetIntValue(width)
+	m.heightInput.SetIntValue(height)
 	m.charRatioInput.SetValue(strconv.FormatFloat(charRatio, 'f', -1, 64))
 }
 

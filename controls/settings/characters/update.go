@@ -206,23 +206,24 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			m.ShouldClose = true
 		}
 	case key.Matches(msg, event.KeyMap.Down):
-		// Focused but inactive tabs don't navigate on down
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
 		case Ascii, Unicode, Custom:
 			if m.charControls != m.focus {
-				return m, nil
+				downFrom = m.charControls
 			}
 		}
 		// Navigate to threshold input from DarkVar/LightVar when a variance mode is selected
-		if (m.focus == DarkVariance || m.focus == LightVariance) &&
+		if (downFrom == DarkVariance || downFrom == LightVariance) &&
 			(m.selectionMode == DarkVariance || m.selectionMode == LightVariance) {
 			return m.setFocus(ThresholdForm)
 		}
 		// Navigate to seed input from Sequence/Random when Random is selected
-		if (m.focus == Sequence || m.focus == Random) && m.selectionMode == Random {
+		if (downFrom == Sequence || downFrom == Random) && m.selectionMode == Random {
 			return m.setFocus(SeedForm)
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.IsActive = false
@@ -232,14 +233,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Right][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-		// Focused but inactive tabs don't navigate on down
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
 		case Ascii, Unicode, Custom:
 			if m.charControls != m.focus {
-				return m, nil
+				downFrom = m.charControls
 			}
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.IsActive = false

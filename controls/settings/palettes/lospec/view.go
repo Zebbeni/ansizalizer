@@ -40,7 +40,6 @@ func (m Model) drawTitle() string {
 func (m Model) drawColorsInput() string {
 	prompt, placeholder := m.getInputColors(CountForm)
 
-	m.countInput.CharLimit = 3
 	m.countInput.SetWidth(3)
 	cStyles := m.countInput.Styles()
 	cStyles.Focused.Prompt = cStyles.Focused.Prompt.Foreground(prompt)
@@ -52,7 +51,7 @@ func (m Model) drawColorsInput() string {
 	cStyles.Cursor.Blink = m.countInput.Focused()
 	m.countInput.SetStyles(cStyles)
 	m.countInput.SetVirtualCursor(m.countInput.Focused())
-	return style.BgStyle().Width(11).Render(m.countInput.View())
+	return style.BgStyle().PaddingLeft(1).Width(12).Render(m.countInput.View())
 }
 
 func (m Model) drawTagInput() string {

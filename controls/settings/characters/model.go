@@ -1,12 +1,11 @@
 package characters
 
 import (
-	"strconv"
-
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/debug"
 	"github.com/Zebbeni/ansizalizer/event"
 )
@@ -45,8 +44,8 @@ type Model struct {
 	asciiMode     State
 	selectionMode  State
 	customInput    textinput.Model
-	seedInput      textinput.Model
-	thresholdInput textinput.Model
+	seedInput      numberinput.Model
+	thresholdInput numberinput.Model
 	ShouldClose   bool
 	IsActive      bool
 	width         int
@@ -62,8 +61,8 @@ func New(w int) Model {
 		unicodeMode:   UnicodeHalf,
 		selectionMode: DarkVariance,
 		customInput:    newInput("Symbols ", "/%A"),
-		seedInput:      newInput("Seed ", "42"),
-		thresholdInput: newInput("Threshold ", "0.0"),
+		seedInput:      newNumberInput("Seed ", false, 42, nil),
+		thresholdInput: newNumberInput("Threshold ", true, 0, numberinput.FloatPtr(0)),
 		ShouldClose:   false,
 		IsActive:      false,
 		width:         w,
@@ -128,28 +127,28 @@ func (m Model) SelectionMode() State {
 	return m.selectionMode
 }
 
+func (m Model) AsciiMode() State {
+	return m.asciiMode
+}
+
+func (m Model) UnicodeMode() State {
+	return m.unicodeMode
+}
+
 func (m *Model) SetRandomSeed(seed int64) {
-	m.seedInput.SetValue(strconv.FormatInt(seed, 10))
+	m.seedInput.SetInt64Value(seed)
 }
 
 func (m Model) VarianceThreshold() float64 {
-	val, err := strconv.ParseFloat(m.thresholdInput.Value(), 64)
-	if err != nil || val < 0 {
-		return 0
-	}
-	return val
+	return m.thresholdInput.FloatValue()
 }
 
 func (m *Model) SetVarianceThreshold(t float64) {
-	m.thresholdInput.SetValue(strconv.FormatFloat(t, 'f', 2, 64))
+	m.thresholdInput.SetFloatValue(t, 2)
 }
 
 func (m Model) RandomSeed() int64 {
-	val, err := strconv.ParseInt(m.seedInput.Value(), 10, 64)
-	if err != nil {
-		return 42
-	}
-	return val
+	return m.seedInput.Int64Value()
 }
 
 func (m *Model) SetConfig(mode, asciiMode, unicodeMode, selectionMode State, customChars string) {

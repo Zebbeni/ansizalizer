@@ -1,15 +1,13 @@
 package dithering
 
 import (
-	"strconv"
-
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/list"
-	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/makeworld-the-better-one/dither/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/event"
 	"github.com/Zebbeni/ansizalizer/style"
 )
@@ -53,7 +51,7 @@ type Model struct {
 	matrix           dither.ErrorDiffusionMatrix
 	matrixList       list.Model
 	bayerSize        uint
-	strengthInput    textinput.Model
+	strengthInput    numberinput.Model
 	clusteredDot     dither.OrderedDitherMatrix
 	clusteredDotList list.Model
 
@@ -83,19 +81,22 @@ func New(w int) Model {
 	}
 }
 
-func newStrengthInput() textinput.Model {
-	input := textinput.New()
-	input.Prompt = "Strength: "
-	promptStyle := lipgloss.NewStyle().Width(12)
-	styles := input.Styles()
-	styles.Focused.Prompt = promptStyle
-	styles.Blurred.Prompt = promptStyle
+func newStrengthInput() numberinput.Model {
+	m := numberinput.New(numberinput.Options{
+		Prompt:    "Strength: ",
+		CharLimit: 5,
+		IsFloat:   true,
+		Min:       numberinput.FloatPtr(0),
+		Default:   1.0,
+	})
+	promptSt := lipgloss.NewStyle().Width(12)
+	styles := m.Styles()
+	styles.Focused.Prompt = promptSt
+	styles.Blurred.Prompt = promptSt
 	styles.Cursor.Blink = true
 	styles.Cursor.Color = style.SelectedColor1
-	input.SetStyles(styles)
-	input.CharLimit = 5
-	input.SetValue("1.0")
-	return input
+	m.SetStyles(styles)
+	return m
 }
 
 func (m Model) Init() tea.Cmd {
@@ -157,11 +158,7 @@ func (m Model) BayerSize() uint {
 }
 
 func (m Model) Strength() float32 {
-	val, err := strconv.ParseFloat(m.strengthInput.Value(), 32)
-	if err != nil || val <= 0 {
-		return 1.0
-	}
-	return float32(val)
+	return m.strengthInput.Float32Value()
 }
 
 func (m Model) ClusteredDotMatrix() dither.OrderedDitherMatrix {
@@ -304,6 +301,6 @@ func (m *Model) SetFullConfig(doDithering, doSerpentine bool, mode DitherMode, m
 		m.bayerSize = uint(bayerSize)
 	}
 	if strength > 0 {
-		m.strengthInput.SetValue(strconv.FormatFloat(float64(strength), 'f', -1, 32))
+		m.strengthInput.SetFloatValue(float64(strength), -1)
 	}
 }

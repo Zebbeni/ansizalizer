@@ -1,13 +1,11 @@
 package adjust
 
 import (
-	"strconv"
-
 	"charm.land/bubbles/v2/key"
-	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -25,8 +23,8 @@ type Model struct {
 	focus  State
 	active State
 
-	brightnessInput textinput.Model
-	contrastInput   textinput.Model
+	brightnessInput numberinput.Model
+	contrastInput   numberinput.Model
 
 	ShouldClose bool
 	IsActive    bool
@@ -87,16 +85,16 @@ func (m Model) View() string {
 }
 
 func (m Model) Brightness() int {
-	return clampInput(m.brightnessInput.Value())
+	return m.brightnessInput.IntValue()
 }
 
 func (m Model) Contrast() int {
-	return clampInput(m.contrastInput.Value())
+	return m.contrastInput.IntValue()
 }
 
 func (m *Model) SetConfig(brightness, contrast int) {
-	m.brightnessInput.SetValue(strconv.Itoa(brightness))
-	m.contrastInput.SetValue(strconv.Itoa(contrast))
+	m.brightnessInput.SetIntValue(brightness)
+	m.contrastInput.SetIntValue(contrast)
 }
 
 func (m *Model) ResetFocus() {
@@ -108,18 +106,4 @@ func (m *Model) ResetFocus() {
 
 func (m Model) Summary() string {
 	return "Bright: " + m.brightnessInput.Value() + "\nContrast: " + m.contrastInput.Value()
-}
-
-func clampInput(s string) int {
-	val, err := strconv.Atoi(s)
-	if err != nil {
-		return 0
-	}
-	if val < -100 {
-		return -100
-	}
-	if val > 100 {
-		return 100
-	}
-	return val
 }

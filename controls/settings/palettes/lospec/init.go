@@ -6,6 +6,7 @@ import (
 
 	"charm.land/bubbles/v2/textinput"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
@@ -14,7 +15,16 @@ var (
 	placeholderStyle = lipgloss.NewStyle()
 )
 
-// TODO: This is basically the same as we have in adaptive. Maybe generalize?
+func newCountInput() numberinput.Model {
+	return numberinput.New(numberinput.Options{
+		Prompt:    stateNames[CountForm] + " ",
+		CharLimit: 3,
+		IsFloat:   false,
+		Min:       numberinput.FloatPtr(1),
+		Default:   16,
+	})
+}
+
 func newInput(state State, value string) textinput.Model {
 	input := textinput.New()
 	input.Prompt = stateNames[state]

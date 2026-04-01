@@ -1,13 +1,12 @@
 package animation
 
 import (
-	"strconv"
 	"time"
 
 	"charm.land/bubbles/v2/key"
-	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -22,7 +21,7 @@ type Model struct {
 	focus  State
 	active State
 
-	delayInput textinput.Model
+	delayInput numberinput.Model
 
 	ShouldClose   bool
 	IsActive      bool
@@ -74,14 +73,7 @@ func (m Model) View() string {
 }
 
 func (m Model) Delay() time.Duration {
-	val, err := strconv.Atoi(m.delayInput.Value())
-	if err != nil || val < 10 {
-		return 100 * time.Millisecond
-	}
-	if val > 2000 {
-		return 2000 * time.Millisecond
-	}
-	return time.Duration(val) * time.Millisecond
+	return time.Duration(m.delayInput.IntValue()) * time.Millisecond
 }
 
 func (m Model) Summary() string {
@@ -89,18 +81,11 @@ func (m Model) Summary() string {
 }
 
 func (m Model) DelayMs() int {
-	val, err := strconv.Atoi(m.delayInput.Value())
-	if err != nil || val < 10 {
-		return 100
-	}
-	if val > 2000 {
-		return 2000
-	}
-	return val
+	return m.delayInput.IntValue()
 }
 
 func (m *Model) SetDelayMs(ms int) {
-	m.delayInput.SetValue(strconv.Itoa(ms))
+	m.delayInput.SetIntValue(ms)
 }
 
 func (m *Model) ResetFocus() {

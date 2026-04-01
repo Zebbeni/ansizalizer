@@ -161,7 +161,7 @@ var ditherModeFromName = map[string]dithering.DitherMode{
 }
 
 func (m Model) ExportConfig() Config {
-	mode, charMode, customChars := m.Characters.Selected()
+	mode, _, customChars := m.Characters.Selected()
 	selMode := m.Characters.SelectionMode()
 	sizeMode, width, height, charRatio := m.Size.Info()
 	doDither, doSerpentine, _ := m.Advanced.Dithering()
@@ -189,8 +189,8 @@ func (m Model) ExportConfig() Config {
 		},
 		Characters: CharactersConfig{
 			Mode:          charModeNames[mode],
-			AsciiMode:     asciiModeNames[charMode],
-			UnicodeMode:   unicodeModeNames[charMode],
+			AsciiMode:     asciiModeNames[m.Characters.AsciiMode()],
+			UnicodeMode:   unicodeModeNames[m.Characters.UnicodeMode()],
 			SelectionMode: selectionModeNames[selMode],
 			RandomSeed:        m.Characters.RandomSeed(),
 			VarianceThreshold: m.Characters.VarianceThreshold(),
@@ -249,8 +249,14 @@ func (m *Model) ApplyConfig(cfg Config) {
 	}
 
 	charMode := charModeFromName[cfg.Characters.Mode]
-	asciiMode := asciiModeFromName[cfg.Characters.AsciiMode]
-	unicodeMode := unicodeModeFromName[cfg.Characters.UnicodeMode]
+	asciiMode, ok := asciiModeFromName[cfg.Characters.AsciiMode]
+	if !ok {
+		asciiMode = characters.AsciiAz
+	}
+	unicodeMode, ok := unicodeModeFromName[cfg.Characters.UnicodeMode]
+	if !ok {
+		unicodeMode = characters.UnicodeHalf
+	}
 	selMode := selectionModeFromName[cfg.Characters.SelectionMode]
 	m.Characters.SetConfig(charMode, asciiMode, unicodeMode, selMode, cfg.Characters.CustomChars)
 	if cfg.Characters.RandomSeed != 0 {
@@ -303,8 +309,8 @@ func DefaultConfig() Config {
 		},
 		Size: SizeConfig{
 			Mode:      "Fit",
-			Width:     50,
-			Height:    40,
+			Width:     150,
+			Height:    50,
 			CharRatio: 0.46,
 		},
 		Adjust: AdjustConfig{
@@ -324,8 +330,9 @@ func DefaultConfig() Config {
 			DelayMs: 100,
 		},
 		Alpha: AlphaConfig{
-			UseAlpha:  true,
-			TrimAlpha: false,
+			UseAlpha:       true,
+			TrimAlpha:      false,
+			AlphaThreshold: 0.5,
 		},
 	}
 }

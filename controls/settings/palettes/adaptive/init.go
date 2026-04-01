@@ -1,21 +1,21 @@
 package adaptive
 
 import (
-	"fmt"
-
-	"charm.land/bubbles/v2/textinput"
-
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
-func newInput(state State) textinput.Model {
-	input := textinput.New()
-	input.Prompt = stateNames[state]
-	styles := input.Styles()
+func newInput(state State) numberinput.Model {
+	m := numberinput.New(numberinput.Options{
+		Prompt:    stateNames[state] + " ",
+		CharLimit: 3,
+		IsFloat:   false,
+		Min:       numberinput.FloatPtr(1),
+		Default:   16,
+	})
+	styles := m.Styles()
 	styles.Cursor.Blink = true
 	styles.Cursor.Color = style.SelectedColor1
-	input.SetStyles(styles)
-	input.CharLimit = 3
-	input.SetValue(fmt.Sprintf("16"))
-	return input
+	m.SetStyles(styles)
+	return m
 }

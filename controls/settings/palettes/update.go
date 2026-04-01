@@ -126,14 +126,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 			return m.setFocus(next)
 		}
 	case key.Matches(msg, event.KeyMap.Down):
-		// Focused but inactive tabs don't navigate on down
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
 		case Adapt, Load, Lospec:
 			if m.controls != m.focus {
-				return m, nil
+				downFrom = m.controls
 			}
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.IsActive = false
@@ -143,14 +144,15 @@ func (m Model) handleNav(msg tea.KeyMsg) (Model, tea.Cmd) {
 		if next, hasNext := navMap[Right][m.focus]; hasNext {
 			return m.setFocus(next)
 		}
-		// Focused but inactive tabs don't navigate on down
+		// From an inactive tab, navigate into the active tab's content
+		downFrom := m.focus
 		switch m.focus {
 		case Adapt, Load, Lospec:
 			if m.controls != m.focus {
-				return m, nil
+				downFrom = m.controls
 			}
 		}
-		if next, hasNext := navMap[Down][m.focus]; hasNext {
+		if next, hasNext := navMap[Down][downFrom]; hasNext {
 			return m.setFocus(next)
 		} else {
 			m.IsActive = false
@@ -182,7 +184,7 @@ func (m Model) setFocus(focus State) (Model, tea.Cmd) {
 		m.Loader.FileBrowser.SetActive(true)
 	case LospecControls:
 		m.Lospec.IsActive = true
-		m.Lospec.SetListActive(true)
+		m.Lospec.SetListActive(m.Lospec.FocusedOnList())
 	}
 
 	if m.controls == Lospec && !m.Lospec.DidInitializeList() {

@@ -1,13 +1,11 @@
 package alpha
 
 import (
-	"strconv"
-
 	"charm.land/bubbles/v2/key"
-	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/event"
 )
 
@@ -24,7 +22,7 @@ type Model struct {
 	focus          State
 	useAlpha       bool
 	trimAlpha      bool
-	thresholdInput textinput.Model
+	thresholdInput numberinput.Model
 	ShouldUnfocus  bool
 	IsActive       bool
 	width          int
@@ -32,19 +30,21 @@ type Model struct {
 }
 
 func New(w int) Model {
-	input := textinput.New()
-	input.Prompt = "Threshold "
-	input.CharLimit = 5
-	input.SetValue("0.0")
-
 	return Model{
-		focus:          ThresholdForm,
-		useAlpha:       true,
-		trimAlpha:      false,
-		thresholdInput: input,
-		IsActive:       false,
-		width:          w,
-		AlphaImage:     true,
+		focus:    ThresholdForm,
+		useAlpha: true,
+		trimAlpha: false,
+		thresholdInput: numberinput.New(numberinput.Options{
+			Prompt:    "Render Threshold ",
+			CharLimit: 4,
+			IsFloat:   true,
+			Min:       numberinput.FloatPtr(0),
+			Max:       numberinput.FloatPtr(1),
+			Default:   0.5,
+		}),
+		IsActive:   false,
+		width:      w,
+		AlphaImage: true,
 	}
 }
 
@@ -106,15 +106,11 @@ func (m Model) TrimAlpha() bool {
 }
 
 func (m Model) AlphaThreshold() float64 {
-	val, err := strconv.ParseFloat(m.thresholdInput.Value(), 64)
-	if err != nil || val < 0 {
-		return 0
-	}
-	return val
+	return m.thresholdInput.FloatValue()
 }
 
 func (m *Model) SetAlphaThreshold(t float64) {
-	m.thresholdInput.SetValue(strconv.FormatFloat(t, 'f', 2, 64))
+	m.thresholdInput.SetFloatValue(t, 2)
 }
 
 func (m *Model) SetConfig(useAlpha, trimAlpha bool) {

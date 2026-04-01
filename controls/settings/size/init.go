@@ -1,52 +1,47 @@
 package size
 
 import (
-	"fmt"
-	"strconv"
-
-	"charm.land/bubbles/v2/textinput"
 	"charm.land/lipgloss/v2"
 
+	"github.com/Zebbeni/ansizalizer/controls/numberinput"
 	"github.com/Zebbeni/ansizalizer/style"
 )
 
 var (
 	promptStyle      = lipgloss.NewStyle().Width(8).Padding(0, 0, 0, 1)
-	placeholderStyle = lipgloss.NewStyle()
-
-	floatPromptStyle      = lipgloss.NewStyle().Padding(0, 1)
-	floatPlaceholderStyle = lipgloss.NewStyle()
+	floatPromptStyle = lipgloss.NewStyle().Padding(0, 1)
 )
 
-
-func newInput(state State, value int) textinput.Model {
-	input := textinput.New()
-	input.Prompt = stateNames[state]
-	styles := input.Styles()
+func newInput(state State, value int) numberinput.Model {
+	m := numberinput.New(numberinput.Options{
+		Prompt:    stateNames[state] + " ",
+		CharLimit: 3,
+		IsFloat:   false,
+		Min:       numberinput.FloatPtr(1),
+		Default:   float64(value),
+	})
+	styles := m.Styles()
 	styles.Focused.Prompt = promptStyle
 	styles.Blurred.Prompt = promptStyle
-	styles.Focused.Placeholder = placeholderStyle
-	styles.Blurred.Placeholder = placeholderStyle
 	styles.Cursor.Blink = true
 	styles.Cursor.Color = style.SelectedColor1
-	input.SetStyles(styles)
-	input.CharLimit = 3
-	input.SetValue(strconv.Itoa(value))
-	return input
+	m.SetStyles(styles)
+	return m
 }
 
-func newFloatInput(state State, value float64) textinput.Model {
-	input := textinput.New()
-	input.Prompt = stateNames[state]
-	styles := input.Styles()
+func newFloatInput(state State, value float64) numberinput.Model {
+	m := numberinput.New(numberinput.Options{
+		Prompt:    stateNames[state] + " ",
+		CharLimit: 5,
+		IsFloat:   true,
+		Min:       numberinput.FloatPtr(0.01),
+		Default:   value,
+	})
+	styles := m.Styles()
 	styles.Focused.Prompt = floatPromptStyle
 	styles.Blurred.Prompt = floatPromptStyle
-	styles.Focused.Placeholder = floatPlaceholderStyle
-	styles.Blurred.Placeholder = floatPlaceholderStyle
 	styles.Cursor.Blink = true
 	styles.Cursor.Color = style.SelectedColor1
-	input.SetStyles(styles)
-	input.CharLimit = 5
-	input.SetValue(fmt.Sprintf("%1.2f", value))
-	return input
+	m.SetStyles(styles)
+	return m
 }
