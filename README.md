@@ -2,7 +2,7 @@
 
 A versatile terminal UI application for converting images to ANSI art. Built with [Ansipx](https://github.com/Zebbeni/ansipx/tree/main) and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
-<img width="1637" height="1024" alt="image" src="https://github.com/user-attachments/assets/458f40c0-9af0-4c86-ae99-1fd7f0f9109f" />
+![Animated GIF](https://github.com/user-attachments/assets/fb364211-739e-428d-a58c-40a4482d987d)
 
 ## Features
 
@@ -82,7 +82,7 @@ Transparent pixels render as empty space. Partial transparency at edges uses the
 ### Animated GIFs
 
 Preview animated GIFs frame-by-frame with adjustable delay.
-![Animated GIF](https://github.com/user-attachments/assets/fb364211-739e-428d-a58c-40a4482d987d)
+![cockpit_animation](https://github.com/user-attachments/assets/4ff246fc-1818-47e4-b2e2-9a141be51979)
 
 ### Themes
 
