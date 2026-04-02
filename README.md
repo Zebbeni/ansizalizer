@@ -1,13 +1,12 @@
 # Ansizalizer
 
-A terminal UI application for converting images to ANSI art. Built with [Bubble Tea](https://github.com/charmbracelet/bubbletea).
+A versatile terminal UI application for converting images to ANSI art. Built with [Ansipx](https://github.com/Zebbeni/ansipx/tree/main) and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
-<!-- TODO: Add hero screenshot showing the full app with an image rendered -->
-![Hero Screenshot](https://placeholder.com/hero.png)
+<img width="1637" height="1024" alt="image" src="https://github.com/user-attachments/assets/458f40c0-9af0-4c86-ae99-1fd7f0f9109f" />
 
 ## Features
 
-- Keyboard-navigable TUI with contextual help tooltips
+- Keyboard-navigable text-based UI with contextual help tooltips
 - File browser for selecting `.png`, `.jpg`, `.jpeg`, and `.gif` images
 - Real-time preview of rendered ANSI art
 - Animated GIF support with per-frame rendering
@@ -54,51 +53,51 @@ Run with `-debug` to enable logging to `console.log`:
 ## Screenshots
 
 ### Image Browser and Preview
-
-<!-- TODO: Screenshot showing the file browser with an image selected and ANSI preview in the viewer -->
-![Browse and Preview](https://placeholder.com/browse.png)
+<img width="700" alt="image" src="https://github.com/user-attachments/assets/a1484601-104a-4c04-b68e-4ccaa93d4186" />
 
 ### Character Modes
 
 Render with Unicode block characters, ASCII characters, or custom character sets.
 
-<!-- TODO: Side-by-side screenshots showing the same image in Unicode, ASCII, and Custom modes -->
-![Character Modes](https://placeholder.com/characters.png)
+#### Unicode blocks (ex. ▀▄)
+<img width="800" alt="unicode blocks" src="https://github.com/user-attachments/assets/a1e22d7d-2963-483e-a9f6-907e069ae100" />
+
+#### Ascii characters (ex. 0-9)
+<img width="800" alt="ascii numbers" src="https://github.com/user-attachments/assets/cac00dbf-2a97-44b3-acc8-bec1f6b7400f" />
+
+#### Custom text (ex. "isle of the dead " | repeat)
+<img width="800" alt="custom text" src="https://github.com/user-attachments/assets/0a1b77c2-a74f-4498-ae20-15c00fd7e01b" />
 
 ### Color Palettes
 
 Use true color (24-bit RGB) or limited palettes from Lospec.com. Generate palettes by sampling colors from any image.
-
-<!-- TODO: Screenshot showing palette browser or an image rendered with a limited palette -->
-![Color Palettes](https://placeholder.com/palettes.png)
+#### Lospec (ex. Mona Lisa | Iridescent Crystal)
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/c3a13577-72fb-4b53-93ab-0db53abee123" />
 
 ### Alpha Transparency
 
 Transparent pixels render as empty space. Partial transparency at edges uses the best-fit Unicode block character for smooth outlines.
-
-<!-- TODO: Screenshot showing a transparent PNG rendered with alpha, demonstrating the partial block characters at edges -->
-![Alpha Transparency](https://placeholder.com/alpha.png)
+<img width="600" height="970" alt="image" src="https://github.com/user-attachments/assets/d3c331f5-cc69-4959-a928-35d9e70049b1" />
 
 ### Animated GIFs
 
 Preview animated GIFs frame-by-frame with adjustable delay.
-
-<!-- TODO: Screenshot or GIF recording showing an animated GIF rendering in the viewer -->
-![Animated GIF](https://placeholder.com/animation.png)
+![Animated GIF](https://github.com/user-attachments/assets/fb364211-739e-428d-a58c-40a4482d987d)
 
 ### Themes
 
 Switch between 6 built-in themes. Paletted themes derive colors from your selected palette.
+#### Dark on Light (paletted)
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/a689fd90-4370-405e-8c10-4834d8051b3f" />
 
-<!-- TODO: Screenshot showing the theme selector dropdown, or side-by-side of light vs dark theme -->
-![Themes](https://placeholder.com/themes.png)
+#### Light on Dark (paletted)
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/508888fe-897c-4d5b-afbe-36467055063f" />
+
 
 ### Batch Export
 
 Export all images in a directory as `.ansi` files with a single operation.
-
-<!-- TODO: Screenshot of the batch export modal with source/destination panels -->
-![Batch Export](https://placeholder.com/batch.png)
+<img width="1905" height="1043" alt="image" src="https://github.com/user-attachments/assets/ad4019a3-236e-4bc5-9422-30120b668702" />
 
 ## Render Settings
 
