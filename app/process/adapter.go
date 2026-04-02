@@ -5,24 +5,24 @@ import (
 	"github.com/makeworld-the-better-one/dither/v2"
 	"github.com/nfnt/resize"
 
-	"github.com/Zebbeni/ansipic"
+	"github.com/Zebbeni/ansipx"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 	"github.com/Zebbeni/ansizalizer/controls/settings/advanced/dithering"
 	"github.com/Zebbeni/ansizalizer/controls/settings/characters"
 	"github.com/Zebbeni/ansizalizer/controls/settings/size"
 )
 
-func settingsToOptions(s settings.Model) ansipic.Options {
+func settingsToOptions(s settings.Model) ansipx.Options {
 	return settingsToOptionsWithBg(s, nil)
 }
 
-func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansipic.Options {
+func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansipx.Options {
 	isTrueColor, _, palette := s.Colors.GetSelected()
 	mode, charMode, customChars := s.Characters.Selected()
 	dimType, width, height, charRatio := s.Size.Info()
 	doDither, doSerpentine, ditherMatrix := s.Advanced.Dithering()
 
-	opts := ansipic.Options{
+	opts := ansipx.Options{
 		SizeMode:  convertSizeMode(dimType),
 		Width:     width,
 		Height:    height,
@@ -52,7 +52,7 @@ func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansipic.
 		DitherStrength:     s.Advanced.DitherStrength(),
 		ClusteredDotMatrix: convertClusteredDotMatrix(s.Advanced.ClusteredDotMatrix()),
 
-		TextStyle: ansipic.TextStyle{
+		TextStyle: ansipx.TextStyle{
 			Bold:          s.TextStyle.Bold(),
 			Italic:        s.TextStyle.Italic(),
 			Underline:     s.TextStyle.Underline(),
@@ -71,157 +71,157 @@ func settingsToOptionsWithBg(s settings.Model, solidBg *colorful.Color) ansipic.
 	return opts
 }
 
-func convertSizeMode(m size.Mode) ansipic.SizeMode {
+func convertSizeMode(m size.Mode) ansipx.SizeMode {
 	switch m {
 	case size.Fill:
-		return ansipic.Fill
+		return ansipx.Fill
 	case size.Stretch:
-		return ansipic.Stretch
+		return ansipx.Stretch
 	default:
-		return ansipic.Fit
+		return ansipx.Fit
 	}
 }
 
-func convertCharMode(s characters.State) ansipic.CharacterMode {
+func convertCharMode(s characters.State) ansipx.CharacterMode {
 	switch s {
 	case characters.Ascii:
-		return ansipic.Ascii
+		return ansipx.Ascii
 	case characters.Custom:
-		return ansipic.Custom
+		return ansipx.Custom
 	default:
-		return ansipic.Unicode
+		return ansipx.Unicode
 	}
 }
 
-func convertAsciiCharSet(s characters.State) ansipic.AsciiCharSet {
+func convertAsciiCharSet(s characters.State) ansipx.AsciiCharSet {
 	switch s {
 	case characters.AsciiNums:
-		return ansipic.AsciiNums
+		return ansipx.AsciiNums
 	case characters.AsciiSpec:
-		return ansipic.AsciiSpec
+		return ansipx.AsciiSpec
 	case characters.AsciiAll:
-		return ansipic.AsciiAll
+		return ansipx.AsciiAll
 	default:
-		return ansipic.AsciiAZ
+		return ansipx.AsciiAZ
 	}
 }
 
-func convertUnicodeCharSet(s characters.State) ansipic.UnicodeCharSet {
+func convertUnicodeCharSet(s characters.State) ansipx.UnicodeCharSet {
 	switch s {
 	case characters.UnicodeFull:
-		return ansipic.UnicodeFull
+		return ansipx.UnicodeFull
 	case characters.UnicodeQuart:
-		return ansipic.UnicodeQuarter
+		return ansipx.UnicodeQuarter
 	case characters.UnicodeShadeLight:
-		return ansipic.UnicodeShadeLight
+		return ansipx.UnicodeShadeLight
 	case characters.UnicodeShadeMed:
-		return ansipic.UnicodeShadeMed
+		return ansipx.UnicodeShadeMed
 	case characters.UnicodeShadeHeavy:
-		return ansipic.UnicodeShadeHeavy
+		return ansipx.UnicodeShadeHeavy
 	default:
-		return ansipic.UnicodeHalf
+		return ansipx.UnicodeHalf
 	}
 }
 
-func convertSelectionMode(s characters.State) ansipic.SelectionMode {
+func convertSelectionMode(s characters.State) ansipx.SelectionMode {
 	switch s {
 	case characters.LightVariance:
-		return ansipic.LightVariance
+		return ansipx.LightVariance
 	case characters.Sequence:
-		return ansipic.Repeat
+		return ansipx.Repeat
 	case characters.Random:
-		return ansipic.Random
+		return ansipx.Random
 	default:
-		return ansipic.DarkVariance
+		return ansipx.DarkVariance
 	}
 }
 
-var samplingMap = map[resize.InterpolationFunction]ansipic.SamplingFunction{
-	resize.NearestNeighbor:   ansipic.NearestNeighbor,
-	resize.Bicubic:           ansipic.Bicubic,
-	resize.Bilinear:          ansipic.Bilinear,
-	resize.Lanczos2:          ansipic.Lanczos2,
-	resize.Lanczos3:          ansipic.Lanczos3,
-	resize.MitchellNetravali: ansipic.MitchellNetravali,
+var samplingMap = map[resize.InterpolationFunction]ansipx.SamplingFunction{
+	resize.NearestNeighbor:   ansipx.NearestNeighbor,
+	resize.Bicubic:           ansipx.Bicubic,
+	resize.Bilinear:          ansipx.Bilinear,
+	resize.Lanczos2:          ansipx.Lanczos2,
+	resize.Lanczos3:          ansipx.Lanczos3,
+	resize.MitchellNetravali: ansipx.MitchellNetravali,
 }
 
-func convertSampling(f resize.InterpolationFunction) ansipic.SamplingFunction {
+func convertSampling(f resize.InterpolationFunction) ansipx.SamplingFunction {
 	if s, ok := samplingMap[f]; ok {
 		return s
 	}
-	return ansipic.NearestNeighbor
+	return ansipx.NearestNeighbor
 }
 
 type ditherEntry struct {
 	matrix dither.ErrorDiffusionMatrix
-	value  ansipic.DitherMatrix
+	value  ansipx.DitherMatrix
 }
 
 var ditherEntries = []ditherEntry{
-	{dither.FloydSteinberg, ansipic.FloydSteinberg},
-	{dither.Atkinson, ansipic.Atkinson},
-	{dither.Burkes, ansipic.Burkes},
-	{dither.FalseFloydSteinberg, ansipic.FalseFloydSteinberg},
-	{dither.JarvisJudiceNinke, ansipic.JarvisJudiceNinke},
-	{dither.Sierra, ansipic.Sierra},
-	{dither.Sierra2, ansipic.Sierra2},
-	{dither.Sierra3, ansipic.Sierra3},
-	{dither.SierraLite, ansipic.SierraLite},
-	{dither.TwoRowSierra, ansipic.TwoRowSierra},
-	{dither.Sierra2_4A, ansipic.Sierra2_4A},
-	{dither.Simple2D, ansipic.Simple2D},
-	{dither.Stucki, ansipic.Stucki},
-	{dither.StevenPigeon, ansipic.StevenPigeon},
+	{dither.FloydSteinberg, ansipx.FloydSteinberg},
+	{dither.Atkinson, ansipx.Atkinson},
+	{dither.Burkes, ansipx.Burkes},
+	{dither.FalseFloydSteinberg, ansipx.FalseFloydSteinberg},
+	{dither.JarvisJudiceNinke, ansipx.JarvisJudiceNinke},
+	{dither.Sierra, ansipx.Sierra},
+	{dither.Sierra2, ansipx.Sierra2},
+	{dither.Sierra3, ansipx.Sierra3},
+	{dither.SierraLite, ansipx.SierraLite},
+	{dither.TwoRowSierra, ansipx.TwoRowSierra},
+	{dither.Sierra2_4A, ansipx.Sierra2_4A},
+	{dither.Simple2D, ansipx.Simple2D},
+	{dither.Stucki, ansipx.Stucki},
+	{dither.StevenPigeon, ansipx.StevenPigeon},
 }
 
-func convertDitherMatrix(m dither.ErrorDiffusionMatrix) ansipic.DitherMatrix {
+func convertDitherMatrix(m dither.ErrorDiffusionMatrix) ansipx.DitherMatrix {
 	for _, e := range ditherEntries {
 		if matrixEqual(e.matrix, m) {
 			return e.value
 		}
 	}
-	return ansipic.FloydSteinberg
+	return ansipx.FloydSteinberg
 }
 
-func convertDitherMode(m dithering.DitherMode) ansipic.DitherMode {
+func convertDitherMode(m dithering.DitherMode) ansipx.DitherMode {
 	switch m {
 	case dithering.Bayer:
-		return ansipic.DitherModeBayer
+		return ansipx.DitherModeBayer
 	case dithering.ClusteredDot:
-		return ansipic.DitherModeClusteredDot
+		return ansipx.DitherModeClusteredDot
 	default:
-		return ansipic.DitherModeMatrix
+		return ansipx.DitherModeMatrix
 	}
 }
 
 type clusteredDotEntry struct {
 	matrix dither.OrderedDitherMatrix
-	value  ansipic.ClusteredDotMatrix
+	value  ansipx.ClusteredDotMatrix
 }
 
 var clusteredDotEntries = []clusteredDotEntry{
-	{dither.ClusteredDot4x4, ansipic.ClusteredDot4x4},
-	{dither.ClusteredDot6x6, ansipic.ClusteredDot6x6},
-	{dither.ClusteredDot6x6_2, ansipic.ClusteredDot6x6_2},
-	{dither.ClusteredDot6x6_3, ansipic.ClusteredDot6x6_3},
-	{dither.ClusteredDot8x8, ansipic.ClusteredDot8x8},
-	{dither.ClusteredDotDiagonal6x6, ansipic.ClusteredDotDiagonal6x6},
-	{dither.ClusteredDotDiagonal8x8, ansipic.ClusteredDotDiagonal8x8},
-	{dither.ClusteredDotDiagonal8x8_2, ansipic.ClusteredDotDiagonal8x8_2},
-	{dither.ClusteredDotDiagonal8x8_3, ansipic.ClusteredDotDiagonal8x8_3},
-	{dither.ClusteredDotDiagonal16x16, ansipic.ClusteredDotDiagonal16x16},
-	{dither.ClusteredDotHorizontalLine, ansipic.ClusteredDotHorizontalLine},
-	{dither.ClusteredDotVerticalLine, ansipic.ClusteredDotVerticalLine},
-	{dither.ClusteredDotSpiral5x5, ansipic.ClusteredDotSpiral5x5},
+	{dither.ClusteredDot4x4, ansipx.ClusteredDot4x4},
+	{dither.ClusteredDot6x6, ansipx.ClusteredDot6x6},
+	{dither.ClusteredDot6x6_2, ansipx.ClusteredDot6x6_2},
+	{dither.ClusteredDot6x6_3, ansipx.ClusteredDot6x6_3},
+	{dither.ClusteredDot8x8, ansipx.ClusteredDot8x8},
+	{dither.ClusteredDotDiagonal6x6, ansipx.ClusteredDotDiagonal6x6},
+	{dither.ClusteredDotDiagonal8x8, ansipx.ClusteredDotDiagonal8x8},
+	{dither.ClusteredDotDiagonal8x8_2, ansipx.ClusteredDotDiagonal8x8_2},
+	{dither.ClusteredDotDiagonal8x8_3, ansipx.ClusteredDotDiagonal8x8_3},
+	{dither.ClusteredDotDiagonal16x16, ansipx.ClusteredDotDiagonal16x16},
+	{dither.ClusteredDotHorizontalLine, ansipx.ClusteredDotHorizontalLine},
+	{dither.ClusteredDotVerticalLine, ansipx.ClusteredDotVerticalLine},
+	{dither.ClusteredDotSpiral5x5, ansipx.ClusteredDotSpiral5x5},
 }
 
-func convertClusteredDotMatrix(m dither.OrderedDitherMatrix) ansipic.ClusteredDotMatrix {
+func convertClusteredDotMatrix(m dither.OrderedDitherMatrix) ansipx.ClusteredDotMatrix {
 	for _, e := range clusteredDotEntries {
 		if orderedMatrixEqual(e.matrix, m) {
 			return e.value
 		}
 	}
-	return ansipic.ClusteredDot4x4
+	return ansipx.ClusteredDot4x4
 }
 
 func orderedMatrixEqual(a, b dither.OrderedDitherMatrix) bool {

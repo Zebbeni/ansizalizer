@@ -6,7 +6,7 @@ import (
 
 	"github.com/lucasb-eyer/go-colorful"
 
-	"github.com/Zebbeni/ansipic"
+	"github.com/Zebbeni/ansipx"
 	"github.com/Zebbeni/ansizalizer/controls/settings"
 )
 
@@ -20,7 +20,7 @@ func RenderImageFileWithBg(s settings.Model, imgFilePath string, solidBg *colorf
 	}
 
 	opts := settingsToOptionsWithBg(s, solidBg)
-	result, err := ansipic.RenderFile(imgFilePath, opts)
+	result, err := ansipx.RenderFile(imgFilePath, opts)
 	if err != nil {
 		return err.Error()
 	}
@@ -33,7 +33,7 @@ func RenderGIFFile(s settings.Model, imgFilePath string) ([]string, []time.Durat
 
 func RenderGIFFileWithBg(s settings.Model, imgFilePath string, solidBg *colorful.Color) ([]string, []time.Duration) {
 	opts := settingsToOptionsWithBg(s, solidBg)
-	frames, err := ansipic.RenderGIF(imgFilePath, opts)
+	frames, err := ansipx.RenderGIF(imgFilePath, opts)
 	if err != nil {
 		return []string{err.Error()}, []time.Duration{0}
 	}

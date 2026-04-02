@@ -131,7 +131,7 @@ Export all images in a directory as `.ansi` files with a single operation.
 
 ## Rendering Engine
 
-Ansizalizer uses [ansipic](https://github.com/Zebbeni/ansipic) as its rendering engine -- a standalone Go library for converting images to ANSI art. You can use ansipic independently in your own projects.
+Ansizalizer uses [ansipx](https://github.com/Zebbeni/ansipx) as its rendering engine -- a standalone Go library for converting images to ANSI art. You can use ansipx independently in your own projects.
 
 ## FAQ / Troubleshooting
 
