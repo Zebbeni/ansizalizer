@@ -1,8 +1,9 @@
 # Ansizalizer
 
 A versatile terminal UI application for converting images to ANSI art. Built with [Ansipx](https://github.com/Zebbeni/ansipx/tree/main) and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
-
-![Animated GIF](https://github.com/user-attachments/assets/fb364211-739e-428d-a58c-40a4482d987d)
+<img width="1005" alt="image" src="https://github.com/user-attachments/assets/089f847a-67a0-42d5-8548-b2a38b93f195" />
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/cc9c2b0a-6aad-4a5d-ab34-c3cd5ac8bdc7" />
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/49e6b118-3ae8-4dba-93d5-15549fdf71e7" />
 
 ## Features
 
@@ -71,18 +72,21 @@ Render with Unicode block characters, ASCII characters, or custom character sets
 ### Color Palettes
 
 Use true color (24-bit RGB) or limited palettes from Lospec.com. Generate palettes by sampling colors from any image.
-#### Lospec (ex. Mona Lisa | Iridescent Crystal)
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/c3a13577-72fb-4b53-93ab-0db53abee123" />
+#### Lospec (ex. Mona Lisa | Ammo8, Iridescent Crystal)
+<img height="500" alt="image" src="https://github.com/user-attachments/assets/86d82973-16f0-41e6-b738-a166d18756b3" />
+<img height="500" alt="image" src="https://github.com/user-attachments/assets/8ce8acee-233d-4649-b354-a778e38733b2" />
+
 
 ### Alpha Transparency
 
 Transparent pixels render as empty space. Partial transparency at edges uses the best-fit Unicode block character for smooth outlines.
+
 <img width="600" height="970" alt="image" src="https://github.com/user-attachments/assets/d3c331f5-cc69-4959-a928-35d9e70049b1" />
 
 ### Animated GIFs
 
 Preview animated GIFs frame-by-frame with adjustable delay.
-![cockpit_animation](https://github.com/user-attachments/assets/4ff246fc-1818-47e4-b2e2-9a141be51979)
+![Animated GIF](https://github.com/user-attachments/assets/fb364211-739e-428d-a58c-40a4482d987d)
 
 ### Themes
 
@@ -97,7 +101,8 @@ Switch between 6 built-in themes. Paletted themes derive colors from your select
 ### Batch Export
 
 Export all images in a directory as `.ansi` files with a single operation.
-<img width="1905" height="1043" alt="image" src="https://github.com/user-attachments/assets/ad4019a3-236e-4bc5-9422-30120b668702" />
+<img width="1915" height="1043" alt="image" src="https://github.com/user-attachments/assets/531b02c9-36b3-439f-993e-e9d8523b5c7a" />
+
 
 ## Render Settings
 
