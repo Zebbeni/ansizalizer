@@ -53,9 +53,6 @@ Run with `-debug` to enable logging to `console.log`:
 
 ## Screenshots
 
-### Image Browser and Preview
-<img width="700" alt="image" src="https://github.com/user-attachments/assets/a1484601-104a-4c04-b68e-4ccaa93d4186" />
-
 ### Character Modes
 
 Render with Unicode block characters, ASCII characters, or custom character sets.
