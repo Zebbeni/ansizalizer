@@ -1,9 +1,10 @@
 # Ansizalizer
 
 A versatile terminal UI application for converting images to ANSI art. Built with [Ansipx](https://github.com/Zebbeni/ansipx/tree/main) and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
-<img width="1005" alt="image" src="https://github.com/user-attachments/assets/089f847a-67a0-42d5-8548-b2a38b93f195" />
-<img width="500" alt="image" src="https://github.com/user-attachments/assets/cc9c2b0a-6aad-4a5d-ab34-c3cd5ac8bdc7" />
-<img width="500" alt="image" src="https://github.com/user-attachments/assets/49e6b118-3ae8-4dba-93d5-15549fdf71e7" />
+
+<img width="805" alt="image" src="https://github.com/user-attachments/assets/089f847a-67a0-42d5-8548-b2a38b93f195" />
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/cc9c2b0a-6aad-4a5d-ab34-c3cd5ac8bdc7" />
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/49e6b118-3ae8-4dba-93d5-15549fdf71e7" />
 
 ## Features
 
@@ -53,9 +54,6 @@ Run with `-debug` to enable logging to `console.log`:
 
 ## Screenshots
 
-### Image Browser and Preview
-<img width="700" alt="image" src="https://github.com/user-attachments/assets/a1484601-104a-4c04-b68e-4ccaa93d4186" />
-
 ### Character Modes
 
 Render with Unicode block characters, ASCII characters, or custom character sets.
@@ -73,8 +71,8 @@ Render with Unicode block characters, ASCII characters, or custom character sets
 
 Use true color (24-bit RGB) or limited palettes from Lospec.com. Generate palettes by sampling colors from any image.
 #### Lospec (ex. Mona Lisa | Ammo8, Iridescent Crystal)
-<img height="500" alt="image" src="https://github.com/user-attachments/assets/86d82973-16f0-41e6-b738-a166d18756b3" />
-<img height="500" alt="image" src="https://github.com/user-attachments/assets/8ce8acee-233d-4649-b354-a778e38733b2" />
+<img height="400" alt="image" src="https://github.com/user-attachments/assets/86d82973-16f0-41e6-b738-a166d18756b3" />
+<img height="400" alt="image" src="https://github.com/user-attachments/assets/8ce8acee-233d-4649-b354-a778e38733b2" />
 
 
 ### Alpha Transparency
