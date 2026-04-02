@@ -71,8 +71,8 @@ Render with Unicode block characters, ASCII characters, or custom character sets
 
 Use true color (24-bit RGB) or limited palettes from Lospec.com. Generate palettes by sampling colors from any image.
 #### Lospec (ex. Mona Lisa | Ammo8, Iridescent Crystal)
-<img height="500" alt="image" src="https://github.com/user-attachments/assets/86d82973-16f0-41e6-b738-a166d18756b3" />
-<img height="500" alt="image" src="https://github.com/user-attachments/assets/8ce8acee-233d-4649-b354-a778e38733b2" />
+<img height="400" alt="image" src="https://github.com/user-attachments/assets/86d82973-16f0-41e6-b738-a166d18756b3" />
+<img height="400" alt="image" src="https://github.com/user-attachments/assets/8ce8acee-233d-4649-b354-a778e38733b2" />
 
 
 ### Alpha Transparency
