@@ -101,8 +101,8 @@ func New() Model {
 		controls: controls.New(controlsWidth, p.Dirs),
 		display:  display.New(),
 		viewer:   viewer.New(),
-		w:        100,
-		h:        100,
+		w:        0,
+		h:        0,
 
 		prefs: p,
 
@@ -274,6 +274,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // │               Help                                      │
 // └─────────────────────────────────────────────────────────┘
 func (m Model) View() tea.View {
+	// Wait for the first WindowSizeMsg before rendering anything
+	if m.w == 0 || m.h == 0 {
+		sv := tea.NewView("")
+		sv.AltScreen = true
+		return sv
+	}
+
 	if m.state == Splash {
 		sv := tea.NewView(m.renderSplash())
 		sv.AltScreen = true

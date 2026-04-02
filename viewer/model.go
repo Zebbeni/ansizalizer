@@ -79,9 +79,14 @@ func (m Model) buildWrappedView() string {
 		if m.panelW == 0 || m.panelH == 0 {
 			return ""
 		}
+		displayHeight := 3
+		contentH := m.panelH - displayHeight - 4 // 2 for outer border, 2 for inner padding
+		if contentH < 1 {
+			contentH = 1
+		}
 		placeholder := style.BgStyle().
 			Foreground(style.ExtraDimColor).Italic(true).
-			Width(m.panelW - 2).Height(m.panelH - 2).
+			Width(m.panelW - 4).Height(contentH).
 			Align(lipgloss.Center).AlignVertical(lipgloss.Center).
 			Render("Select an image to preview")
 		return style.NormalButton.BorderForeground(style.DimmedColor1).BorderBackground(style.ActiveTheme.Bg).Render(placeholder)
