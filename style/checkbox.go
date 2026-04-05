@@ -7,7 +7,7 @@ import "charm.land/lipgloss/v2"
 func RenderCheckbox(label string, checked, focused bool) string {
 	checkChar := "☐"
 	if checked {
-		checkChar = "🗹"
+		checkChar = "☑"
 	}
 	labelStyle := DimmedTitle
 	checkStyle := DimmedTitle
@@ -24,7 +24,7 @@ func RenderCheckbox(label string, checked, focused bool) string {
 func RenderCheckboxFixedWidth(label string, checked, focused bool, labelWidth int) string {
 	checkChar := "☐"
 	if checked {
-		checkChar = "🗹"
+		checkChar = "☑"
 	}
 	labelStyle := DimmedTitle.Width(labelWidth)
 	checkStyle := DimmedTitle

@@ -293,7 +293,7 @@ func (m Model) updateExportBatch(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 func (m Model) renderSelectButton(dir string, focused bool) string {
-	label := "Select " + filepath.Base(dir) + " \U0001F5C0"
+	label := "Select " + filepath.Base(dir) + " \U0001F4C1"
 	btnStyle := style.DimmedTitle
 	if focused {
 		btnStyle = style.SelectedTitle

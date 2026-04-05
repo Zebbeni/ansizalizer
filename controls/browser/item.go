@@ -24,10 +24,10 @@ func (i item) FilterValue() string {
 
 func (i item) Title() string {
 	if i.isTop {
-		return fmt.Sprintf("⮤ 🗀  %s/", i.name)
+		return fmt.Sprintf("⮤ 📁  %s/", i.name)
 	}
 	if i.isDir {
-		return fmt.Sprintf("🗀  %s/", i.name)
+		return fmt.Sprintf("📁  %s/", i.name)
 	}
 	return i.name
 }

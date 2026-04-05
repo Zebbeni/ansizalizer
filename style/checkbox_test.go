@@ -14,8 +14,8 @@ func TestMain(m *testing.M) {
 
 func TestRenderCheckboxChecked(t *testing.T) {
 	result := RenderCheckbox("Test", true, false)
-	if !strings.Contains(result, "\U0001F5F9") { // 🗹
-		t.Error("checked checkbox should contain 🗹")
+	if !strings.Contains(result, "☑") {
+		t.Error("checked checkbox should contain ☑")
 	}
 }
 
