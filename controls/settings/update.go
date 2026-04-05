@@ -37,10 +37,14 @@ func (m Model) handleSettingsUpdate(msg tea.Msg) (Model, tea.Cmd) {
 // handleChildClose deactivates the current sub-component. If the triggering
 // message was a navigation key (Up/Down/Tab), re-dispatch it so the parent
 // settings list continues navigating. Esc just closes without re-dispatch.
+// handleChildClose deactivates the current sub-component. Down/Tab are
+// re-dispatched so the settings list continues navigating to the next item.
+// Up is NOT re-dispatched — focus stays on the submenu header so the user
+// lands on it before moving further up.
 func (m Model) handleChildClose(msg tea.Msg, cmd tea.Cmd) (Model, tea.Cmd) {
 	m.active = None
 	if keyMsg, ok := msg.(tea.KeyMsg); ok {
-		if key.Matches(keyMsg, event.KeyMap.Nav) {
+		if key.Matches(keyMsg, event.KeyMap.Down) || key.Matches(keyMsg, event.KeyMap.Tab) {
 			return m.handleSettingsUpdate(msg)
 		}
 	}
