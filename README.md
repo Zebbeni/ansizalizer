@@ -1,6 +1,6 @@
 # Ansizalizer
 
-A versatile terminal UI application for converting images to ANSI art. Built with [Ansipx](https://github.com/Zebbeni/ansipx/tree/main) and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
+A versatile terminal UI to convert images to ANSI art. Built with [Ansipx](https://github.com/Zebbeni/ansipx/tree/main) and [Bubble Tea](https://github.com/charmbracelet/bubbletea).
 
 <img width="805" alt="image" src="https://github.com/user-attachments/assets/089f847a-67a0-42d5-8548-b2a38b93f195" />
 <img width="400" alt="image" src="https://github.com/user-attachments/assets/cc9c2b0a-6aad-4a5d-ab34-c3cd5ac8bdc7" />
